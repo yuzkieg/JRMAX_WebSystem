@@ -1,0 +1,83 @@
+@extends('layouts.app')
+
+@section('content')
+
+<div class="relative min-h-screen flex items-center justify-center bg-cover bg-center px-6 py-20"
+     style="background-image: url('{{ asset('assets/homepage.jpg') }}');">
+
+    <div class="absolute inset-0 backdrop-blur-xl bg-white/10"></div>
+
+    <div class="w-full max-w-md bg-[#1A1F24] backdrop-blur-xl rounded-2xl shadow-2xl p-10 text-white
+            transform transition-all duration-500 hover:scale-[1.03] hover:shadow-3xl hover:-translate-y-1 cursor-pointer">
+
+        <a href="{{ url('/') }}"
+           class="absolute top-5 left-5 flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg shadow-md 
+          transition-all duration-200 border-b-2 border-transparent hover:border-red-600/80">
+            <img src="{{ asset('assets/home.png') }}" class="w-6 h-6" alt="Home Icon" />
+        </a>
+
+        <div class="flex flex-col items-center mb-5">
+            <img src="{{ asset('assets/logo.png') }}" class="w-30 h-30 mb-3" />
+        </div>
+
+        <h4 class="text-xl font-semibold mb-2 text-center">Be part of our travel journey.</h4>
+
+        {{-- START FORM --}}
+        <form method="POST" action="/login">
+            @csrf
+
+            <div class="mb-5">
+                <label class="block text-sm text-gray-300 mb-1">Email</label>
+                <input type="email" name="email"
+                       class="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-600
+                              text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+                       placeholder="Enter your email" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm text-gray-300 mb-1">Password</label>
+                <input type="password" name="password"
+                       class="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-600
+                              text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+                       placeholder="Enter your password" required>
+            </div>
+
+            <div class="mb-6 text-right">
+                <a href="#" class="text-sm text-red-400 hover:text-red-500 transition">Forgot Password?</a>
+            </div>
+
+            <button type="submit"
+                class="w-full py-3 rounded-lg text-lg font-semibold
+                       bg-gradient-to-r from-red-700 to-red-500
+                       hover:from-red-600 hover:to-red-400
+                       hover:shadow-xl active:scale-95 transition-all duration-300 cursor-pointer">
+                LOG IN
+            </button>
+        </form>
+        {{-- END FORM --}}
+
+        <!-- Google Sign In Button -->
+        <a href="{{ url('/auth/google') }}"
+           class="w-full flex items-center justify-center gap-3 py-3 mt-4 rounded-lg bg-white text-gray-700 font-semibold
+                 hover:bg-gray-200 active:scale-95 transition-all duration-300">
+
+            <img src="{{ asset('assets/google.png') }}" class="w-5 h-5" alt="Google Logo">
+            Continue with Google
+        </a>
+
+        <div class="flex items-center my-8">
+            <div class="flex-grow h-[1px] bg-gray-600"></div>
+            <span class="px-3 text-gray-400 text-sm">OR</span>
+            <div class="flex-grow h-[1px] bg-gray-600"></div>
+        </div>
+
+        <p class="text-center text-gray-300 text-sm">
+            Don't have an account?
+            <a href="#" class="text-red-400 hover:text-red-500 font-medium transition">Sign Up</a>
+        </p>
+
+    </div>
+
+</div>
+
+@endsection
