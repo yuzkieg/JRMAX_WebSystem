@@ -8,7 +8,7 @@
     <div class="absolute inset-0 backdrop-blur-xl bg-white/10"></div>
 
     <div class="w-full max-w-md bg-[#1A1F24] backdrop-blur-xl rounded-2xl shadow-2xl p-10 text-white
-            transform transition-all duration-500 hover:scale-[1.03] hover:shadow-3xl hover:-translate-y-1 cursor-pointer">
+            transform transition-all duration-500 hover:scale-[1.03] hover:shadow-3xl hover:-translate-y-1">
 
         <a href="{{ url('/') }}"
            class="absolute top-5 left-5 flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-lg shadow-md 

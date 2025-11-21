@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>JRMAX</title>
 
     @vite('resources/css/app.css')
@@ -15,31 +17,56 @@
         }
         .book-now-blur { backdrop-filter: blur(6px); }
 
-    
         html { scroll-behavior: smooth; }
-        
-        /* Slightly lighter than background for dark mode */
-.dark-card {
-    background-color: rgba(38, 43, 50, 0.85); /* subtle lift from bg */
+
+        /* Slightly lighter than dark background */
+        .dark-card {
+            background-color: rgba(38, 43, 50, 0.85);
+        }
+
+        /* Slightly darker than light background */
+        .light-card {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #theme-icon {
+            transition: transform 0.5s ease;
+        }
+        .rotate-360 {
+            transform: rotate(360deg);
+        }
+/* Light Mode Table */
+.light-table th,
+.light-table td {
+    background-color: rgba(255, 255, 255, 0.2); /* cell background */
+    color: black; /* text color */
+    border-color: rgba(0, 0, 0, 0.1); /* optional border */
 }
 
-/* Light mode card */
-.light-card {
-    background-color: rgba(255, 255, 255, 0.3);
+/* Dark Mode Table */
+.dark-table th,
+.dark-table td {
+    background-color: rgba(38, 43, 50, 0.6); /* cell background */
+    color: white; /* text color */
+    border-color: rgba(255, 255, 255, 0.1); /* optional border */
 }
 
-#theme-icon {
-    transition: transform 0.5s ease;
-}
-.rotate-180 {
-    transform: rotate(180deg);
+/* Optional: row hover effect */
+.light-table tr:hover td,
+.light-table tr:hover th {
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
-
-        
+.dark-table tr:hover td,
+.dark-table tr:hover th {
+    background-color: rgba(255, 255, 255, 0.05);
+}
     </style>
 </head>
-<body class="bg-white text-gray-900">
+
+<body class="transition-colors duration-500">
     @yield('content')
+
+    <script src="{{ asset('js/theme.js') }}"></script>
 </body>
 </html>
