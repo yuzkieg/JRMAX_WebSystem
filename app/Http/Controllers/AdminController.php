@@ -23,7 +23,7 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6', // Changed from min:8 to min:6 and removed 'confirmed'
+            'password' => 'required|string|min:8', // Changed from min:8 to min:6 and removed 'confirmed'
         ]);
 
         try {
@@ -79,7 +79,6 @@ class AdminController extends Controller
         }
     }
 
-    // Delete admin - KEEP THIS AS IS (it's already correct)
     public function destroy(Request $request, $id)
     {
         try {

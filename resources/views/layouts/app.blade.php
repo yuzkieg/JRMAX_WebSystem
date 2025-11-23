@@ -60,6 +60,13 @@
 .dark-table tr:hover td,
 .dark-table tr:hover th {
     background-color: rgba(255, 255, 255, 0.05);
+
+/* Prevent theme transition on page load */
+.notransition * {
+    transition: none !important;
+}
+
+    
 }
     </style>
 </head>

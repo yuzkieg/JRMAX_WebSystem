@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+@vite('resources/js/theme.js')
+
 
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
@@ -44,7 +46,20 @@
         <div id="errorMessage" class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 backdrop-blur-xl transition-all duration-300">
             ❌ {{ session('error') }}
         </div>
+
         @endif
+
+          {{-- Validation Errors --}}
+@if ($errors->any())
+    <div id="errorMessage" class="mb-6 p-4 bg-red-200/50 border border-red-300 rounded-xl text-red-800 backdrop-blur-xl transition-all duration-300">
+        <ul class="list-disc list-inside">
+            @foreach ($errors->all() as $error)
+                <li>❌ {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+      
 
         {{-- TOP HEADER --}}
         <div class="flex justify-between items-center mb-8">
@@ -150,7 +165,7 @@
         {{-- ADD/EDIT ADMIN MODAL --}}
         <div id="adminModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalBackdrop"></div>
-            <div id="modalCard" class="relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+            <div id="modalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
                 <h2 class="text-2xl font-bold text-red-500 mb-4">Add Admin</h2>
 
                 <form method="POST" action="{{ route('superadmin.admins.store') }}" id="adminForm">
@@ -188,7 +203,7 @@
        {{-- DELETE CONFIRMATION MODAL --}}
 <div id="deleteConfirmModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
     <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteModalBackdrop"></div>
-    <div id="deleteModalCard" class="relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+    <div id="deleteModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
         <div class="text-center mb-6">
             <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -371,7 +386,7 @@ class AdminModal {
 
     showDeleteConfirmation(id, name) {
         this.adminToDelete = id;
-        this.deleteConfirmText.textContent = `Are you sure you want to delete "${name}"? This action cannot be undone.`;
+        this.deleteConfirmText.textContent = `Are you sure you want to delete "${name}" ?`;
         
         // Reset password field and disable delete button
         this.superadminPasswordInput.value = '';
