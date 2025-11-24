@@ -22,7 +22,26 @@
 
         <h4 class="text-xl font-semibold mb-2 text-center">Be part of our travel journey.</h4>
 
-        {{-- START FORM --}}
+        {{-- SIMPLE ERROR MESSAGES --}}
+        @if($errors->any())
+        <div class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 text-center">
+            ❌ Invalid login credentials. Please try again.
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 text-center">
+            ❌ {{ session('error') }}
+        </div>
+        @endif
+
+        @if(session('success'))
+        <div class="mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 text-center">
+            ✅ {{ session('success') }}
+        </div>
+        @endif
+
+        {{-- LOGIN FORM --}}
         <form method="POST" action="/login">
             @csrf
 
@@ -31,7 +50,9 @@
                 <input type="email" name="email"
                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-600
                               text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                       placeholder="Enter your email" required>
+                       placeholder="Enter your email" 
+                       value="{{ old('email') }}"
+                       required>
             </div>
 
             <div class="mb-3">
@@ -39,7 +60,8 @@
                 <input type="password" name="password"
                        class="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-600
                               text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                       placeholder="Enter your password" required>
+                       placeholder="Enter your password" 
+                       required>
             </div>
 
             <div class="mb-6 text-right">
@@ -54,10 +76,9 @@
                 LOG IN
             </button>
         </form>
-        {{-- END FORM --}}
 
         <!-- Google Sign In Button -->
-        <a href="{{ url('/auth/google') }}"
+        <a href="{{ route('google.login') }}"
            class="w-full flex items-center justify-center gap-3 py-3 mt-4 rounded-lg bg-white text-gray-700 font-semibold
                  hover:bg-gray-200 active:scale-95 transition-all duration-300">
 
@@ -79,5 +100,16 @@
     </div>
 
 </div>
+
+<script>
+// Simple auto-hide messages after 5 seconds
+setTimeout(() => {
+    const messages = document.querySelectorAll('[class*="bg-red-600"], [class*="bg-green-600"]');
+    messages.forEach(message => {
+        message.style.opacity = '0';
+        setTimeout(() => message.remove(), 300);
+    });
+}, 5000);
+</script>
 
 @endsection

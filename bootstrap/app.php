@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\SuperAdminMiddleware;
+use App\Http\Middleware\EmployeeMiddleware;
 use Illuminate\Foundation\Application;
-use App\Http\Middleware\EnsureTokenIsValid;
+use App\Http\Controllers\AdminController;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Alias for custom middleware (pass as array!)
         $middleware->alias([
             'superadmin' => SuperAdminMiddleware::class,
+            'admin' => AdminMiddleware::class,
+            'employee' => EmployeeMiddleware::class,
         ]);
     })
     ->withExceptions(function ($exceptions): void {

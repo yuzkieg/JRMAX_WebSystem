@@ -21,7 +21,7 @@ class AdminController extends Controller
     {
         // Remove password confirmation since form doesn't have it
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8', // Changed from min:8 to min:6 and removed 'confirmed'
         ]);
@@ -50,7 +50,7 @@ class AdminController extends Controller
 
         // Remove password confirmation since form doesn't have it
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:100',
             'email' => [
                 'required',
                 'email',

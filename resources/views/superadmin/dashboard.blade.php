@@ -1,8 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-@vite('resources/js/theme.js')
-
+@vite('resources/css/app.css')
 
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
@@ -35,32 +34,6 @@
     {{-- MAIN CONTENT --}}
     <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
 
-        {{-- SUCCESS/ERROR MESSAGES --}}
-        @if(session('success'))
-        <div id="successMessage" class="mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-xl transition-all duration-300">
-            ✅ {{ session('success') }}
-        </div>
-        @endif
-
-        @if(session('error'))
-        <div id="errorMessage" class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 backdrop-blur-xl transition-all duration-300">
-            ❌ {{ session('error') }}
-        </div>
-
-        @endif
-
-          {{-- Validation Errors --}}
-@if ($errors->any())
-    <div id="errorMessage" class="mb-6 p-4 bg-red-200/50 border border-red-300 rounded-xl text-red-800 backdrop-blur-xl transition-all duration-300">
-        <ul class="list-disc list-inside">
-            @foreach ($errors->all() as $error)
-                <li>❌ {{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-      
-
         {{-- TOP HEADER --}}
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-red-500 drop-shadow-lg">JRMAX Car Rentals Inc.</h1>
@@ -82,6 +55,66 @@
                 </form>
             </div>
         </div>
+
+        {{-- SUCCESS/ERROR MESSAGES --}}
+        @if(session('success'))
+        <div id="successMessage" class="mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-sm transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div id="errorMessage" class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 backdrop-blur-sm transition-all duration-300">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ session('error') }}</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-red-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        @endif
+
+        @if ($errors->any())
+        <div id="validationErrors" class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 backdrop-blur-sm transition-all duration-300">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-semibold">Please fix the following errors:</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-red-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <ul class="mt-2 ml-6 list-disc text-sm space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
 
         {{-- DASHBOARD CARDS --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -166,75 +199,89 @@
         <div id="adminModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalBackdrop"></div>
             <div id="modalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4">Add Admin</h2>
+                <h2 class="text-2xl font-bold text-red-500 mb-4" id="modalTitle">Add Admin</h2>
+
+                {{-- CLIENT-SIDE VALIDATION MESSAGES --}}
+                <div id="clientSideErrors" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">
+                    <ul id="clientErrorList"></ul>
+                </div>
 
                 <form method="POST" action="{{ route('superadmin.admins.store') }}" id="adminForm">
-    @csrf
-    <input type="hidden" name="_method" id="hidden_method" value="POST">
-    <input type="hidden" name="admin_id" id="admin_id">
-    <div class="mb-4">
-        <label class="block font-semibold mb-1">Name</label>
-        <input type="text" name="name" id="admin_name" required
-               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-               placeholder="Enter admin name">
-    </div>
-    <div class="mb-4">
-        <label class="block font-semibold mb-1">Email</label>
-        <input type="email" name="email" id="admin_email" required
-               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-               placeholder="Enter admin email">
-    </div>
-    <div class="mb-4" id="passwordField">
-        <label class="block font-semibold mb-1">Password</label>
-        <input type="password" name="password" id="admin_password"
-               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-               placeholder="Enter password">
-    </div>
+                    @csrf
+                    <input type="hidden" name="_method" id="hidden_method" value="POST">
+                    <input type="hidden" name="admin_id" id="admin_id">
+                    
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">Name</label>
+                        <input type="text" name="name" id="admin_name" required
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter admin name">
+                        <span class="text-red-400 text-sm hidden" id="nameError"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-1">Email</label>
+                        <input type="email" name="email" id="admin_email" required
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter admin email">
+                        <span class="text-red-400 text-sm hidden" id="emailError"></span>
+                    </div>
+                    
+                    <div class="mb-4" id="passwordField">
+                        <label class="block font-semibold mb-1">Password</label>
+                        <input type="password" name="password" id="admin_password"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter password">
+                        <span class="text-red-400 text-sm hidden" id="passwordError"></span>
+                    </div>
 
-    
-    <div class="flex justify-end mt-6 gap-3">
-        <button type="button" id="closeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
-        <button type="submit" id="submitBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Save</button>
-    </div>
-</form>
+                    <div class="flex justify-end mt-6 gap-3">
+                        <button type="button" id="closeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
+                        <button type="submit" id="submitBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Save</button>
+                    </div>
+                </form>
             </div>
         </div>
 
-       {{-- DELETE CONFIRMATION MODAL --}}
-<div id="deleteConfirmModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
-    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteModalBackdrop"></div>
-    <div id="deleteModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
-            <p class="text-gray-300 mb-4" id="deleteConfirmText">Are you sure you want to delete this admin?</p>
-            
-            {{-- Password Input --}}
-            <div class="mb-4 text-left">
-                <input type="password" id="superadminPassword" 
-                       class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-                       placeholder="Enter your password to confirm"
-                       required>
-                <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
-            </div>
-        </div>
+        {{-- DELETE CONFIRMATION MODAL --}}
+        <div id="deleteConfirmModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteModalBackdrop"></div>
+            <div id="deleteModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
+                    <p class="text-gray-300 mb-4" id="deleteConfirmText">Are you sure you want to delete this admin?</p>
+                    
+                    {{-- SIMPLE DELETE ERROR MESSAGE --}}
+                    <div id="deleteError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm text-center">
+                        <span id="deleteErrorText"></span>
+                    </div>
+                    
+                    {{-- Password Input --}}
+                    <div class="mb-4 text-left">
+                        <input type="password" id="superadminPassword" 
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter your password to confirm"
+                               required>
+                        <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
+                    </div>
+                </div>
 
-        <div class="flex justify-end gap-3 mt-6">
-            <button type="button" id="cancelDeleteBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
-            <button type="button" id="confirmDeleteBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200 opacity-50 " disabled>Delete</button>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" id="cancelDeleteBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
+                    <button type="button" id="confirmDeleteBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200 opacity-50" disabled>Delete</button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
     </main>
 </div>
 
 @endsection
-
 
 <script>
 class AdminModal {
@@ -243,6 +290,8 @@ class AdminModal {
         this.modalCard = document.getElementById('modalCard');
         this.backdrop = document.getElementById('modalBackdrop');
         this.form = document.getElementById('adminForm');
+        this.clientSideErrors = document.getElementById('clientSideErrors');
+        this.clientErrorList = document.getElementById('clientErrorList');
         this.isEditMode = false;
 
         // Delete modal elements
@@ -252,10 +301,10 @@ class AdminModal {
         this.deleteConfirmText = document.getElementById('deleteConfirmText');
         this.confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         this.cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        this.deleteError = document.getElementById('deleteError');
+        this.deleteErrorText = document.getElementById('deleteErrorText');
         
         this.adminToDelete = null;
-        
-        // Correct password input reference
         this.superadminPasswordInput = document.getElementById('superadminPassword');
 
         this.initializeEvents();
@@ -275,6 +324,9 @@ class AdminModal {
         this.backdrop.addEventListener('click', () => {
             this.closeModal();
         });
+
+        // Form validation
+        this.form.addEventListener('submit', (e) => this.validateForm(e));
 
         // Edit buttons
         document.querySelectorAll('.edit-admin-btn').forEach(button => {
@@ -339,7 +391,9 @@ class AdminModal {
     openModal() {
         this.isEditMode = false;
         this.resetForm();
-        document.getElementById('modalCard').querySelector('h2').textContent = 'Add Admin';
+        this.clearErrors();
+        
+        document.getElementById('modalTitle').textContent = 'Add Admin';
         document.getElementById('passwordField').style.display = 'block';
         document.getElementById('admin_password').required = true;
         document.getElementById('submitBtn').textContent = 'Save';
@@ -350,15 +404,15 @@ class AdminModal {
     openEditModal(id, name, email) {
         this.isEditMode = true;
         this.resetForm();
+        this.clearErrors();
         
         this.form.setAttribute('action', `/superadmin/admins/${id}`);
         this.form.querySelector('input[name="_method"]').value = 'PUT';
-         
         
         document.getElementById('admin_id').value = id;
         document.getElementById('admin_name').value = name;
         document.getElementById('admin_email').value = email;
-        document.getElementById('modalCard').querySelector('h2').textContent = 'Edit Admin';
+        document.getElementById('modalTitle').textContent = 'Edit Admin';
         document.getElementById('passwordField').style.display = 'none';
         document.getElementById('admin_password').required = false;
         document.getElementById('submitBtn').textContent = 'Update';
@@ -381,12 +435,14 @@ class AdminModal {
         setTimeout(() => {
             this.modal.classList.add('hidden');
             this.resetForm();
+            this.clearErrors();
         }, 300);
     }
 
     showDeleteConfirmation(id, name) {
         this.adminToDelete = id;
-        this.deleteConfirmText.textContent = `Are you sure you want to delete "${name}" ?`;
+        this.deleteConfirmText.textContent = `Are you sure you want to delete "${name}"?`;
+        this.hideDeleteError();
         
         // Reset password field and disable delete button
         this.superadminPasswordInput.value = '';
@@ -419,45 +475,67 @@ class AdminModal {
         }
     }
 
-    // Confirm delete with password
-    confirmDelete() {
+    // Show delete error
+    showDeleteError(message) {
+        this.deleteErrorText.textContent = message;
+        this.deleteError.classList.remove('hidden');
+    }
+
+    // Hide delete error
+    hideDeleteError() {
+        this.deleteError.classList.add('hidden');
+    }
+
+    // SIMPLIFIED DELETE CONFIRMATION
+    async confirmDelete() {
         if (this.adminToDelete && !this.confirmDeleteBtn.disabled) {
             const password = this.superadminPasswordInput.value.trim();
             
             if (!password) {
-                alert('Please enter your password to confirm deletion.');
+                this.showDeleteError('Please enter your password.');
                 return;
             }
 
-            // Create a form for deletion with password
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/superadmin/admins/${this.adminToDelete}`;
-            
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            const methodField = document.createElement('input');
-            methodField.type = 'hidden';
-            methodField.name = '_method';
-            methodField.value = 'DELETE';
-            
-            // Add password field
-            const passwordField = document.createElement('input');
-            passwordField.type = 'hidden';
-            passwordField.name = 'superadmin_password';
-            passwordField.value = password;
-            
-            form.appendChild(csrfToken);
-            form.appendChild(methodField);
-            form.appendChild(passwordField);
-            document.body.appendChild(form);
-            form.submit();
+            // Show loading state
+            this.confirmDeleteBtn.textContent = 'Deleting...';
+            this.confirmDeleteBtn.disabled = true;
+
+            try {
+                // Simple form submission instead of JSON
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/superadmin/admins/${this.adminToDelete}`;
+                
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                const methodField = document.createElement('input');
+                methodField.type = 'hidden';
+                methodField.name = '_method';
+                methodField.value = 'DELETE';
+                
+                const passwordField = document.createElement('input');
+                passwordField.type = 'hidden';
+                passwordField.name = 'superadmin_password';
+                passwordField.value = password;
+                
+                form.appendChild(csrfToken);
+                form.appendChild(methodField);
+                form.appendChild(passwordField);
+                document.body.appendChild(form);
+                
+                // Submit the form - let Laravel handle the response
+                form.submit();
+                
+            } catch (error) {
+                // If there's an error, just show a simple message
+                this.showDeleteError('Something went wrong. Please try again.');
+                this.confirmDeleteBtn.textContent = 'Delete';
+                this.confirmDeleteBtn.disabled = false;
+            }
         }
-        
-        this.hideDeleteConfirmation();
     }
 
     hideDeleteConfirmation() {
@@ -467,8 +545,10 @@ class AdminModal {
         setTimeout(() => {
             this.deleteModal.classList.add('hidden');
             this.adminToDelete = null;
-            // Clear password field
             this.superadminPasswordInput.value = '';
+            this.hideDeleteError();
+            // Reset delete button text
+            this.confirmDeleteBtn.textContent = 'Delete';
         }, 300);
     }
 
@@ -479,11 +559,88 @@ class AdminModal {
         document.getElementById('admin_password').required = true;
     }
 
+    clearErrors() {
+        // Clear client-side errors
+        this.clientSideErrors.classList.add('hidden');
+        this.clientErrorList.innerHTML = '';
+
+        // Clear individual field errors
+        const errorElements = document.querySelectorAll('[id$="Error"]');
+        errorElements.forEach(element => {
+            element.classList.add('hidden');
+            element.textContent = '';
+        });
+    }
+
+    showError(field, message) {
+        const errorElement = document.getElementById(field + 'Error');
+        if (errorElement) {
+            errorElement.textContent = message;
+            element.classList.remove('hidden');
+        }
+    }
+
+    validateForm(e) {
+        this.clearErrors();
+        
+        let isValid = true;
+        const errors = [];
+
+        // Required field validation
+        const name = document.getElementById('admin_name').value.trim();
+        const email = document.getElementById('admin_email').value.trim();
+        const password = document.getElementById('admin_password').value;
+
+        if (!name) {
+            this.showError('name', 'Name is required');
+            errors.push('Name is required');
+            isValid = false;
+        }
+
+        if (!email) {
+            this.showError('email', 'Email is required');
+            errors.push('Email is required');
+            isValid = false;
+        } else if (!this.isValidEmail(email)) {
+            this.showError('email', 'Please enter a valid email address');
+            errors.push('Please enter a valid email address');
+            isValid = false;
+        }
+
+        if (!this.isEditMode && !password) {
+            this.showError('password', 'Password is required');
+            errors.push('Password is required');
+            isValid = false;
+        } else if (!this.isEditMode && password && password.length < 8) {
+            this.showError('password', 'Password must be at least 8 characters long');
+            errors.push('Password must be at least 8 characters long');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Show client-side errors summary
+            if (errors.length > 0) {
+                this.clientErrorList.innerHTML = errors.map(error => `<li>${error}</li>`).join('');
+                this.clientSideErrors.classList.remove('hidden');
+            }
+        }
+
+        return isValid;
+    }
+
+    isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
     autoHideMessages() {
         // Auto-hide success/error messages after 5 seconds
         setTimeout(() => {
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
+            const validationErrors = document.getElementById('validationErrors');
             
             if (successMessage) {
                 successMessage.style.opacity = '0';
@@ -493,6 +650,11 @@ class AdminModal {
             if (errorMessage) {
                 errorMessage.style.opacity = '0';
                 setTimeout(() => errorMessage.remove(), 300);
+            }
+
+            if (validationErrors) {
+                validationErrors.style.opacity = '0';
+                setTimeout(() => validationErrors.remove(), 300);
             }
         }, 5000);
     }

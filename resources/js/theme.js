@@ -14,8 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
             document.head.appendChild(style);
         }
         style.innerHTML = `
-            #adminModal input::placeholder,
-            #deleteConfirmModal input::placeholder,
+            .modal-content input::placeholder,
+            .modal-content textarea::placeholder,
+            .modal-content select::placeholder,
             #searchInput::placeholder {
                 color: ${color} !important;
             }
@@ -54,9 +55,19 @@ document.addEventListener("DOMContentLoaded", () => {
             searchInput.classList.toggle('bg-gray-200', mode === 'light');
             searchInput.classList.toggle('bg-black/20', mode !== 'light');
         }
+        // -------------------- Modal text elements --------------------
+document.querySelectorAll('.modal-content p, .modal-content span, .modal-content label').forEach(el => {
+    if (mode === 'light') {
+        el.classList.remove('text-white', 'text-gray-300', 'text-gray-400');
+        el.classList.add('text-black');
+    } else {
+        el.classList.remove('text-black');
+        el.classList.add('text-gray-300');
+    }
+});
 
         // -------------------- Modal input fields --------------------
-        document.querySelectorAll('#adminModal input, #deleteConfirmModal input').forEach(input => {
+        document.querySelectorAll('.modal-content input, .modal-content textarea, .modal-content select').forEach(input => {
             if (mode === 'light') {
                 input.classList.remove('text-white', 'bg-black/20');
                 input.classList.add('text-black', 'bg-gray-200');
@@ -67,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // -------------------- Delete modal labels & paragraphs --------------------
-        document.querySelectorAll('#deleteConfirmModal input, #deleteConfirmModal label, #deleteConfirmModal p').forEach(el => {
+        document.querySelectorAll('.modal-content input, .modal-content label, .modal-content p, .modal-content select').forEach(el => {
             if (mode === 'light') {
                 if (el.tagName === 'INPUT') {
                     el.classList.remove('text-white', 'bg-black/20');

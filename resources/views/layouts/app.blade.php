@@ -8,6 +8,8 @@
     <title>JRMAX</title>
 
     @vite('resources/css/app.css')
+    @vite('resources/js/theme.js')
+
 
     <style>
         .header-blur { backdrop-filter: blur(6px); }
@@ -74,6 +76,5 @@
 <body class="transition-colors duration-500">
     @yield('content')
 
-    <script src="{{ asset('js/theme.js') }}"></script>
 </body>
 </html>
