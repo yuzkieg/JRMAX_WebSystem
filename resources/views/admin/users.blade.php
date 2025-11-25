@@ -17,6 +17,7 @@
                 ['name' => 'Analysis', 'url' => '/admin/adminanalysis'],
                 ['name' => 'HR Management', 'url' => '/admin/adminhr'],
                 ['name' => 'Vehicle Management', 'url' => '/admin/vehicles'],
+                ['name' => 'Vehicle Maintenance', 'url' => '/admin/vehiclemaintenance'],
                 ['name' => 'User Management', 'url' => '/admin/users'],
                 ['name' => 'Reports', 'url' => '/admin/reports'],
                 ['name' => 'Booking', 'url' => '/admin/booking'],
@@ -50,7 +51,7 @@
                 {{-- Logout --}}
                 <form method="POST" action="/logout">
                     @csrf
-                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
+                    <button class="cursor-pointer flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
                         <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
                         <span>Logout</span>
                     </button>
@@ -107,7 +108,7 @@
                    focus:ring-2 focus:ring-red-500 transition-all duration-300"
                    id="searchInput">
 
-            <button data-action="add-employee" class="px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
+            <button data-action="add-employee" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
                 + Add User
             </button>
         </div>
@@ -130,7 +131,7 @@
                         <td class="p-4">{{ $employee->email }}</td>
                         <td class="p-4">{{ ucfirst($employee->role) }}</td>
                         <td class="p-4 text-center flex justify-center gap-3">
-                            <button class="px-4 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-employee-btn"
+                            <button class="cursor-pointer px-4 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-employee-btn"
                                     data-id="{{ $employee->id }}"
                                     data-name="{{ $employee->name }}"
                                     data-email="{{ $employee->email }}"
@@ -138,7 +139,7 @@
                                 Edit
                             </button>
 
-                            <button class="px-4 py-1 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-employee-btn"
+                            <button class="cursor-pointer px-4 py-1 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-employee-btn"
                                     data-id="{{ $employee->id }}"
                                     data-name="{{ $employee->name }}">
                                 Delete
@@ -170,14 +171,14 @@
                     <div class="mb-4">
                         <label class="block font-semibold mb-1">Name</label>
                         <input type="text" name="name" id="employee_name" required
-                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Enter name">
                         <span class="text-red-400 text-sm hidden" id="nameError"></span>
                     </div>
 
                     <div class="mb-4">
                         <label class="block font-semibold mb-1">Email</label>
                         <input type="email" name="email" id="employee_email" required
-                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Enter email">
                         <span class="text-red-400 text-sm hidden" id="emailError"></span>
                     </div>
 
@@ -234,7 +235,7 @@
                         </svg>
                     </div>
                     <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
-                    <p class="text-gray-300 mb-4">Enter your password to confirm deletion of <span id="deleteEmployeeName" class="font-semibold"></span>.</p>
+                    <p class="text-gray-300 mb-4">Enter your password to confirm deletion of "<span id="deleteEmployeeName" class="font-semibold"></span>"</p>
                     
                     {{-- DELETE ERROR MESSAGE --}}
                     <div id="deleteError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">

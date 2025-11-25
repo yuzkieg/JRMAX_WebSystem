@@ -234,6 +234,13 @@
                                placeholder="Enter password">
                         <span class="text-red-400 text-sm hidden" id="passwordError"></span>
                     </div>
+                    <div class="mb-4" id="passwordConfirmField">
+                        <label class="block font-semibold mb-1">Confirm Password</label>
+                        <input type="password" name="password_confirmation" id="admin_password_confirmation"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Confirm password">
+                        <span class="text-red-400 text-sm hidden" id="passwordConfirmError"></span>
+                    </div>
 
                     <div class="flex justify-end mt-6 gap-3">
                         <button type="button" id="closeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
@@ -244,39 +251,63 @@
         </div>
 
         {{-- DELETE CONFIRMATION MODAL --}}
-        <div id="deleteConfirmModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteModalBackdrop"></div>
-            <div id="deleteModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
-                    <p class="text-gray-300 mb-4" id="deleteConfirmText">Are you sure you want to delete this admin?</p>
-                    
-                    {{-- SIMPLE DELETE ERROR MESSAGE --}}
-                    <div id="deleteError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm text-center">
-                        <span id="deleteErrorText"></span>
-                    </div>
-                    
-                    {{-- Password Input --}}
-                    <div class="mb-4 text-left">
-                        <input type="password" id="superadminPassword" 
-                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-                               placeholder="Enter your password to confirm"
-                               required>
-                        <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
-                    </div>
-                </div>
+<div id="deleteConfirmModal" 
+     class="fixed inset-0 flex items-center justify-center z-60 hidden">
 
-                <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" id="cancelDeleteBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
-                    <button type="button" id="confirmDeleteBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200 opacity-50" disabled>Delete</button>
-                </div>
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteModalBackdrop"></div>
+
+    <div id="deleteModalCard" 
+         class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] 
+                transform scale-90 opacity-0 transition-all duration-300">
+
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                </svg>
+            </div>
+
+            <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
+            <p class="text-gray-300 mb-4" id="deleteConfirmText">
+                Are you sure you want to delete this admin?
+            </p>
+
+            {{-- SIMPLE DELETE ERROR MESSAGE --}}
+            <div id="deleteError" 
+                 class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg 
+                        text-red-300 text-sm text-center">
+                <span id="deleteErrorText"></span>
+            </div>
+
+            {{-- Password Input --}}
+            <div class="mb-4 text-left">
+                <input type="password" id="superadminPassword"
+                       class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                              focus:ring-2 focus:ring-red-500"
+                       placeholder="Enter your password to confirm" required>
+                <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
             </div>
         </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+            <button type="button" id="cancelDeleteBtn"
+                    class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 
+                           rounded-lg text-white transition-all duration-200">
+                Cancel
+            </button>
+
+            <button type="button" id="confirmDeleteBtn"
+                    class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 
+                           rounded-lg text-white transition-all duration-200
+                           opacity-50" disabled>
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
 
     </main>
 </div>
@@ -294,6 +325,17 @@ class AdminModal {
         this.clientErrorList = document.getElementById('clientErrorList');
         this.isEditMode = false;
 
+        // password inputs for validation
+        this.passwordInput = document.getElementById('admin_password');
+        this.passwordConfirmInput = document.getElementById('admin_password_confirmation');
+
+        // store initial form metadata to allow full reset
+        this.initialFormAction = this.form.getAttribute('action');
+        this.initialMethodValue = this.form.querySelector('input[name="_method"]').value || 'POST';
+        this.initialPasswordPlaceholder = this.passwordInput?.placeholder || 'Enter password';
+        this.initialPasswordConfirmPlaceholder = this.passwordConfirmInput?.placeholder || 'Confirm password';
+        this.initialSubmitBtnText = document.getElementById('submitBtn')?.textContent || 'Save';
+
         // Delete modal elements
         this.deleteModal = document.getElementById('deleteConfirmModal');
         this.deleteModalCard = document.getElementById('deleteModalCard');
@@ -308,6 +350,31 @@ class AdminModal {
         this.superadminPasswordInput = document.getElementById('superadminPassword');
 
         this.initializeEvents();
+    }
+
+    validatePasswords() {
+        const password = this.passwordInput?.value || '';
+        const confirm = this.passwordConfirmInput?.value || '';
+
+        if (!this.isEditMode) {
+            // add mode: both required and must match
+            if (password && confirm && password !== confirm) {
+                this.showError('passwordConfirm', 'Passwords do not match');
+                return false;
+            }
+            this.hideError('passwordConfirm');
+            return true;
+        } else {
+            // edit mode: only validate if one is filled
+            if (password || confirm) {
+                if (password !== confirm) {
+                    this.showError('passwordConfirm', 'Passwords do not match');
+                    return false;
+                }
+            }
+            this.hideError('passwordConfirm');
+            return true;
+        }
     }
 
     initializeEvents() {
@@ -327,6 +394,10 @@ class AdminModal {
 
         // Form validation
         this.form.addEventListener('submit', (e) => this.validateForm(e));
+
+        // Real-time password match validation
+        this.passwordInput?.addEventListener('input', () => this.validatePasswords());
+        this.passwordConfirmInput?.addEventListener('input', () => this.validatePasswords());
 
         // Edit buttons
         document.querySelectorAll('.edit-admin-btn').forEach(button => {
@@ -395,7 +466,9 @@ class AdminModal {
         
         document.getElementById('modalTitle').textContent = 'Add Admin';
         document.getElementById('passwordField').style.display = 'block';
+        document.getElementById('passwordConfirmField').style.display = 'block';
         document.getElementById('admin_password').required = true;
+        document.getElementById('admin_password_confirmation').required = true;
         document.getElementById('submitBtn').textContent = 'Save';
         
         this.showModal();
@@ -413,8 +486,17 @@ class AdminModal {
         document.getElementById('admin_name').value = name;
         document.getElementById('admin_email').value = email;
         document.getElementById('modalTitle').textContent = 'Edit Admin';
-        document.getElementById('passwordField').style.display = 'none';
+        // Show password fields for optional password change during edit
+        document.getElementById('passwordField').style.display = 'block';
+        document.getElementById('passwordConfirmField').style.display = 'block';
+        // Make password fields optional in edit mode
         document.getElementById('admin_password').required = false;
+        document.getElementById('admin_password_confirmation').required = false;
+        // Clear placeholders and values for edit mode
+        document.getElementById('admin_password').value = '';
+        document.getElementById('admin_password_confirmation').value = '';
+        document.getElementById('admin_password').placeholder = 'Enter new password (optional)';
+        document.getElementById('admin_password_confirmation').placeholder = 'Confirm new password (optional)';
         document.getElementById('submitBtn').textContent = 'Update';
         
         this.showModal();
@@ -497,7 +579,10 @@ class AdminModal {
             }
 
             // Show loading state
+            this.confirmDeleteBtn.textContent = 'Deleting.';
+            this.confirmDeleteBtn.textContent = 'Deleting..';
             this.confirmDeleteBtn.textContent = 'Deleting...';
+            this.confirmDeleteBtn.textContent = 'Deleting....';
             this.confirmDeleteBtn.disabled = true;
 
             try {
@@ -553,10 +638,41 @@ class AdminModal {
     }
 
     resetForm() {
+        // Reset DOM form values
         this.form.reset();
+
+        // Restore stored form action and method (undo edit changes)
+        if (this.initialFormAction) {
+            this.form.setAttribute('action', this.initialFormAction);
+        }
+        const methodField = this.form.querySelector('input[name="_method"]');
+        if (methodField) {
+            methodField.value = this.initialMethodValue || 'POST';
+        }
+
+        // Clear IDs and values that may have been set in edit mode
         document.getElementById('admin_id').value = '';
-        document.getElementById('passwordField').style.display = 'block';
-        document.getElementById('admin_password').required = true;
+        if (this.passwordInput) {
+            this.passwordInput.value = '';
+            this.passwordInput.placeholder = this.initialPasswordPlaceholder;
+            this.passwordInput.required = true;
+        }
+        if (this.passwordConfirmInput) {
+            this.passwordConfirmInput.value = '';
+            this.passwordConfirmInput.placeholder = this.initialPasswordConfirmPlaceholder;
+            this.passwordConfirmInput.required = true;
+        }
+
+        // Ensure password fields are visible for add mode
+        const pwField = document.getElementById('passwordField');
+        const pwConfirmField = document.getElementById('passwordConfirmField');
+        if (pwField) pwField.style.display = 'block';
+        if (pwConfirmField) pwConfirmField.style.display = 'block';
+
+        // Restore submit button and edit flag
+        const submitBtn = document.getElementById('submitBtn');
+        if (submitBtn) submitBtn.textContent = this.initialSubmitBtnText || 'Save';
+        this.isEditMode = false;
     }
 
     clearErrors() {
@@ -576,7 +692,15 @@ class AdminModal {
         const errorElement = document.getElementById(field + 'Error');
         if (errorElement) {
             errorElement.textContent = message;
-            element.classList.remove('hidden');
+            errorElement.classList.remove('hidden');
+        }
+    }
+
+    hideError(field) {
+        const errorElement = document.getElementById(field + 'Error');
+        if (errorElement) {
+            errorElement.classList.add('hidden');
+            errorElement.textContent = '';
         }
     }
 
@@ -590,6 +714,7 @@ class AdminModal {
         const name = document.getElementById('admin_name').value.trim();
         const email = document.getElementById('admin_email').value.trim();
         const password = document.getElementById('admin_password').value;
+        const confirmPassword = document.getElementById('admin_password_confirmation')?.value || '';
 
         if (!name) {
             this.showError('name', 'Name is required');
@@ -607,14 +732,43 @@ class AdminModal {
             isValid = false;
         }
 
-        if (!this.isEditMode && !password) {
-            this.showError('password', 'Password is required');
-            errors.push('Password is required');
-            isValid = false;
-        } else if (!this.isEditMode && password && password.length < 8) {
-            this.showError('password', 'Password must be at least 8 characters long');
-            errors.push('Password must be at least 8 characters long');
-            isValid = false;
+        if (!this.isEditMode) {
+            if (!password) {
+                this.showError('password', 'Password is required');
+                errors.push('Password is required');
+                isValid = false;
+            } else if (password.length < 8) {
+                this.showError('password', 'Password must be at least 8 characters long');
+                errors.push('Password must be at least 8 characters long');
+                isValid = false;
+            }
+
+            if (!confirmPassword) {
+                this.showError('passwordConfirm', 'Please confirm your password');
+                errors.push('Please confirm your password');
+                isValid = false;
+            }
+
+            if (password && confirmPassword && password !== confirmPassword) {
+                this.showError('passwordConfirm', 'Passwords do not match');
+                errors.push('Passwords do not match');
+                isValid = false;
+            }
+        } else {
+            // edit mode
+            if (password || confirmPassword) {
+                if (password.length > 0 && password.length < 8) {
+                    this.showError('password', 'Password must be at least 8 characters long');
+                    errors.push('Password must be at least 8 characters long');
+                    isValid = false;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('passwordConfirm', 'Passwords do not match');
+                    errors.push('Passwords do not match');
+                    isValid = false;
+                }
+            }
         }
 
         if (!isValid) {

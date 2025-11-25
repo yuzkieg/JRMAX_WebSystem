@@ -6,6 +6,12 @@ use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\FleetController;
+use App\Http\Controllers\BookingOfficerController;
+
+
+
 
 // Public homepage
 Route::get('/', fn() => view('webdefault'));
@@ -19,13 +25,10 @@ Route::get('/layout', fn() => view('superadmin.layout'));
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('google.callback');
 
-// Superadmin routes (protected)
 Route::middleware(['web', 'superadmin'])->group(function () {
-    // Fixed: Using index method instead of dashboard
     Route::get('/superadmin/dashboard', [AdminController::class, 'index'])
          ->name('superadmin.dashboard');
 
-    // Admin management routes
     Route::post('/superadmin/admins', [AdminController::class, 'store'])
         ->name('superadmin.admins.store');
     
@@ -51,5 +54,26 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::post('/admin/employees', [EmployeeController::class, 'store'])->name('admin.employees.store');
     Route::put('/admin/employees/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
     Route::delete('/admin/employees/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+
+});
+
+Route::middleware(['web', 'fleet_assistant'])->group(function () {
+
+    Route::get('/employee/booking/bookingdash', [BookingOfficerController::class, 'index'])
+        ->name('employee.booking.bookingdash');
+
+});
+
+Route::middleware(['web', 'booking_officer'])->group(function () {
+
+    Route::get('/employee/fleet/fleetdash', [FleetController::class, 'index'])
+        ->name('employee.fleet.fleetdash');
+
+});
+
+Route::middleware(['web', 'user'])->group(function () {
+
+    Route::get('/user/dashboard', [UserController::class, 'index'])
+        ->name('user.dashboard');
 
 });

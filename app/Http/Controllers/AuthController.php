@@ -35,11 +35,21 @@ public function login(Request $request)
     }
 
     if ($user->role === 'admin') {
-    return redirect('/admin/adminanalysis');
+    return redirect('/admin/adminanalysis'); 
 }
+if ($user->role === 'fleet_assistant') {
+    return redirect('/employee/booking/bookingdash'); 
+}
+if ($user->role === 'booking_officer') {
+    return redirect('/employee/fleet/fleetdash'); 
+}
+    if ($user->role === 'user') {
 
-    return redirect('/user/dashboard'); // normal user dashboard
+    return redirect('/user/dashboard'); 
 }
+        return redirect('/');
+
+    }
 
     return back()->withErrors(['email' => 'Invalid credentials']);
 }
@@ -73,7 +83,9 @@ public function login(Request $request)
 
             if ($user->role === 'superadmin') return redirect('/superadmin/dashboard');
             if ($user->role === 'admin') return redirect('/admin/adminanalysis');
-
+            if ($user->role === 'fleet_assistant') return redirect('/employee/booking/bookingdash');
+            if ($user->role === 'booking_officer') return redirect('/employee/fleet/fleetdash');
+            if ($user->role === 'user') return redirect('/user/dashboard');
             return redirect('/'); // normal user dashboard
 
         } catch (\Exception $e) {

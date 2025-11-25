@@ -82,13 +82,11 @@ class AdminController extends Controller
     public function destroy(Request $request, $id)
     {
         try {
-            // Verify superadmin password exists
             if (!$request->has('superadmin_password') || empty($request->superadmin_password)) {
                 return redirect()->route('superadmin.dashboard')
                                 ->with('error', 'Password is required to confirm deletion.');
             }
 
-            // Verify superadmin password is correct
             if (!Hash::check($request->superadmin_password, auth()->user()->password)) {
                 return redirect()->route('superadmin.dashboard')
                                 ->with('error', 'Invalid password. Deletion cancelled.');
@@ -96,13 +94,11 @@ class AdminController extends Controller
 
             $admin = User::findOrFail($id);
             
-            // Prevent deleting yourself
             if ($admin->id === auth()->id()) {
                 return redirect()->route('superadmin.dashboard')
                                 ->with('error', 'You cannot delete your own account.');
             }
 
-            // Prevent deleting the last admin
             $adminCount = User::where('role', 'admin')->count();
             if ($adminCount <= 1) {
                 return redirect()->route('superadmin.dashboard')

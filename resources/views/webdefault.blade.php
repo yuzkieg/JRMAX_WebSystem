@@ -2,7 +2,7 @@
 
     @section('content')
 
-    @vite(['resources/js/app.js', 'resources/js/smooth-scroll.js', 'resources/css/app.css'])
+    @vite(['resources/js/app.js', 'resources/js/theme', 'resources/css/app.css'])
 
 
     {{-- HEADER --}}
@@ -111,8 +111,8 @@
                 </div>
 
 
-                {{-- Button --}}
-            <div class="flex items-end">
+                <div class="flex items-end">
+    <a href="/login" class="w-full">
         <button class="booknowbtn w-full py-4 rounded-md bg-gradient-to-r from-red-700 to-red-500
             drop-shadow-[0_6px_12px_rgba(255,255,255,0.45)]
             hover:drop-shadow-[0_10px_20px_rgba(255,255,255,0.65)]
@@ -120,7 +120,8 @@
             transition-all duration-300 cursor-pointer">
             Book Now
         </button>
-    </div>
+    </a>
+</div>
 
                 </div>
 

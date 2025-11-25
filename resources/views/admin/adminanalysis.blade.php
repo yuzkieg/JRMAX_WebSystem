@@ -17,6 +17,7 @@
                 ['name' => 'Analysis', 'url' => '/admin/adminanalysis'],
                 ['name' => 'HR Management', 'url' => '/admin/adminhr'],
                 ['name' => 'Vehicle Management', 'url' => '/admin/vehicles'],
+                ['name' => 'Vehicle Maintenance', 'url' => '/admin/vehiclemaintenance'],
                 ['name' => 'User Management', 'url' => '/admin/users'],
                 ['name' => 'Reports', 'url' => '/admin/reports'],
                 ['name' => 'Booking', 'url' => '/admin/booking'],

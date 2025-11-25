@@ -3,8 +3,8 @@
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Middleware\EmployeeMiddleware;
+use App\Http\Middleware\UserMiddleware;
 use Illuminate\Foundation\Application;
-use App\Http\Controllers\AdminController;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,7 +32,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'superadmin' => SuperAdminMiddleware::class,
             'admin' => AdminMiddleware::class,
-            'employee' => EmployeeMiddleware::class,
+            'fleet_assistant' => EmployeeMiddleware::class,
+            'booking_officer' => EmployeeMiddleware::class,
+            'user' => UserMiddleware::class,
         ]);
     })
     ->withExceptions(function ($exceptions): void {
