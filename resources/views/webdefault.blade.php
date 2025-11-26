@@ -47,7 +47,7 @@
         <div class="relative z-10 flex flex-col items-center text-center text-white pt-28 space-y-6 max-w-4xl mx-auto px-6">
             <p class="tracking-widest text-2xl lg:text-3xl font-light">Rent. Drive. Explore.</p>
 
-            <h1 class="text-red-600 text-[70px] sm:text-[90px] lg:text-[120px] font-black italic drop-shadow-xl leading-[1]">
+            <h1 class="text-red-600 text-[70px] sm:text-[90px] lg:text-[170px] font-black italic drop-shadow-xl leading-[1]">
                 JRMAX
             </h1>
 

@@ -46,7 +46,10 @@ Route::middleware(['web', 'admin'])->group(function () {
 
     Route::get('/admin/users', [EmployeeController::class, 'usermanagement'])
         ->name('admin.users');
+
     Route::get('/admin/adminhr', fn() => view('admin.adminhr'));
+    Route::get('/admin/vehicles', fn() => view('admin.vehicles'));
+
 
  
 

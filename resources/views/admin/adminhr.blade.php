@@ -60,9 +60,9 @@
         </div>
 
         {{-- TOP NAVIGATION: Employees / Drivers --}}
-        <div class="flex gap-4 mb-6">
-            <button class="px-6 py-2 bg-red-700 hover:bg-red-500 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Employees</button>
-            <button class="px-6 py-2 bg-black/30 hover:bg-red-600/40 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Drivers</button>
+        <div class="flex gap-4 mb-6" role="tablist" aria-label="HR navigation">
+            <button id="navEmployees" data-type="employee" class="cursor-pointer px-6 py-2 bg-red-700 hover:bg-red-500 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Employees</button>
+            <button id="navDrivers" data-type="driver" class="cursor-pointer px-6 py-2 bg-black/30 hover:bg-red-600/40 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Drivers</button>
         </div>
 
         {{-- SEARCH AND ADD EMPLOYEE --}}
@@ -72,8 +72,8 @@
                    focus:ring-2 focus:ring-red-500 transition-all duration-300"
                    id="searchInput">
 
-            <button data-action="add-employee" class="px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
-                + Add User
+            <button id="addHrBtn" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
+                + Add Employee
             </button>
         </div>
 
@@ -88,29 +88,8 @@
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="employeeTable" class="text-white">
-                    <!-- @foreach($employees as $employee)
-                    <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
-                        <td class="p-4">{{ $employee->name }}</td>
-                        <td class="p-4">{{ $employee->email }}</td>
-                        <td class="p-4">{{ ucfirst($employee->role) }}</td>
-                        <td class="p-4 text-center flex justify-center gap-3">
-                            <button class="px-4 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-employee-btn"
-                                    data-id="{{ $employee->id }}"
-                                    data-name="{{ $employee->name }}"
-                                    data-email="{{ $employee->email }}"
-                                    data-role="{{ $employee->role }}">
-
-                                Edit
-                            </button>
-                            <button class="px-4 py-1 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-employee-btn"
-                                    data-id="{{ $employee->id }}"
-                                    data-name="{{ $employee->name }}">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
-                    @endforeach -->
+                <tbody id="hrTable" class="text-white">
+                    <!-- rows rendered by JS -->
                 </tbody>
             </table>
         </div>
@@ -173,8 +152,8 @@
                            placeholder="Enter your password"
                            class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 mb-4">
                     <div class="flex justify-end gap-3">
-                        <button type="button" id="cancelDeleteEmployeeBtn" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Delete</button>
+                        <button type="button" id="cancelDeleteEmployeeBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
+                        <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Delete</button>
                     </div>
                 </form>
             </div>
@@ -184,6 +163,55 @@
 </div>
 
 <script>
+// Temporary static data for HR management (employees and drivers)
+const tempEmployees = [
+    {id: 1, name: 'Alice Johnson', email: 'alice.johnson@example.com', role: 'Booking Officer'},
+    {id: 2, name: 'Bob Martinez', email: 'bob.martinez@example.com', role: 'Fleet Assistant'},
+    {id: 3, name: 'Carol Smith', email: 'carol.smith@example.com', role: 'Booking Officer'},
+];
+
+const tempDrivers = [
+    {id: 101, name: 'Daniel Driver', email: 'daniel.driver@example.com', role: 'driver'},
+    {id: 102, name: 'Eva Wheels', email: 'eva.wheels@example.com', role: 'driver'},
+];
+
+let activeHrType = 'employee'; // 'employee' or 'driver'
+
+function renderHrTable() {
+    const tbody = document.getElementById('hrTable');
+    tbody.innerHTML = '';
+    const data = activeHrType === 'employee' ? tempEmployees : tempDrivers;
+
+    data.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
+
+        tr.innerHTML = `
+            <td class="p-4">${item.name}</td>
+            <td class="p-4">${item.email}</td>
+            <td class="p-4">${item.role === 'driver' ? 'Driver' : (item.role || '')}</td>
+            <td class="p-4 text-center flex justify-center gap-3">
+                <button class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-hr-btn"
+                        data-id="${item.id}"
+                        data-name="${item.name}"
+                        data-email="${item.email}"
+                        data-role="${item.role}"
+                        data-type="${activeHrType}">
+                        <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
+                        </button>
+
+                <button class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-hr-btn"
+                        data-id="${item.id}"
+                        data-name="${item.name}"
+                        data-type="${activeHrType}">
+                        <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
+                        </button>
+            </td>`;
+
+        tbody.appendChild(tr);
+    });
+}
+
 class EmployeeModal {
     constructor() {
         this.modal = document.getElementById('employeeModal');
@@ -191,40 +219,54 @@ class EmployeeModal {
         this.backdrop = document.getElementById('employeeBackdrop');
         this.form = document.getElementById('employeeForm');
         this.initializeEvents();
+        this.currentType = 'employee';
     }
 
     initializeEvents() {
-        document.querySelector('[data-action="add-employee"]').addEventListener('click', () => this.openModal());
+        // Add button toggles depending on active type
+        document.getElementById('addHrBtn').addEventListener('click', () => this.openModal(activeHrType));
         document.getElementById('closeEmployeeModalBtn').addEventListener('click', () => this.closeModal());
         this.backdrop.addEventListener('click', () => this.closeModal());
 
-        document.querySelectorAll('.edit-employee-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.openEditModal(btn.dataset.id, btn.dataset.name, btn.dataset.email, btn.dataset.role));
+        // Delegate edit clicks (rows re-render)
+        document.addEventListener('click', (e) => {
+            const editBtn = e.target.closest('.edit-hr-btn');
+            if (editBtn) {
+                this.openEditModal(editBtn.dataset.type, editBtn.dataset.id, editBtn.dataset.name, editBtn.dataset.email, editBtn.dataset.role);
+            }
         });
     }
 
-    openModal() {
+    openModal(type = 'employee') {
+        this.currentType = type;
         this.resetForm();
-        document.querySelector('#employeeModalCard h2').textContent = 'Add Employee';
+        const title = type === 'driver' ? 'Add Driver' : 'Add Employee';
+        document.querySelector('#employeeModalCard h2').textContent = title;
         document.getElementById('employee_role').value = '';
         document.getElementById('employee_password_field').style.display = 'block';
-        this.form.action = '{{ route("admin.employees.store") }}';
+        // For temporary data UI we don't submit to server - keep action as-is or use placeholder
+        this.form.action = '#';
         this.form.querySelector('#employee_hidden_method').value = 'POST';
+        document.getElementById('submitEmployeeBtn').textContent = type === 'driver' ? 'Save Driver' : 'Save';
         this.showModal();
     }
 
-    openEditModal(id, name, email, role) {
-    this.resetForm();
-    document.querySelector('#employeeModalCard h2').textContent = 'Edit Employee';
-    document.getElementById('employee_password_field').style.display = 'none';
-    this.form.action = '{{ route("admin.employees.update", ":id") }}'.replace(':id', id);
-    this.form.querySelector('#employee_hidden_method').value = 'PUT';
-    document.getElementById('employee_id').value = id;
-    document.getElementById('employee_name').value = name;
-    document.getElementById('employee_email').value = email;
-    document.getElementById('employee_role').value = role || '';
-    this.showModal();
-}
+    openEditModal(type = 'employee', id, name, email, role) {
+        this.currentType = type;
+        this.resetForm();
+        const title = type === 'driver' ? 'Edit Driver' : 'Edit Employee';
+        document.querySelector('#employeeModalCard h2').textContent = title;
+        // For edit in temporary UI we hide the password field
+        document.getElementById('employee_password_field').style.display = 'none';
+        this.form.action = '#';
+        this.form.querySelector('#employee_hidden_method').value = 'PUT';
+        document.getElementById('employee_id').value = id;
+        document.getElementById('employee_name').value = name;
+        document.getElementById('employee_email').value = email;
+        document.getElementById('employee_role').value = role || '';
+        document.getElementById('submitEmployeeBtn').textContent = type === 'driver' ? 'Update Driver' : 'Update';
+        this.showModal();
+    }
 
     showModal() {
         this.modal.classList.remove('hidden');
@@ -258,16 +300,23 @@ class DeleteEmployeeModal {
     }
 
     initializeEvents() {
-        document.querySelectorAll('.delete-employee-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.openModal(btn.dataset.id, btn.dataset.name));
+        // Delegate since rows are dynamic
+        document.addEventListener('click', (e) => {
+            const delBtn = e.target.closest('.delete-hr-btn');
+            if (delBtn) {
+                this.openModal(delBtn.dataset.type, delBtn.dataset.id, delBtn.dataset.name);
+            }
         });
         document.getElementById('cancelDeleteEmployeeBtn').addEventListener('click', () => this.closeModal());
         this.backdrop.addEventListener('click', () => this.closeModal());
     }
 
-    openModal(id, name) {
+    openModal(type = 'employee', id, name) {
+        this.currentType = type;
+        this.currentId = id;
         this.nameSpan.textContent = name;
-        this.form.action = '{{ route("admin.employees.destroy", ":id") }}'.replace(':id', id);
+        // For temporary UI we won't submit to server; keep action placeholder
+        this.form.action = '#';
         this.modal.classList.remove('hidden');
         setTimeout(() => {
             this.modalCard.classList.remove('scale-90', 'opacity-0');
@@ -286,20 +335,94 @@ class DeleteEmployeeModal {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new EmployeeModal();
-    new DeleteEmployeeModal();
+    const empModal = new EmployeeModal();
+    const delModal = new DeleteEmployeeModal();
+
+    // Navigation toggle
+    const navEmployees = document.getElementById('navEmployees');
+    const navDrivers = document.getElementById('navDrivers');
+
+    function setActive(type) {
+        activeHrType = type;
+        // style active buttons
+        if (type === 'employee') {
+            navEmployees.classList.add('bg-red-700');
+            navEmployees.classList.remove('bg-black/30');
+            navDrivers.classList.remove('bg-red-700');
+            navDrivers.classList.add('bg-black/30');
+            document.getElementById('addHrBtn').textContent = '+ Add Employee';
+        } else {
+            navDrivers.classList.add('bg-red-700');
+            navDrivers.classList.remove('bg-black/30');
+            navEmployees.classList.remove('bg-red-700');
+            navEmployees.classList.add('bg-black/30');
+            document.getElementById('addHrBtn').textContent = '+ Add Driver';
+        }
+        renderHrTable();
+    }
+
+    navEmployees.addEventListener('click', () => setActive('employee'));
+    navDrivers.addEventListener('click', () => setActive('driver'));
+
+    // initial render
+    setActive(activeHrType);
 
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            document.querySelectorAll('#employeeTable tr').forEach(row => {
+            document.querySelectorAll('#hrTable tr').forEach(row => {
                 const name = row.cells[0]?.textContent.toLowerCase() || '';
                 const email = row.cells[1]?.textContent.toLowerCase() || '';
                 row.style.display = (name.includes(term) || email.includes(term)) ? '' : 'none';
             });
         });
     }
+
+    // Handle add/save in the modal (temporary data update)
+    document.getElementById('employeeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('employee_id').value;
+        const name = document.getElementById('employee_name').value.trim();
+        const email = document.getElementById('employee_email').value.trim();
+        const role = document.getElementById('employee_role').value || (activeHrType === 'driver' ? 'driver' : '');
+
+        if (!name || !email) return;
+
+        if (!id) {
+            // Add new
+            const newId = Date.now();
+            const item = {id: newId, name, email, role};
+            if (activeHrType === 'employee') tempEmployees.push(item);
+            else tempDrivers.push(item);
+        } else {
+            // Update existing
+            const data = activeHrType === 'employee' ? tempEmployees : tempDrivers;
+            const idx = data.findIndex(d => String(d.id) === String(id));
+            if (idx !== -1) {
+                data[idx].name = name; data[idx].email = email; data[idx].role = role;
+            }
+        }
+
+        renderHrTable();
+        empModal.closeModal();
+    });
+
+    // Handle delete form submission (temporary remove)
+    document.getElementById('deleteEmployeeForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = delModal.currentId;
+        const type = delModal.currentType || activeHrType;
+        if (type === 'employee') {
+            const idx = tempEmployees.findIndex(d => String(d.id) === String(id));
+            if (idx !== -1) tempEmployees.splice(idx, 1);
+        } else {
+            const idx = tempDrivers.findIndex(d => String(d.id) === String(id));
+            if (idx !== -1) tempDrivers.splice(idx, 1);
+        }
+        renderHrTable();
+        delModal.closeModal();
+    });
 });
 </script>
 @endsection

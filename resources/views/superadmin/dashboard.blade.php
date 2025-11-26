@@ -174,18 +174,18 @@
                             <td class="p-4 text-red-400 font-semibold uppercase">{{ $admin->role }}</td>
                             <td class="p-4 text-center flex justify-center gap-3">
                                 <button 
-                                    class="cursor-pointer px-4 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-admin-btn"
+                                    class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-admin-btn"
                                     data-id="{{ $admin->id }}"
                                     data-name="{{ $admin->name }}"
                                     data-email="{{ $admin->email }}">
-                                    Edit
+                                    <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
                                 </button>
 
                                 <button type="button"
-                                        class="cursor-pointer px-4 py-1 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-admin-btn"
+                                        class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-admin-btn"
                                         data-id="{{ $admin->id }}"
                                         data-name="{{ $admin->name }}">
-                                    Delete
+                                    <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
                                 </button>
                             </td>
                         </tr>
