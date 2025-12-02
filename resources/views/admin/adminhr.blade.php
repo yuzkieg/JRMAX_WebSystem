@@ -17,7 +17,7 @@
                 ['name' => 'Analysis', 'url' => '/admin/adminanalysis'],
                 ['name' => 'HR Management', 'url' => '/admin/adminhr'],
                 ['name' => 'Vehicle Management', 'url' => '/admin/vehicles'],
-                ['name' => 'Vehicle Maintenance', 'url' => '/admin/vehiclemaintenance'],
+                ['name' => 'Vehicle Maintenance', 'url' => '/admin/maintenance'],
                 ['name' => 'User Management', 'url' => '/admin/users'],
                 ['name' => 'Reports', 'url' => '/admin/reports'],
                 ['name' => 'Booking', 'url' => '/admin/booking'],
@@ -40,7 +40,6 @@
         {{-- HEADER --}}
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-red-500 drop-shadow-lg">HR Management</h1>
-
             <div class="flex items-center space-x-4">
                 {{-- Theme Toggle --}}
                 <button id="theme-toggle" class="flex items-center gap-2 bg-black/30 backdrop-blur-xl p-2 rounded-lg hover:bg-[#998282] transition-all duration-300 cursor-pointer">
@@ -51,7 +50,7 @@
                 {{-- Logout --}}
                 <form method="POST" action="/logout">
                     @csrf
-                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
+                    <button class="cursor-pointer flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
                         <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
                         <span>Logout</span>
                     </button>
@@ -59,37 +58,127 @@
             </div>
         </div>
 
+        {{-- SUCCESS/ERROR MESSAGES --}}
+        @if(session('success'))
+            <div id="successMessage" class="mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-sm transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div id="errorMessage" class="mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300 backdrop-blur-sm transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Please fix the following errors:</span>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-red-300 hover:text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <ul class="mt-2 ml-6 list-disc text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- TOP NAVIGATION: Employees / Drivers --}}
         <div class="flex gap-4 mb-6" role="tablist" aria-label="HR navigation">
             <button id="navEmployees" data-type="employee" class="cursor-pointer px-6 py-2 bg-red-700 hover:bg-red-500 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Employees</button>
             <button id="navDrivers" data-type="driver" class="cursor-pointer px-6 py-2 bg-black/30 hover:bg-red-600/40 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Drivers</button>
         </div>
 
-        {{-- SEARCH AND ADD EMPLOYEE --}}
+        {{-- SEARCH AND ADD --}}
         <div class="flex justify-between items-center mb-6">
-            <input type="text" placeholder="Search users..."
+            <input type="text" placeholder="Search..." id="searchInput"
                    class="w-80 p-3 rounded-xl bg-black/20 text-white placeholder-gray-300 outline-none 
-                   focus:ring-2 focus:ring-red-500 transition-all duration-300"
-                   id="searchInput">
+                   focus:ring-2 focus:ring-red-500 transition-all duration-300">
 
             <button id="addHrBtn" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
                 + Add Employee
             </button>
         </div>
 
-        {{-- EMPLOYEE TABLE --}}
+        {{-- TABLE --}}
         <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
             <table class="w-full text-left">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                     <tr>
                         <th class="p-4">Name</th>
                         <th class="p-4">Email</th>
-                        <th class="p-4">Position</th>
+                        <th class="p-4" id="thirdColumnHeader">Position / License</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="hrTable" class="text-white">
-                    <!-- rows rendered by JS -->
+                    @foreach($employeesrecord as $employee)
+                        <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
+                            <td class="p-4">{{ $employee->name }}</td>
+                            <td class="p-4">{{ $employee->email }}</td>
+                            <td class="p-4">{{ $employee->position }}</td>
+                            <td class="p-4 text-center flex justify-center gap-3">
+                                <button class="edit-btn cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
+                                        data-type="employee"
+                                        data-id="{{ $employee->id }}"
+                                        data-name="{{ $employee->name }}"
+                                        data-email="{{ $employee->email }}"
+                                        data-role="{{ $employee->position }}">
+                                    <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
+                                </button>
+
+                                <button class="delete-btn cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
+                                        data-type="employee"
+                                        data-id="{{ $employee->id }}"
+                                        data-name="{{ $employee->name }}">
+                                    <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
+
+                    @foreach($drivers as $driver)
+                        <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
+                            <td class="p-4">{{ $driver->name }}</td>
+                            <td class="p-4">{{ $driver->email }}</td>
+                            <td class="p-4">{{ $driver->license_num }}</td>
+                            <td class="p-4 text-center flex justify-center gap-3">
+                                <button class="edit-btn cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
+                                        data-type="driver"
+                                        data-id="{{ $driver->id }}"
+                                        data-name="{{ $driver->name }}"
+                                        data-email="{{ $driver->email }}"
+                                        data-license="{{ $driver->license_num }}"
+                                        data-date="{{ $driver->dateadded }}">
+                                    <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
+                                </button>
+
+                                <button class="delete-btn cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
+                                        data-type="driver"
+                                        data-id="{{ $driver->id }}"
+                                        data-name="{{ $driver->name }}">
+                                    <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
+                                </button>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -98,39 +187,57 @@
         <div id="employeeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="employeeBackdrop"></div>
             <div id="employeeModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4">Add Employee</h2>
-                <form method="POST" action="{{ route('admin.employees.store') }}" id="employeeForm">
+                <h2 class="text-2xl font-bold text-red-500 mb-4" id="modalTitle">Add Employee</h2>
+                
+                {{-- CLIENT-SIDE VALIDATION MESSAGES --}}
+                <div id="clientSideErrors" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">
+                    <ul id="clientErrorList"></ul>
+                </div>
+
+                <form method="POST" id="employeeForm">
                     @csrf
                     <input type="hidden" name="_method" id="employee_hidden_method" value="POST">
-                    <input type="hidden" name="employee_id" id="employee_id">
+                    <input type="hidden" name="id" id="employee_id">
+
                     <div class="mb-4">
                         <label class="block font-semibold mb-1">Name</label>
                         <input type="text" name="name" id="employee_name" required
                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-                               placeholder="Enter employee name">
+                               placeholder="Enter name">
+                        <span class="text-red-400 text-sm hidden" id="nameError"></span>
                     </div>
                     <div class="mb-4">
                         <label class="block font-semibold mb-1">Email</label>
                         <input type="email" name="email" id="employee_email" required
                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-                               placeholder="Enter employee email">
+                               placeholder="Enter email">
+                        <span class="text-red-400 text-sm hidden" id="emailError"></span>
                     </div>
-                    <div class="mb-4">
-    <label class="block font-semibold mb-1">Role</label>
-    <select name="role" id="employee_role" required
-            class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
-        <option value="" disabled selected>Select role</option>
-        <option value="booking_officer">Booking Officer</option>
-        <option value="fleet_assistant">Fleet Assistant</option>
-    </select>
-</div>
 
-                    <div class="mb-4" id="employee_password_field">
-                        <label class="block font-semibold mb-1">Password</label>
-                        <input type="password" name="password" id="employee_password"
-                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
-                               placeholder="Enter password">
+                    <div class="mb-4" id="positionField">
+                        <label class="block font-semibold mb-1">Position</label>
+                        <select name="position" id="employee_role" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            <option value="" disabled selected>Select position</option>
+                            <option value="Booking Officer">Booking Officer</option>
+                            <option value="Fleet Assistant">Fleet Assistant</option>
+                        </select>
+                        <span class="text-red-400 text-sm hidden" id="positionError"></span>
                     </div>
+
+                    <div class="mb-4" id="licenseField" style="display:none;">
+                        <label class="block font-semibold mb-1">License No.</label>
+                        <input type="text" name="license_num" id="employee_license"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter license number">
+                        <span class="text-red-400 text-sm hidden" id="licenseError"></span>
+                    </div>
+
+                    <div class="mb-4" id="dateAddedField" style="display:none;">
+                        <label class="block font-semibold mb-1">Date Added</label>
+                        <input type="date" name="dateadded" id="driver_dateadded"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                    </div>
+
                     <div class="flex justify-end mt-6 gap-3">
                         <button type="button" id="closeEmployeeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
                         <button type="submit" id="submitEmployeeBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Save</button>
@@ -139,290 +246,411 @@
             </div>
         </div>
 
-        {{-- DELETE MODAL --}}
-        <div id="deleteEmployeeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deleteEmployeeBackdrop"></div>
-            <div class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4">Confirm Delete</h2>
-                <p class="mb-4 text-white">Enter your password to confirm deletion of <span id="deleteEmployeeName" class="font-semibold"></span>.</p>
-                <form method="POST" id="deleteEmployeeForm">
-                    @csrf
-                    @method('DELETE')
-                    <input type="password" name="admin_password" required
-                           placeholder="Enter your password"
-                           class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 mb-4">
-                    <div class="flex justify-end gap-3">
-                        <button type="button" id="cancelDeleteEmployeeBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
-                        <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Delete</button>
+        {{-- DELETE MODAL WITH PASSWORD CONFIRMATION --}}
+        <div id="deleteEmployeeModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteEmployeeBackdrop"></div>
+
+            <form id="deleteEmployeeForm" method="POST" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+                @csrf
+                <input type="hidden" name="_method" value="DELETE">
+
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
                     </div>
-                </form>
-            </div>
+                    <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
+                    <p class="text-gray-300 mb-4">Enter your password to confirm deletion of "<span id="deleteEmployeeName" class="font-semibold"></span>"</p>
+                    
+                    {{-- DELETE ERROR MESSAGE --}}
+                    <div id="deleteError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
+                        <span id="deleteErrorText"></span>
+                    </div>
+                    
+                    {{-- Password Input --}}
+                    <div class="mb-4 text-left">
+                        <input type="password" name="admin_password" required
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter your password to confirm">
+                        <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" id="cancelDeleteEmployeeBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
+                    <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Delete</button>
+                </div>
+            </form>
         </div>
 
     </main>
 </div>
 
 <script>
-// Temporary static data for HR management (employees and drivers)
-const tempEmployees = [
-    {id: 1, name: 'Alice Johnson', email: 'alice.johnson@example.com', role: 'Booking Officer'},
-    {id: 2, name: 'Bob Martinez', email: 'bob.martinez@example.com', role: 'Fleet Assistant'},
-    {id: 3, name: 'Carol Smith', email: 'carol.smith@example.com', role: 'Booking Officer'},
-];
-
-const tempDrivers = [
-    {id: 101, name: 'Daniel Driver', email: 'daniel.driver@example.com', role: 'driver'},
-    {id: 102, name: 'Eva Wheels', email: 'eva.wheels@example.com', role: 'driver'},
-];
-
-let activeHrType = 'employee'; // 'employee' or 'driver'
-
-function renderHrTable() {
-    const tbody = document.getElementById('hrTable');
-    tbody.innerHTML = '';
-    const data = activeHrType === 'employee' ? tempEmployees : tempDrivers;
-
-    data.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
-
-        tr.innerHTML = `
-            <td class="p-4">${item.name}</td>
-            <td class="p-4">${item.email}</td>
-            <td class="p-4">${item.role === 'driver' ? 'Driver' : (item.role || '')}</td>
-            <td class="p-4 text-center flex justify-center gap-3">
-                <button class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-hr-btn"
-                        data-id="${item.id}"
-                        data-name="${item.name}"
-                        data-email="${item.email}"
-                        data-role="${item.role}"
-                        data-type="${activeHrType}">
-                        <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
-                        </button>
-
-                <button class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-hr-btn"
-                        data-id="${item.id}"
-                        data-name="${item.name}"
-                        data-type="${activeHrType}">
-                        <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
-                        </button>
-            </td>`;
-
-        tbody.appendChild(tr);
-    });
-}
-
-class EmployeeModal {
-    constructor() {
-        this.modal = document.getElementById('employeeModal');
-        this.modalCard = document.getElementById('employeeModalCard');
-        this.backdrop = document.getElementById('employeeBackdrop');
-        this.form = document.getElementById('employeeForm');
-        this.initializeEvents();
-        this.currentType = 'employee';
-    }
-
-    initializeEvents() {
-        // Add button toggles depending on active type
-        document.getElementById('addHrBtn').addEventListener('click', () => this.openModal(activeHrType));
-        document.getElementById('closeEmployeeModalBtn').addEventListener('click', () => this.closeModal());
-        this.backdrop.addEventListener('click', () => this.closeModal());
-
-        // Delegate edit clicks (rows re-render)
-        document.addEventListener('click', (e) => {
-            const editBtn = e.target.closest('.edit-hr-btn');
-            if (editBtn) {
-                this.openEditModal(editBtn.dataset.type, editBtn.dataset.id, editBtn.dataset.name, editBtn.dataset.email, editBtn.dataset.role);
-            }
-        });
-    }
-
-    openModal(type = 'employee') {
-        this.currentType = type;
-        this.resetForm();
-        const title = type === 'driver' ? 'Add Driver' : 'Add Employee';
-        document.querySelector('#employeeModalCard h2').textContent = title;
-        document.getElementById('employee_role').value = '';
-        document.getElementById('employee_password_field').style.display = 'block';
-        // For temporary data UI we don't submit to server - keep action as-is or use placeholder
-        this.form.action = '#';
-        this.form.querySelector('#employee_hidden_method').value = 'POST';
-        document.getElementById('submitEmployeeBtn').textContent = type === 'driver' ? 'Save Driver' : 'Save';
-        this.showModal();
-    }
-
-    openEditModal(type = 'employee', id, name, email, role) {
-        this.currentType = type;
-        this.resetForm();
-        const title = type === 'driver' ? 'Edit Driver' : 'Edit Employee';
-        document.querySelector('#employeeModalCard h2').textContent = title;
-        // For edit in temporary UI we hide the password field
-        document.getElementById('employee_password_field').style.display = 'none';
-        this.form.action = '#';
-        this.form.querySelector('#employee_hidden_method').value = 'PUT';
-        document.getElementById('employee_id').value = id;
-        document.getElementById('employee_name').value = name;
-        document.getElementById('employee_email').value = email;
-        document.getElementById('employee_role').value = role || '';
-        document.getElementById('submitEmployeeBtn').textContent = type === 'driver' ? 'Update Driver' : 'Update';
-        this.showModal();
-    }
-
-    showModal() {
-        this.modal.classList.remove('hidden');
-        setTimeout(() => {
-            this.modalCard.classList.remove('scale-90', 'opacity-0');
-            this.modalCard.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-
-    closeModal() {
-        this.modalCard.classList.remove('scale-100', 'opacity-100');
-        this.modalCard.classList.add('scale-90', 'opacity-0');
-        setTimeout(() => this.modal.classList.add('hidden'), 300);
-    }
-
-    resetForm() {
-        this.form.reset();
-        document.getElementById('employee_id').value = '';
-        document.getElementById('employee_password_field').style.display = 'block';
-    }
-}
-
-class DeleteEmployeeModal {
-    constructor() {
-        this.modal = document.getElementById('deleteEmployeeModal');
-        this.modalCard = this.modal.querySelector('.modal-content');
-        this.backdrop = document.getElementById('deleteEmployeeBackdrop');
-        this.nameSpan = document.getElementById('deleteEmployeeName');
-        this.form = document.getElementById('deleteEmployeeForm');
-        this.initializeEvents();
-    }
-
-    initializeEvents() {
-        // Delegate since rows are dynamic
-        document.addEventListener('click', (e) => {
-            const delBtn = e.target.closest('.delete-hr-btn');
-            if (delBtn) {
-                this.openModal(delBtn.dataset.type, delBtn.dataset.id, delBtn.dataset.name);
-            }
-        });
-        document.getElementById('cancelDeleteEmployeeBtn').addEventListener('click', () => this.closeModal());
-        this.backdrop.addEventListener('click', () => this.closeModal());
-    }
-
-    openModal(type = 'employee', id, name) {
-        this.currentType = type;
-        this.currentId = id;
-        this.nameSpan.textContent = name;
-        // For temporary UI we won't submit to server; keep action placeholder
-        this.form.action = '#';
-        this.modal.classList.remove('hidden');
-        setTimeout(() => {
-            this.modalCard.classList.remove('scale-90', 'opacity-0');
-            this.modalCard.classList.add('scale-100', 'opacity-100');
-        }, 10);
-    }
-
-    closeModal() {
-        this.modalCard.classList.remove('scale-100', 'opacity-100');
-        this.modalCard.classList.add('scale-90', 'opacity-0');
-        setTimeout(() => {
-            this.modal.classList.add('hidden');
-            this.form.reset();
-        }, 300);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-    const empModal = new EmployeeModal();
-    const delModal = new DeleteEmployeeModal();
-
-    // Navigation toggle
+    // Tab functionality
+    let activeHrType = 'employee';
     const navEmployees = document.getElementById('navEmployees');
     const navDrivers = document.getElementById('navDrivers');
+    const addBtn = document.getElementById('addHrBtn');
+    const hrTable = document.getElementById('hrTable');
+    const allRows = hrTable.querySelectorAll('tr');
+
+    // Function to filter table rows based on type
+    function filterTableRows(type) {
+        allRows.forEach(row => {
+            const editBtn = row.querySelector('.edit-btn');
+            if (editBtn) {
+                const rowType = editBtn.dataset.type;
+                row.style.display = rowType === type ? '' : 'none';
+            }
+        });
+    }
 
     function setActive(type) {
         activeHrType = type;
-        // style active buttons
-        if (type === 'employee') {
-            navEmployees.classList.add('bg-red-700');
+        
+        // Update button styles
+        if(type === 'employee'){
+            navEmployees.classList.add('bg-red-700'); 
             navEmployees.classList.remove('bg-black/30');
-            navDrivers.classList.remove('bg-red-700');
+            navDrivers.classList.remove('bg-red-700'); 
             navDrivers.classList.add('bg-black/30');
-            document.getElementById('addHrBtn').textContent = '+ Add Employee';
+            addBtn.textContent = '+ Add Employee';
+            document.getElementById('thirdColumnHeader').textContent = 'Position';
         } else {
-            navDrivers.classList.add('bg-red-700');
+            navDrivers.classList.add('bg-red-700'); 
             navDrivers.classList.remove('bg-black/30');
-            navEmployees.classList.remove('bg-red-700');
+            navEmployees.classList.remove('bg-red-700'); 
             navEmployees.classList.add('bg-black/30');
-            document.getElementById('addHrBtn').textContent = '+ Add Driver';
+            addBtn.textContent = '+ Add Driver';
+            document.getElementById('thirdColumnHeader').textContent = 'License';
         }
-        renderHrTable();
+        
+        // Filter the table
+        filterTableRows(type);
     }
 
+    // Tab click handlers
     navEmployees.addEventListener('click', () => setActive('employee'));
     navDrivers.addEventListener('click', () => setActive('driver'));
-
-    // initial render
+    
+    // Initialize with employees visible
     setActive(activeHrType);
 
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('#hrTable tr').forEach(row => {
-                const name = row.cells[0]?.textContent.toLowerCase() || '';
-                const email = row.cells[1]?.textContent.toLowerCase() || '';
-                row.style.display = (name.includes(term) || email.includes(term)) ? '' : 'none';
-            });
+    // Add/Edit Modal Logic
+    const modal = document.getElementById('employeeModal');
+    const modalCard = document.getElementById('employeeModalCard');
+    const backdrop = document.getElementById('employeeBackdrop');
+    const closeBtn = document.getElementById('closeEmployeeModalBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    const form = document.getElementById('employeeForm');
+    const positionField = document.getElementById('positionField');
+    const licenseField = document.getElementById('licenseField');
+    const dateAddedField = document.getElementById('dateAddedField');
+    const clientSideErrors = document.getElementById('clientSideErrors');
+    const clientErrorList = document.getElementById('clientErrorList');
+
+    function openModal(type = activeHrType, data = {}) {
+        modalTitle.textContent = data.id ? `Edit ${type === 'driver' ? 'Driver' : 'Employee'}` : `Add ${type === 'driver' ? 'Driver' : 'Employee'}`;
+        
+        // Set form action
+        if (data.id) {
+            form.action = type === 'employee' 
+                ? `/admin/hr/${data.id}` 
+                : `/admin/drivers/${data.id}`;
+        } else {
+            form.action = type === 'employee' 
+                ? "{{ route('admin.hr.store') }}" 
+                : "{{ route('admin.drivers.store') }}";
+        }
+        
+        // Set method
+        form.querySelector('#employee_hidden_method').value = data.id ? 'PUT' : 'POST';
+
+        // Set form values
+        document.getElementById('employee_id').value = data.id || '';
+        document.getElementById('employee_name').value = data.name || '';
+        document.getElementById('employee_email').value = data.email || '';
+        
+        if(type === 'driver'){
+            positionField.style.display = 'none';
+            licenseField.style.display = 'block';
+            dateAddedField.style.display = 'block';
+            document.getElementById('employee_license').value = data.license_num || '';
+            document.getElementById('driver_dateadded').value = data.dateadded || '';
+        } else {
+            positionField.style.display = 'block';
+            licenseField.style.display = 'none';
+            dateAddedField.style.display = 'none';
+            document.getElementById('employee_role').value = data.role || '';
+        }
+
+        // Clear errors
+        clearErrors();
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => { 
+            modalCard.classList.remove('scale-90', 'opacity-0'); 
+            modalCard.classList.add('scale-100', 'opacity-100'); 
+        }, 10);
+    }
+
+    function closeModal() {
+        modalCard.classList.remove('scale-100', 'opacity-100');
+        modalCard.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function clearErrors() {
+        clientSideErrors.classList.add('hidden');
+        clientErrorList.innerHTML = '';
+        document.querySelectorAll('[id$="Error"]').forEach(el => {
+            el.classList.add('hidden');
+            el.textContent = '';
         });
     }
 
-    // Handle add/save in the modal (temporary data update)
-    document.getElementById('employeeForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = document.getElementById('employee_id').value;
+    function showError(field, message) {
+        const errorElement = document.getElementById(field + 'Error');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+        }
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        clearErrors();
+        let isValid = true;
+        const errors = [];
+
         const name = document.getElementById('employee_name').value.trim();
         const email = document.getElementById('employee_email').value.trim();
-        const role = document.getElementById('employee_role').value || (activeHrType === 'driver' ? 'driver' : '');
+        const currentType = activeHrType;
 
-        if (!name || !email) return;
+        if (!name) {
+            showError('name', 'Name is required');
+            errors.push('Name is required');
+            isValid = false;
+        }
 
-        if (!id) {
-            // Add new
-            const newId = Date.now();
-            const item = {id: newId, name, email, role};
-            if (activeHrType === 'employee') tempEmployees.push(item);
-            else tempDrivers.push(item);
+        if (!email) {
+            showError('email', 'Email is required');
+            errors.push('Email is required');
+            isValid = false;
+        } else if (!isValidEmail(email)) {
+            showError('email', 'Please enter a valid email address');
+            errors.push('Please enter a valid email address');
+            isValid = false;
+        }
+
+        if (currentType === 'employee') {
+            const position = document.getElementById('employee_role').value;
+            if (!position) {
+                showError('position', 'Position is required');
+                errors.push('Position is required');
+                isValid = false;
+            }
         } else {
-            // Update existing
-            const data = activeHrType === 'employee' ? tempEmployees : tempDrivers;
-            const idx = data.findIndex(d => String(d.id) === String(id));
-            if (idx !== -1) {
-                data[idx].name = name; data[idx].email = email; data[idx].role = role;
+            const license = document.getElementById('employee_license').value;
+            if (!license) {
+                showError('license', 'License number is required');
+                errors.push('License number is required');
+                isValid = false;
             }
         }
 
-        renderHrTable();
-        empModal.closeModal();
+        if (!isValid) {
+            e.preventDefault();
+            if (errors.length > 0) {
+                clientErrorList.innerHTML = errors.map(error => `<li>${error}</li>`).join('');
+                clientSideErrors.classList.remove('hidden');
+            }
+        }
     });
 
-    // Handle delete form submission (temporary remove)
-    document.getElementById('deleteEmployeeForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const id = delModal.currentId;
-        const type = delModal.currentType || activeHrType;
-        if (type === 'employee') {
-            const idx = tempEmployees.findIndex(d => String(d.id) === String(id));
-            if (idx !== -1) tempEmployees.splice(idx, 1);
-        } else {
-            const idx = tempDrivers.findIndex(d => String(d.id) === String(id));
-            if (idx !== -1) tempDrivers.splice(idx, 1);
-        }
-        renderHrTable();
-        delModal.closeModal();
+    // Add button click
+    addBtn.addEventListener('click', () => openModal());
+
+    // Edit buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.dataset.type;
+            openModal(type, {
+                id: btn.dataset.id,
+                name: btn.dataset.name,
+                email: btn.dataset.email,
+                role: btn.dataset.role,
+                license_num: btn.dataset.license,
+                dateadded: btn.dataset.date
+            });
+        });
     });
+
+    // Close modal buttons
+    closeBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    // Delete Modal Logic
+    const deleteModal = document.getElementById('deleteEmployeeModal');
+    const deleteBackdrop = document.getElementById('deleteEmployeeBackdrop');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteEmployeeBtn');
+    const deleteForm = document.getElementById('deleteEmployeeForm');
+    const deleteName = document.getElementById('deleteEmployeeName');
+    const deleteError = document.getElementById('deleteError');
+    const deleteErrorText = document.getElementById('deleteErrorText');
+    let currentDeleteButton = null;
+
+    // Delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            deleteForm.action = btn.dataset.type === 'employee' 
+                ? `/admin/hr/${btn.dataset.id}` 
+                : `/admin/drivers/${btn.dataset.id}`;
+            deleteName.textContent = btn.dataset.name;
+            currentDeleteButton = btn;
+            hideDeleteError();
+            deleteForm.reset();
+
+            deleteModal.classList.remove('hidden');
+            setTimeout(() => deleteModal.querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'), 10);
+        });
+    });
+
+    function hideDeleteError() {
+        deleteError.style.display = 'none';
+        deleteError.classList.add('hidden');
+    }
+
+    function showDeleteError(message) {
+        deleteErrorText.textContent = message;
+        deleteError.style.display = 'flex';
+        deleteError.classList.remove('hidden');
+    }
+
+    // Handle delete form submission
+    deleteForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+
+        try {
+            submitButton.textContent = 'Deleting...';
+            submitButton.disabled = true;
+
+            const response = await fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: new FormData(this)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Show success message
+                showSuccessMessage(result.message || 'Record deleted successfully.');
+                
+                // Remove the row from table
+                if (currentDeleteButton) {
+                    const row = currentDeleteButton.closest('tr');
+                    if (row) row.remove();
+                }
+                
+                closeDeleteModal();
+            } else {
+                showDeleteError(result.message || 'An error occurred while deleting.');
+            }
+        } catch (error) {
+            showDeleteError('Network error. Please try again.');
+        } finally {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }
+    });
+
+    function showSuccessMessage(message) {
+        const main = document.querySelector('main') || document.body;
+        const existing = document.getElementById('successMessageDynamic');
+        if (existing) existing.remove();
+
+        const div = document.createElement('div');
+        div.id = 'successMessageDynamic';
+        div.className = 'mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-sm transition-all duration-300';
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>`;
+
+        const firstChild = main.firstElementChild;
+        if (firstChild) main.insertBefore(div, firstChild);
+        else main.appendChild(div);
+        
+        setTimeout(() => div.remove(), 5000);
+    }
+
+    function closeDeleteModal() {
+        deleteModal.querySelector('.modal-content').classList.add('scale-90', 'opacity-0');
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+            deleteForm.reset();
+            hideDeleteError();
+        }, 300);
+    }
+
+    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+    deleteBackdrop.addEventListener('click', closeDeleteModal);
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        allRows.forEach(row => {
+            const editBtn = row.querySelector('.edit-btn');
+            if (editBtn) {
+                const rowType = editBtn.dataset.type;
+                if (rowType === activeHrType || row.style.display !== 'none') {
+                    const cells = row.querySelectorAll('td');
+                    let rowText = '';
+                    cells.forEach(cell => {
+                        rowText += cell.textContent.toLowerCase() + ' ';
+                    });
+                    
+                    row.style.display = rowText.includes(searchTerm) ? '' : 'none';
+                }
+            }
+        });
+    });
+
+    // Auto-hide messages after 5 seconds
+    setTimeout(() => {
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        if (successMessage) successMessage.remove();
+        if (errorMessage) errorMessage.remove();
+    }, 5000);
 });
 </script>
+
 @endsection

@@ -44,7 +44,7 @@
 
                 <form method="POST" action="/logout">
                     @csrf
-                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
+                    <button class="cursor-pointer flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
                         <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
                         <span>Logout</span>
                     </button>
@@ -59,7 +59,7 @@
                    focus:ring-2 focus:ring-red-500 transition-all duration-300"
                    id="searchInput">
 
-            <button id="addFleetBtn" class="px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
+            <button id="addFleetBtn" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
                 + Add Vehicle
             </button>
         </div>
@@ -185,7 +185,7 @@ function renderFleetTable() {
             <td class="p-4">${vehicle.capacity}</td>
             <td class="p-4">₱${Number(vehicle.rate).toLocaleString()}</td>
             <td class="p-4 text-center flex justify-center gap-3">
-                <button class="px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow edit-fleet-btn"
+                <button class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow edit-fleet-btn"
                         data-id="${vehicle.id}"
                         data-plate="${vehicle.plate}"
                         data-type="${vehicle.type}"
@@ -198,7 +198,7 @@ function renderFleetTable() {
                         <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5">
                         </button>
 
-                <button class="px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow delete-fleet-btn"
+                <button class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow delete-fleet-btn"
                         data-id="${vehicle.id}"
                         data-name="${vehicle.plate}">
                                     <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5">

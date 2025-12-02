@@ -38,10 +38,10 @@ public function login(Request $request)
     return redirect('/admin/adminanalysis'); 
 }
 if ($user->role === 'fleet_assistant') {
-    return redirect('/employee/booking/bookingdash'); 
+    return redirect('/employee/fleet/fleetdash'); 
 }
 if ($user->role === 'booking_officer') {
-    return redirect('/employee/fleet/fleetdash'); 
+    return redirect('/employee/book/bookingdash'); 
 }
     if ($user->role === 'user') {
 
