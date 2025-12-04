@@ -110,15 +110,29 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
 
 // Fleet user routes
 Route::middleware(['web', 'fleet_assistant'])->group(function () {
-    // Vehicle Management
+    // Vehicle Management (Full CRUD)
     Route::get('/employee/fleet/vehicles', [FleetVehicleController::class, 'index'])
         ->name('employee.fleet.vehicles');
     Route::get('/employee/fleet/vehicles/data', [FleetVehicleController::class, 'getVehiclesData'])
         ->name('employee.fleet.vehicles.data');
+    Route::post('/employee/fleet/vehicles', [FleetVehicleController::class, 'store'])
+        ->name('employee.fleet.vehicles.store');
+    Route::put('/employee/fleet/vehicles/{vehicle}', [FleetVehicleController::class, 'update'])
+        ->name('employee.fleet.vehicles.update');
+    Route::delete('/employee/fleet/vehicles/{vehicle_id}', [FleetVehicleController::class, 'destroy'])
+        ->name('employee.fleet.vehicles.destroy');
     
-    // Maintenance Management
+    // Maintenance Management (Full CRUD)
     Route::get('/employee/fleet/maintenance', [FleetMaintenanceController::class, 'index'])
         ->name('employee.fleet.maintenance');
+    Route::get('/employee/fleet/maintenance/{id}/edit', [FleetMaintenanceController::class, 'edit'])
+        ->name('employee.fleet.maintenance.edit');
+    Route::post('/employee/fleet/maintenance', [FleetMaintenanceController::class, 'store'])
+        ->name('employee.fleet.maintenance.store');
+    Route::put('/employee/fleet/maintenance/{id}', [FleetMaintenanceController::class, 'update'])
+        ->name('employee.fleet.maintenance.update');
+    Route::delete('/employee/fleet/maintenance/{id}', [FleetMaintenanceController::class, 'destroy'])
+        ->name('employee.fleet.maintenance.destroy');
     Route::patch('/employee/fleet/maintenance/{id}/status', [FleetMaintenanceController::class, 'updateStatus'])
         ->name('employee.fleet.maintenance.status');
 });

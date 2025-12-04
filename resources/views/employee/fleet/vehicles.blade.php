@@ -3,6 +3,60 @@
 @section('content')
 @vite('resources/css/app.css')
 
+<style>
+/* Theme-driven UI helpers */
+:root {
+    --action-edit: #2563EB;
+    --action-edit-hover: #1E40AF;
+    --action-delete: #B91C1C;
+    --action-delete-hover: #991B1B;
+    --status-green: #16A34A;
+    --nav-tab-text: #ffffff;
+    --type-pill-bg: rgba(255,255,255,0.04);
+    --type-pill-color: #ffffff;
+}
+
+.action-edit {
+    background-color: var(--action-edit) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-edit img { filter: brightness(0) invert(1); }
+.action-edit:hover { background-color: var(--action-edit-hover) !important; }
+
+.action-delete {
+    background-color: var(--action-delete) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-delete img { filter: brightness(0) invert(1); }
+.action-delete:hover { background-color: var(--action-delete-hover) !important; }
+
+.type-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--type-pill-bg);
+    color: var(--type-pill-color);
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--status-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+td .action-edit, td .action-delete { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; }
+</style>
+
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
@@ -57,17 +111,16 @@
         {{-- SUCCESS MESSAGES --}}
         <div id="successMessageContainer"></div>
 
-        {{-- SEARCH --}}
+        {{-- SEARCH and ADD VEHICLE --}}
         <div class="flex justify-between items-center mb-6">
             <input type="text" placeholder="Search plate, model or brand..."
                    class="w-80 p-3 rounded-xl bg-black/20 text-white placeholder-gray-300 outline-none 
                    focus:ring-2 focus:ring-red-500 transition-all duration-300"
                    id="searchInput">
 
-            {{-- Note: Fleet users can only view, not add vehicles --}}
-            <div class="text-gray-400 text-sm">
-                <i>View-only mode - Contact admin for vehicle additions</i>
-            </div>
+            <button id="addVehicleBtn" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
+                + Add Vehicle
+            </button>
         </div>
 
         {{-- VEHICLE TABLE --}}
@@ -82,45 +135,131 @@
                         <th class="p-4">Transmission</th>
                         <th class="p-4">Capacity</th>
                         <th class="p-4">Rate</th>
-                        <th class="p-4">Driver</th>
-                        <th class="p-4">Status</th>
+                        <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="vehiclesTable" class="text-white">
-                    @foreach($vehicles as $vehicle)
-                    <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
-                        <td class="p-4 font-semibold">{{ $vehicle->plate_num }}</td>
-                        <td class="p-4">{{ $vehicle->body_type }}</td>
-                        <td class="p-4">{{ $vehicle->brand }} {{ $vehicle->model }}</td>
-                        <td class="p-4">{{ $vehicle->color }}</td>
-                        <td class="p-4">{{ $vehicle->transmission }}</td>
-                        <td class="p-4">{{ $vehicle->seat_cap }}</td>
-                        <td class="p-4">₱{{ number_format($vehicle->price_rate, 2) }}</td>
-                        <td class="p-4">
-                            @if($vehicle->driverInfo)
-                                {{ $vehicle->driverInfo->name }}
-                            @else
-                                <span class="text-gray-400">No Driver</span>
-                            @endif
-                        </td>
-                        <td class="p-4">
-                            @php
-                                $status = $vehicle->status ?? 'available';
-                                $statusColors = [
-                                    'available' => 'bg-green-900/30 text-green-300',
-                                    'in_use' => 'bg-blue-900/30 text-blue-300',
-                                    'maintenance' => 'bg-yellow-900/30 text-yellow-300',
-                                    'unavailable' => 'bg-red-900/30 text-red-300',
-                                ];
-                            @endphp
-                            <span class="px-3 py-1 rounded-full text-xs font-medium {{ $statusColors[$status] ?? 'bg-gray-700 text-gray-300' }}">
-                                {{ ucfirst(str_replace('_', ' ', $status)) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- ADD / EDIT VEHICLE MODAL --}}
+        <div id="vehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="vehicleBackdrop"></div>
+
+            <div id="vehicleModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+                <h2 class="text-2xl font-bold text-red-500 mb-4" id="vehicleModalTitle">Add Vehicle</h2>
+
+                <form id="vehicleForm">
+                    <input type="hidden" id="vehicle_id">
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Plate No.</label>
+                        <input type="text" id="plate_num" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" placeholder="ABC123" maxlength="7" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Brand</label>
+                        <input type="text" id="brand" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" placeholder="Toyota" maxlength="20" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Model</label>
+                        <input type="text" id="model" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" placeholder="Fortuner" maxlength="20" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Year</label>
+                        <input type="number" id="year" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" min="1980" max="2099" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Body Type</label>
+                        <input type="text" id="body_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" placeholder="SUV" maxlength="10" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Seat Capacity</label>
+                        <input type="number" id="seat_cap" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" min="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Transmission</label>
+                        <select id="transmission" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500">
+                            <option value="Automatic">Automatic</option>
+                            <option value="Manual">Manual</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Fuel Type</label>
+                        <select id="fuel_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500">
+                            <option value="Gasoline">Gasoline</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Electric">Electric</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Color</label>
+                        <input type="text" id="color" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" placeholder="White" maxlength="10" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Rate (₱)</label>
+                        <input type="number" id="price_rate" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500" min="0" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block font-semibold mb-1">Driver (Optional)</label>
+                        <select id="driver" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+                        focus:ring-2 focus:ring-red-500">
+                            <option value="">No Driver</option>
+                            @foreach($drivers as $driver)
+                                <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end mt-4 gap-3">
+                        <button type="button" id="closeVehicleModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+                        <button type="submit" id="saveVehicleBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- DELETE VEHICLE MODAL --}}
+        <div id="deleteVehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deleteVehicleBackdrop"></div>
+            <div class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+                <h2 class="text-2xl font-bold text-red-500 mb-4">Confirm Delete</h2>
+                <p class="mb-4 text-gray-300">Enter your password to confirm deletion of <span id="deleteVehicleName" class="font-semibold text-white"></span>.</p>
+                
+                {{-- DELETE ERROR MESSAGE --}}
+                <div id="deleteVehicleError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
+                    <span id="deleteVehicleErrorText"></span>
+                </div>
+                
+                <form id="deleteVehicleForm">
+                    <input type="password" id="deleteConfirmPassword" required placeholder="Enter your password" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 mb-4">
+                    <div class="flex justify-end gap-3">
+                        <button type="button" id="cancelDeleteVehicleBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+                        <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Delete</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
     </main>
@@ -128,22 +267,382 @@
 
 <script>
 const csrfToken = '{{ csrf_token() }}';
+let vehicles = [];
 
-// Search functionality
-document.getElementById('searchInput').addEventListener('input', function(e) {
-    const term = e.target.value.toLowerCase();
-    
-    document.querySelectorAll('#vehiclesTable tr').forEach(row => {
-        const plate = row.cells[0]?.textContent.toLowerCase() || '';
-        const brand = row.cells[2]?.textContent.toLowerCase() || '';
-        const driver = row.cells[7]?.textContent.toLowerCase() || '';
+// Global vehicles data from PHP
+const vehiclesData = @json($vehicles ?? []);
+
+// Render vehicles table
+function renderVehiclesTable() {
+    const tbody = document.getElementById('vehiclesTable');
+    tbody.innerHTML = '';
+
+    vehicles.forEach(vehicle => {
+        // Handle driver name safely
+        let driverName = 'No Driver';
+        if (vehicle.driver_info && vehicle.driver_info.name) {
+            driverName = vehicle.driver_info.name;
+        } else if (vehicle.driver && typeof vehicle.driver === 'object' && vehicle.driver.name) {
+            driverName = vehicle.driver.name;
+        }
         
-        const match = plate.includes(term) || brand.includes(term) || driver.includes(term);
-        row.style.display = match ? '' : 'none';
-    });
-});
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
+        tr.innerHTML = `
+            <td class="p-4">${vehicle.plate_num}</td>
+            <td class="p-4">${vehicle.body_type}</td>
+            <td class="p-4">${vehicle.brand} ${vehicle.model}</td>
+            <td class="p-4">${vehicle.color}</td>
+            <td class="p-4">${vehicle.transmission}</td>
+            <td class="p-4">${vehicle.seat_cap}</td>
+            <td class="p-4">₱${Number(vehicle.price_rate).toLocaleString()}</td>
+            <td class="p-4 text-center flex justify-center gap-3">
+                <button type="button" class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow edit-vehicle-btn"
+                    data-id="${vehicle.vehicle_id}">
+                    <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5">
+                </button>
 
-// Success message function (reuse from your admin page)
+                <button type="button" class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow delete-vehicle-btn"
+                    data-id="${vehicle.vehicle_id}"
+                    data-name="${vehicle.plate_num}">
+                    <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5">
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* -------------------------------
+   VEHICLE MODAL LOGIC
+--------------------------------*/
+class VehicleModal {
+    constructor() {
+        this.modal = document.getElementById('vehicleModal');
+        this.modalCard = document.getElementById('vehicleModalCard');
+        this.backdrop = document.getElementById('vehicleBackdrop');
+        this.form = document.getElementById('vehicleForm');
+
+        this.initializeEvents();
+    }
+
+    initializeEvents() {
+        document.getElementById('addVehicleBtn').addEventListener('click', () => this.openModal());
+        document.getElementById('closeVehicleModalBtn').addEventListener('click', () => this.closeModal());
+        this.backdrop.addEventListener('click', () => this.closeModal());
+
+        document.addEventListener('click', async (e) => {
+            const editBtn = e.target.closest('.edit-vehicle-btn');
+            if (!editBtn) return;
+
+            const id = editBtn.dataset.id;
+
+            // Find vehicle in current data
+            const vehicle = vehicles.find(v => v.vehicle_id == id);
+            if (!vehicle) return;
+
+            this.openEditModal(vehicle);
+        });
+
+        this.form.addEventListener('submit', (e) => this.handleSave(e));
+    }
+
+    openModal() {
+        this.resetForm();
+        document.getElementById('vehicleModalTitle').textContent = 'Add Vehicle';
+        this.showModal();
+    }
+
+    openEditModal(vehicle) {
+        this.resetForm();
+
+        document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
+
+        document.getElementById('vehicle_id').value = vehicle.vehicle_id;
+        document.getElementById('plate_num').value = vehicle.plate_num;
+        document.getElementById('brand').value = vehicle.brand;
+        document.getElementById('model').value = vehicle.model;
+        document.getElementById('year').value = vehicle.year;
+        document.getElementById('body_type').value = vehicle.body_type;
+        document.getElementById('seat_cap').value = vehicle.seat_cap;
+        document.getElementById('transmission').value = vehicle.transmission;
+        document.getElementById('fuel_type').value = vehicle.fuel_type;
+        document.getElementById('color').value = vehicle.color;
+        document.getElementById('price_rate').value = vehicle.price_rate;
+
+        // Driver select (null or number)
+        document.getElementById('driver').value = vehicle.driver ?? "";
+
+        this.showModal();
+    }
+
+    showModal() {
+        this.modal.classList.remove('hidden');
+        setTimeout(() => {
+            this.modalCard.classList.remove('scale-90', 'opacity-0');
+            this.modalCard.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    closeModal() {
+        this.modalCard.classList.remove('scale-100', 'opacity-100');
+        this.modalCard.classList.add('scale-90', 'opacity-0');
+
+        setTimeout(() => this.modal.classList.add('hidden'), 300);
+    }
+
+    resetForm() {
+        this.form.reset();
+        document.getElementById('vehicle_id').value = '';
+        document.getElementById('transmission').value = 'Automatic';
+        document.getElementById('fuel_type').value = 'Gasoline';
+    }
+
+    async handleSave(e) {
+        e.preventDefault();
+
+        const id = document.getElementById('vehicle_id').value;
+        const submitBtn = this.form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        const payload = {
+            plate_num: document.getElementById('plate_num').value.trim(),
+            brand: document.getElementById('brand').value.trim(),
+            model: document.getElementById('model').value.trim(),
+            year: Number(document.getElementById('year').value),
+            body_type: document.getElementById('body_type').value.trim(),
+            seat_cap: Number(document.getElementById('seat_cap').value),
+            transmission: document.getElementById('transmission').value,
+            fuel_type: document.getElementById('fuel_type').value,
+            color: document.getElementById('color').value.trim(),
+            price_rate: Number(document.getElementById('price_rate').value),
+            driver: document.getElementById('driver').value ? 
+                    Number(document.getElementById('driver').value) : 
+                    null,
+        };
+
+        try {
+            submitBtn.textContent = 'Saving...';
+            submitBtn.disabled = true;
+
+            let res;
+            let url;
+
+            if (!id) {
+                // Create new vehicle
+                url = '/employee/fleet/vehicles';
+                res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': csrfToken 
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } else {
+                // Update existing vehicle
+                url = `/employee/fleet/vehicles/${id}`;
+                res = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': csrfToken 
+                    },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            const result = await res.json();
+
+            if (res.ok) {
+                this.showSuccessMessage(result.message || 'Vehicle saved successfully');
+                
+                // Reload vehicles data
+                await loadVehicles();
+                this.closeModal();
+            } else {
+                // Handle validation errors
+                if (res.status === 422 && result.errors) {
+                    let errorMessages = [];
+                    for (const [field, messages] of Object.entries(result.errors)) {
+                        errorMessages.push(`${field}: ${messages.join(', ')}`);
+                    }
+                    alert('Validation errors:\n' + errorMessages.join('\n'));
+                } else {
+                    alert(result.message || 'Error saving vehicle');
+                }
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    showSuccessMessage(message) {
+        showSuccessMessage(message, 'success');
+    }
+}
+
+/* -------------------------------
+   DELETE MODAL LOGIC
+--------------------------------*/
+class DeleteVehicleModal {
+    constructor() {
+        this.modal = document.getElementById('deleteVehicleModal');
+        this.modalCard = this.modal.querySelector('.modal-content');
+        this.backdrop = document.getElementById('deleteVehicleBackdrop');
+        this.nameSpan = document.getElementById('deleteVehicleName');
+        this.form = document.getElementById('deleteVehicleForm');
+        this.errorDiv = document.getElementById('deleteVehicleError');
+        this.errorText = document.getElementById('deleteVehicleErrorText');
+        this.currentId = null;
+
+        this.initializeEvents();
+    }
+
+    initializeEvents() {
+        document.addEventListener('click', (e) => {
+            const delBtn = e.target.closest('.delete-vehicle-btn');
+            if (!delBtn) return;
+
+            this.openModal(delBtn.dataset.id, delBtn.dataset.name);
+        });
+
+        document.getElementById('cancelDeleteVehicleBtn').addEventListener('click', () => this.closeModal());
+        this.backdrop.addEventListener('click', () => this.closeModal());
+
+        this.form.addEventListener('submit', (e) => this.handleDelete(e));
+    }
+
+    openModal(id, name) {
+        this.currentId = id;
+        this.nameSpan.textContent = name;
+        this.hideError();
+
+        this.modal.classList.remove('hidden');
+        setTimeout(() => {
+            this.modalCard.classList.remove('scale-90', 'opacity-0');
+            this.modalCard.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    closeModal() {
+        this.modalCard.classList.remove('scale-100', 'opacity-100');
+        this.modalCard.classList.add('scale-90', 'opacity-0');
+
+        setTimeout(() => {
+            this.modal.classList.add('hidden');
+            this.currentId = null;
+            this.form.reset();
+            this.hideError();
+        }, 300);
+    }
+
+    hideError() {
+        this.errorDiv.style.display = 'none';
+        this.errorDiv.classList.add('hidden');
+    }
+
+    showError(message) {
+        this.errorText.textContent = message;
+        this.errorDiv.style.display = 'flex';
+        this.errorDiv.classList.remove('hidden');
+    }
+
+    async handleDelete(e) {
+        e.preventDefault();
+
+        const password = document.getElementById('deleteConfirmPassword').value;
+        
+        if (!password) {
+            this.showError('Password is required');
+            return;
+        }
+
+        const submitBtn = this.form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        try {
+            submitBtn.textContent = 'Deleting...';
+            submitBtn.disabled = true;
+
+            const res = await fetch(`/employee/fleet/vehicles/${this.currentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    admin_password: password
+                })
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                this.showSuccessMessage(result.message || 'Vehicle deleted successfully');
+                // Refresh the vehicles list
+                await loadVehicles();
+                this.closeModal();
+            } else {
+                // Handle different error statuses
+                if (res.status === 422) {
+                    this.showError(result.message || result.errors?.admin_password?.[0] || 'Validation error');
+                } else if (res.status === 404) {
+                    this.showError('Vehicle not found');
+                    await loadVehicles();
+                } else if (res.status === 401) {
+                    this.showError('Authentication required. Please login again.');
+                } else {
+                    this.showError(result.message || 'An error occurred while deleting');
+                }
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            this.showError('Network error: ' + error.message);
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    showSuccessMessage(message) {
+        showSuccessMessage(message, 'success');
+    }
+}
+
+/* -------------------------------
+   LOAD VEHICLES FROM DB
+--------------------------------*/
+async function loadVehicles() {
+    try {
+        const response = await fetch('/employee/fleet/vehicles/data');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        vehicles = data;
+        renderVehiclesTable();
+    } catch (error) {
+        console.error('Error loading vehicles:', error);
+        // Fallback to initial data
+        vehicles = vehiclesData || [];
+        renderVehiclesTable();
+        
+        // Show error message to user
+        showSuccessMessage('Error loading vehicles. Please refresh the page.', 'error');
+    }
+}
+
+/* -------------------------------
+   SUCCESS MESSAGE FUNCTION
+--------------------------------*/
 function showSuccessMessage(message, type = 'success') {
     const container = document.getElementById('successMessageContainer') || document.body;
     const existing = document.getElementById('dynamicSuccessMessage');
@@ -210,17 +709,36 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Check for session messages
-@if(session('success'))
-    document.addEventListener('DOMContentLoaded', function() {
-        showSuccessMessage('{{ session('success') }}', 'success');
-    });
-@endif
+/* -------------------------------
+   INIT PAGE
+--------------------------------*/
+document.addEventListener('DOMContentLoaded', async () => {
+    new VehicleModal();
+    new DeleteVehicleModal();
 
-@if(session('error'))
-    document.addEventListener('DOMContentLoaded', function() {
-        showSuccessMessage('{{ session('error') }}', 'error');
+    // Load initial data
+    await loadVehicles();
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+
+        document.querySelectorAll('#vehiclesTable tr').forEach(row => {
+            const plate = row.cells[0]?.textContent.toLowerCase() || '';
+            const brand = row.cells[2]?.textContent.toLowerCase() || '';
+            row.style.display = (plate.includes(term) || brand.includes(term)) ? '' : 'none';
+        });
     });
-@endif
+
+    // Check for session messages
+    @if(session('success'))
+        showSuccessMessage('{{ session('success') }}', 'success');
+    @endif
+
+    @if(session('error'))
+        showSuccessMessage('{{ session('error') }}', 'error');
+    @endif
+});
 </script>
 @endsection
