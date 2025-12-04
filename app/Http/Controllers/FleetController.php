@@ -9,6 +9,6 @@ class FleetController extends Controller
 {
     public function index()
     {
-        return view('employee.fleet.fleetdash');
+        return view('employee.fleet.vehicles');
     }
 }

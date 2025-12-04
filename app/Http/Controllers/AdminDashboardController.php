@@ -15,7 +15,7 @@ class AdminDashboardController extends Controller
     }
 
     
-    public function hrmanagement()
+    public function usermanagement()
     {
          $admins = User::where('role', 'admin')->get();
         return view('admin.users', compact('admins'));

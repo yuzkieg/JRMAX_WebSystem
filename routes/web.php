@@ -13,6 +13,8 @@ use App\Http\Controllers\BookingOfficerController;
 use App\Http\Controllers\EmployeeRecord;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleMaintenanceController;
+use App\Http\Controllers\FleetVehicleController;
+use App\Http\Controllers\FleetMaintenanceController;
 
 
 // Public homepage
@@ -105,11 +107,20 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     ->name('admin.maintenance.edit');
 });
 
+
+// Fleet user routes
 Route::middleware(['web', 'fleet_assistant'])->group(function () {
-
-    Route::get('/employee/booking/bookingdash', [BookingOfficerController::class, 'index'])
-        ->name('employee.booking.bookingdash');
-
+    // Vehicle Management
+    Route::get('/employee/fleet/vehicles', [FleetVehicleController::class, 'index'])
+        ->name('employee.fleet.vehicles');
+    Route::get('/employee/fleet/vehicles/data', [FleetVehicleController::class, 'getVehiclesData'])
+        ->name('employee.fleet.vehicles.data');
+    
+    // Maintenance Management
+    Route::get('/employee/fleet/maintenance', [FleetMaintenanceController::class, 'index'])
+        ->name('employee.fleet.maintenance');
+    Route::patch('/employee/fleet/maintenance/{id}/status', [FleetMaintenanceController::class, 'updateStatus'])
+        ->name('employee.fleet.maintenance.status');
 });
 
 Route::middleware(['web', 'booking_officer'])->group(function () {

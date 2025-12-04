@@ -38,7 +38,7 @@ public function login(Request $request)
     return redirect('/admin/adminanalysis'); 
 }
 if ($user->role === 'fleet_assistant') {
-    return redirect('/employee/fleet/fleetdash'); 
+    return redirect('/employee/fleet/vehicles'); 
 }
 if ($user->role === 'booking_officer') {
     return redirect('/employee/book/bookingdash'); 
