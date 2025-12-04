@@ -99,51 +99,93 @@
                 <h2 class="text-2xl font-bold text-red-500 mb-4" id="vehicleModalTitle">Add Vehicle</h2>
 
                 <form id="vehicleForm">
-                    <input type="hidden" id="vehicle_id">
+    <input type="hidden" id="vehicle_id">
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Plate No.</label>
-                        <input type="text" id="plate_no" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="ABC-123" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Plate No.</label>
+        <input type="text" id="plate_no" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" placeholder="ABC123" maxlength="7" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Type</label>
-                        <input type="text" id="vehicle_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="SUV" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Brand</label>
+        <input type="text" id="brand" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" placeholder="Toyota" maxlength="20" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Brand / Model</label>
-                        <input type="text" id="brand_model" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Toyota Fortuner" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Model</label>
+        <input type="text" id="model" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" placeholder="Fortuner" maxlength="20" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Color</label>
-                        <input type="text" id="color" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="White" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Year</label>
+        <input type="number" id="year" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" min="1980" max="2099" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Transmission</label>
-                        <select id="transmission" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
-                            <option value="Auto">Auto</option>
-                            <option value="Manual">Manual</option>
-                        </select>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Body Type</label>
+        <input type="text" id="body_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" placeholder="SUV" maxlength="10" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Capacity</label>
-                        <input type="number" id="capacity" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="7" min="1" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Seat Capacity</label>
+        <input type="number" id="seat_cap" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" min="1" required>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Rate (₱)</label>
-                        <input type="number" id="rate" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="3500" min="0" required>
-                    </div>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Transmission</label>
+        <select id="transmission" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500">
+            <option value="Automatic">Automatic</option>
+            <option value="Manual">Manual</option>
+        </select>
+    </div>
 
-                    <div class="flex justify-end mt-4 gap-3">
-                        <button type="button" id="closeVehicleModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
-                        <button type="submit" id="saveVehicleBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Save</button>
-                    </div>
-                </form>
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Fuel Type</label>
+        <select id="fuel_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500">
+            <option value="Gasoline">Gasoline</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Color</label>
+        <input type="text" id="color" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" placeholder="White" maxlength="10" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Rate (₱)</label>
+        <input type="number" id="price_rate" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500" min="0" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="block font-semibold mb-1">Driver (Optional)</label>
+        <select id="driver" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
+        focus:ring-2 focus:ring-red-500">
+            <option value="">No Driver</option>
+            @foreach($drivers as $driver)
+                <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+            @endforeach
+        </select>
+    </div>
+
+    <div class="flex justify-end mt-4 gap-3">
+        <button type="button" id="closeVehicleModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
+        <button type="submit" id="saveVehicleBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Save</button>
+    </div>
+</form>
+
             </div>
         </div>
 
@@ -152,7 +194,13 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deleteVehicleBackdrop"></div>
             <div class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
                 <h2 class="text-2xl font-bold text-red-500 mb-4">Confirm Delete</h2>
-                <p class="mb-4 text-white">Enter your password to confirm deletion of <span id="deleteVehicleName" class="font-semibold"></span>.</p>
+                <p class="mb-4 text-gray-300">Enter your password to confirm deletion of <span id="deleteVehicleName" class="font-semibold text-white"></span>.</p>
+                
+                {{-- DELETE ERROR MESSAGE --}}
+                <div id="deleteVehicleError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
+                    <span id="deleteVehicleErrorText"></span>
+                </div>
+                
                 <form id="deleteVehicleForm">
                     <input type="password" id="deleteConfirmPassword" required placeholder="Enter your password" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 mb-4">
                     <div class="flex justify-end gap-3">
@@ -167,52 +215,55 @@
 </div>
 
 <script>
-// Temporary vehicles data
-const tempVehicles = [
-    {id: 1, plate: 'ABC-123', type: 'SUV', brand_model: 'Toyota Fortuner', color: 'White', transmission: 'Auto', capacity: 7, rate: 3500},
-    {id: 2, plate: 'DEF-456', type: 'Sedan', brand_model: 'Honda Civic', color: 'Black', transmission: 'Manual', capacity: 5, rate: 2500},
-    {id: 3, plate: 'GHI-789', type: 'Van', brand_model: 'Nissan Urvan', color: 'Silver', transmission: 'Manual', capacity: 12, rate: 4500},
-];
+const csrfToken = '{{ csrf_token() }}';
+let vehicles = [];
 
+// Global vehicles data from PHP
+const vehiclesData = @json($vehicles ?? []);
+
+// In renderVehiclesTable function, adjust for driver display:
 function renderVehiclesTable() {
     const tbody = document.getElementById('vehiclesTable');
     tbody.innerHTML = '';
 
-    tempVehicles.forEach(vehicle => {
+    vehicles.forEach(vehicle => {
+        // Handle driver name safely
+        let driverName = 'No Driver';
+        if (vehicle.driver_info && vehicle.driver_info.name) {
+            driverName = vehicle.driver_info.name;
+        } else if (vehicle.driver && typeof vehicle.driver === 'object' && vehicle.driver.name) {
+            driverName = vehicle.driver.name;
+        }
+        
         const tr = document.createElement('tr');
         tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
         tr.innerHTML = `
-            <td class="p-4">${vehicle.plate}</td>
-            <td class="p-4">${vehicle.type}</td>
-            <td class="p-4">${vehicle.brand_model}</td>
+            <td class="p-4">${vehicle.plate_num}</td>
+            <td class="p-4">${vehicle.body_type}</td>
+            <td class="p-4">${vehicle.brand} ${vehicle.model}</td>
             <td class="p-4">${vehicle.color}</td>
             <td class="p-4">${vehicle.transmission}</td>
-            <td class="p-4">${vehicle.capacity}</td>
-            <td class="p-4">₱${Number(vehicle.rate).toLocaleString()}</td>
+            <td class="p-4">${vehicle.seat_cap}</td>
+            <td class="p-4">₱${Number(vehicle.price_rate).toLocaleString()}</td>
             <td class="p-4 text-center flex justify-center gap-3">
-                <button class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 edit-vehicle-btn"
-                        data-id="${vehicle.id}"
-                        data-plate="${vehicle.plate}"
-                        data-type="${vehicle.type}"
-                        data-brand_model="${vehicle.brand_model}"
-                        data-color="${vehicle.color}"
-                        data-transmission="${vehicle.transmission}"
-                        data-capacity="${vehicle.capacity}"
-                        data-rate="${vehicle.rate}">
-                        <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5">
+                <button type="button" class="cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow edit-vehicle-btn"
+                    data-id="${vehicle.vehicle_id}">
+                    <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5">
+                </button>
 
-                <button class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105 delete-vehicle-btn"
-                        data-id="${vehicle.id}"
-                        data-name="${vehicle.plate}">
-                        <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5">
-
-                        </button>
-            </td>`;
-
+                <button type="button" class="cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow delete-vehicle-btn"
+                    data-id="${vehicle.vehicle_id}"
+                    data-name="${vehicle.plate_num}">
+                    <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5">
+                </button>
+            </td>
+        `;
         tbody.appendChild(tr);
     });
 }
-
+/* -------------------------------
+   VEHICLE MODAL LOGIC
+--------------------------------*/
 class VehicleModal {
     constructor() {
         this.modal = document.getElementById('vehicleModal');
@@ -228,38 +279,48 @@ class VehicleModal {
         document.getElementById('closeVehicleModalBtn').addEventListener('click', () => this.closeModal());
         this.backdrop.addEventListener('click', () => this.closeModal());
 
-        // Delegate edit clicks
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', async (e) => {
             const editBtn = e.target.closest('.edit-vehicle-btn');
-            if (editBtn) {
-                this.openEditModal(editBtn.dataset);
-            }
+            if (!editBtn) return;
+
+            const id = editBtn.dataset.id;
+
+            const vehicle = vehicles.find(v => v.vehicle_id == id);
+            if (!vehicle) return;
+
+            this.openEditModal(vehicle);
         });
 
-        // Handle save
         this.form.addEventListener('submit', (e) => this.handleSave(e));
     }
 
     openModal() {
         this.resetForm();
         document.getElementById('vehicleModalTitle').textContent = 'Add Vehicle';
-        document.getElementById('saveVehicleBtn').textContent = 'Save';
         this.showModal();
     }
 
-    openEditModal(data) {
-        this.resetForm();
-        document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
-        document.getElementById('vehicle_id').value = data.id || '';
-        document.getElementById('plate_no').value = data.plate || '';
-        document.getElementById('vehicle_type').value = data.type || '';
-        document.getElementById('brand_model').value = data.brand_model || '';
-        document.getElementById('color').value = data.color || '';
-        document.getElementById('transmission').value = data.transmission || 'Auto';
-        document.getElementById('capacity').value = data.capacity || '';
-        document.getElementById('rate').value = data.rate || '';
-        document.getElementById('saveVehicleBtn').textContent = 'Update';
-        this.showModal();
+    openEditModal(vehicle) {
+         this.resetForm();
+
+    document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
+
+    document.getElementById('vehicle_id').value = vehicle.vehicle_id;
+    document.getElementById('plate_no').value = vehicle.plate_num;
+    document.getElementById('brand').value = vehicle.brand;
+    document.getElementById('model').value = vehicle.model;
+    document.getElementById('year').value = vehicle.year;
+    document.getElementById('body_type').value = vehicle.body_type;
+    document.getElementById('seat_cap').value = vehicle.seat_cap;
+    document.getElementById('transmission').value = vehicle.transmission;
+    document.getElementById('fuel_type').value = vehicle.fuel_type;
+    document.getElementById('color').value = vehicle.color;
+    document.getElementById('price_rate').value = vehicle.price_rate;
+
+    // Driver select (null or number)
+    document.getElementById('driver').value = vehicle.driver ?? "";
+
+    this.showModal();
     }
 
     showModal() {
@@ -273,43 +334,120 @@ class VehicleModal {
     closeModal() {
         this.modalCard.classList.remove('scale-100', 'opacity-100');
         this.modalCard.classList.add('scale-90', 'opacity-0');
+
         setTimeout(() => this.modal.classList.add('hidden'), 300);
     }
 
     resetForm() {
         this.form.reset();
         document.getElementById('vehicle_id').value = '';
-        document.getElementById('transmission').value = 'Auto';
     }
 
-    handleSave(e) {
-        e.preventDefault();
-        const id = document.getElementById('vehicle_id').value;
-        const plate = document.getElementById('plate_no').value.trim();
-        const type = document.getElementById('vehicle_type').value.trim();
-        const brand_model = document.getElementById('brand_model').value.trim();
-        const color = document.getElementById('color').value.trim();
-        const transmission = document.getElementById('transmission').value;
-        const capacity = Number(document.getElementById('capacity').value);
-        const rate = Number(document.getElementById('rate').value);
+    async handleSave(e) {
+    e.preventDefault();
 
-        if (!plate || !type || !brand_model) return;
+    const id = document.getElementById('vehicle_id').value;
+    const submitBtn = this.form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+
+    const payload = {
+        plate_num: document.getElementById('plate_no').value.trim(),
+        brand: document.getElementById('brand').value.trim(),
+        model: document.getElementById('model').value.trim(),
+        year: Number(document.getElementById('year').value), // Ensure number
+        body_type: document.getElementById('body_type').value.trim(),
+        seat_cap: Number(document.getElementById('seat_cap').value), // Ensure number
+        transmission: document.getElementById('transmission').value,
+        fuel_type: document.getElementById('fuel_type').value,
+        color: document.getElementById('color').value.trim(),
+        price_rate: Number(document.getElementById('price_rate').value), // Ensure number
+        driver: document.getElementById('driver').value ? 
+                Number(document.getElementById('driver').value) : 
+                null,
+    };
+
+    try {
+        submitBtn.textContent = 'Saving...';
+        submitBtn.disabled = true;
+
+        let res;
 
         if (!id) {
-            const newId = Date.now();
-            tempVehicles.push({id: newId, plate, type, brand_model, color, transmission, capacity, rate});
+            res = await fetch('/admin/vehicles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify(payload)
+            });
         } else {
-            const idx = tempVehicles.findIndex(v => String(v.id) === String(id));
-            if (idx !== -1) {
-                tempVehicles[idx] = {id: Number(id), plate, type, brand_model, color, transmission, capacity, rate};
-            }
+            res = await fetch(`/admin/vehicles/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify(payload)
+            });
         }
 
-        renderVehiclesTable();
-        this.closeModal();
+        const result = await res.json();
+
+        if (res.ok) {
+            this.showSuccessMessage(result.message || 'Vehicle saved successfully');
+            
+            await loadVehicles();
+            this.closeModal();
+            location.reload();
+        } else {
+            // Handle validation errors
+            if (res.status === 422 && result.errors) {
+                let errorMessages = [];
+                for (const [field, messages] of Object.entries(result.errors)) {
+                    errorMessages.push(`${field}: ${messages.join(', ')}`);
+                }
+                alert('Validation errors:\n' + errorMessages.join('\n'));
+            } else {
+                alert(result.message || 'Error saving vehicle');
+            }
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
 }
 
+    showSuccessMessage(message) {
+        const main = document.querySelector('main') || document.body;
+        const existing = document.getElementById('successMessageDynamic');
+        if (existing) existing.remove();
+
+        const div = document.createElement('div');
+        div.id = 'successMessageDynamic';
+        div.className = 'mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-sm transition-all duration-300';
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>`;
+
+        const firstChild = main.firstElementChild;
+        if (firstChild) main.insertBefore(div, firstChild);
+        else main.appendChild(div);
+        
+        setTimeout(() => div.remove(), 5000);
+    }
+}
+
+/* -------------------------------
+   DELETE MODAL LOGIC
+--------------------------------*/
 class DeleteVehicleModal {
     constructor() {
         this.modal = document.getElementById('deleteVehicleModal');
@@ -317,18 +455,19 @@ class DeleteVehicleModal {
         this.backdrop = document.getElementById('deleteVehicleBackdrop');
         this.nameSpan = document.getElementById('deleteVehicleName');
         this.form = document.getElementById('deleteVehicleForm');
+        this.errorDiv = document.getElementById('deleteVehicleError');
+        this.errorText = document.getElementById('deleteVehicleErrorText');
         this.currentId = null;
 
         this.initializeEvents();
     }
 
     initializeEvents() {
-        // Delegate delete clicks
         document.addEventListener('click', (e) => {
             const delBtn = e.target.closest('.delete-vehicle-btn');
-            if (delBtn) {
-                this.openModal(delBtn.dataset.id, delBtn.dataset.name);
-            }
+            if (!delBtn) return;
+
+            this.openModal(delBtn.dataset.id, delBtn.dataset.name);
         });
 
         document.getElementById('cancelDeleteVehicleBtn').addEventListener('click', () => this.closeModal());
@@ -340,6 +479,8 @@ class DeleteVehicleModal {
     openModal(id, name) {
         this.currentId = id;
         this.nameSpan.textContent = name;
+        this.hideError();
+
         this.modal.classList.remove('hidden');
         setTimeout(() => {
             this.modalCard.classList.remove('scale-90', 'opacity-0');
@@ -350,42 +491,174 @@ class DeleteVehicleModal {
     closeModal() {
         this.modalCard.classList.remove('scale-100', 'opacity-100');
         this.modalCard.classList.add('scale-90', 'opacity-0');
+
         setTimeout(() => {
             this.modal.classList.add('hidden');
-            this.form.reset();
             this.currentId = null;
+            this.form.reset();
+            this.hideError();
         }, 300);
     }
 
-    handleDelete(e) {
-        e.preventDefault();
-        const id = this.currentId;
-        if (!id) return;
-        const idx = tempVehicles.findIndex(v => String(v.id) === String(id));
-        if (idx !== -1) tempVehicles.splice(idx, 1);
-        renderVehiclesTable();
-        this.closeModal();
+    hideError() {
+        this.errorDiv.style.display = 'none';
+        this.errorDiv.classList.add('hidden');
+    }
+
+    showError(message) {
+        this.errorText.textContent = message;
+        this.errorDiv.style.display = 'flex';
+        this.errorDiv.classList.remove('hidden');
+    }
+
+    async handleDelete(e) {
+    e.preventDefault();
+
+    const password = document.getElementById('deleteConfirmPassword').value;
+    
+    if (!password) {
+        this.showError('Password is required');
+        return;
+    }
+
+    // Log what we're sending
+    console.log('Deleting vehicle ID:', this.currentId);
+    console.log('Password provided:', password ? 'Yes' : 'No');
+
+    const submitBtn = this.form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+
+    try {
+        submitBtn.textContent = 'Deleting...';
+        submitBtn.disabled = true;
+
+        const res = await fetch(`/admin/vehicles/${this.currentId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                admin_password: password
+            })
+        });
+
+        console.log('Delete response status:', res.status);
+
+        const result = await res.json();
+        console.log('Delete response:', result);
+
+        if (res.ok) {
+            this.showSuccessMessage(result.message || 'Vehicle deleted successfully');
+            // Refresh the vehicles list
+            await loadVehicles();
+            this.closeModal();
+        } else {
+            // Handle different error statuses
+            if (res.status === 422) {
+                this.showError(result.message || result.errors?.admin_password?.[0] || 'Validation error');
+            } else if (res.status === 404) {
+                this.showError('Vehicle not found');
+                await loadVehicles(); // Refresh anyway
+            } else if (res.status === 401) {
+                this.showError('Authentication required. Please login again.');
+            } else {
+                this.showError(result.message || 'An error occurred while deleting');
+            }
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        this.showError('Network error: ' + error.message);
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const vehicleModal = new VehicleModal();
-    const deleteModal = new DeleteVehicleModal();
+    showSuccessMessage(message) {
+        const main = document.querySelector('main') || document.body;
+        const existing = document.getElementById('successMessageDynamic');
+        if (existing) existing.remove();
 
-    renderVehiclesTable();
+        const div = document.createElement('div');
+        div.id = 'successMessageDynamic';
+        div.className = 'mb-6 p-4 bg-green-600/20 border border-green-500 rounded-xl text-green-300 backdrop-blur-sm transition-all duration-300';
+        div.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>`;
+
+        const firstChild = main.firstElementChild;
+        if (firstChild) main.insertBefore(div, firstChild);
+        else main.appendChild(div);
+        
+        setTimeout(() => div.remove(), 5000);
+    }
+}
+
+/* -------------------------------
+   LOAD VEHICLES FROM DB
+--------------------------------*/
+async function loadVehicles() {
+    try {
+        console.log('Loading vehicles...');
+        const response = await fetch('/admin/vehicles/data');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Loaded vehicles:', data.length);
+        
+        vehicles = data;
+        renderVehiclesTable();
+    } catch (error) {
+        console.error('Error loading vehicles:', error);
+        // Fallback to initial data
+        vehicles = vehiclesData || [];
+        renderVehiclesTable();
+        
+        // Show error message to user
+        const main = document.querySelector('main');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300';
+        errorDiv.textContent = 'Error loading vehicles. Please refresh the page.';
+        main.insertBefore(errorDiv, main.firstChild);
+        
+        setTimeout(() => errorDiv.remove(), 5000);
+    }
+}
+/* -------------------------------
+   INIT PAGE
+--------------------------------*/
+document.addEventListener('DOMContentLoaded', async () => {
+    new VehicleModal();
+    new DeleteVehicleModal();
+
+    // Load initial data
+    await loadVehicles();
 
     const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('#vehiclesTable tr').forEach(row => {
-                const plate = row.cells[0]?.textContent.toLowerCase() || '';
-                const brand = row.cells[2]?.textContent.toLowerCase() || '';
-                row.style.display = (plate.includes(term) || brand.includes(term)) ? '' : 'none';
-            });
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+
+        document.querySelectorAll('#vehiclesTable tr').forEach(row => {
+            const plate = row.cells[0]?.textContent.toLowerCase() || '';
+            const brand = row.cells[2]?.textContent.toLowerCase() || '';
+            row.style.display = (plate.includes(term) || brand.includes(term)) ? '' : 'none';
         });
-    }
+    });
 });
 </script>
-
-@endsection

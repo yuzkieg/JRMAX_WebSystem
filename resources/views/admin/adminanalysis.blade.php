@@ -5,9 +5,11 @@
 
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500">
 
-    {{-- SIDEBAR --}}
-    <aside class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
-        <div class="p-6 flex flex-col items-center">
+   {{-- SIDEBAR --}}
+        <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+
+   <div class="p-6 flex flex-col items-center">
+
             <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
             <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>
         </div>

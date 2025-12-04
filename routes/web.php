@@ -11,7 +11,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FleetController;
 use App\Http\Controllers\BookingOfficerController;
 use App\Http\Controllers\EmployeeRecord;
-
+use App\Http\Controllers\VehicleController;
 
 
 // Public homepage
@@ -66,8 +66,20 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::delete('/admin/drivers/{id}', [DriverRecord::class, 'destroy'])
         ->name('admin.drivers.destroy');
     
-    Route::get('/admin/vehicles', fn() => view('admin.vehicles'));
+    // Vehicle CRUD routes
+    Route::get('/admin/vehicles', [VehicleController::class, 'index'])
+        ->name('admin.vehicles.index');
+    Route::get('/admin/vehicles/data', [VehicleController::class, 'getVehiclesData'])
+    ->name('admin.vehicles.data');
+    Route::post('/admin/vehicles', [VehicleController::class, 'store'])
+        ->name('admin.vehicles.store');
+    Route::put('/admin/vehicles/{vehicle}', [VehicleController::class, 'update'])
+        ->name('admin.vehicles.update');
+    Route::delete('/admin/vehicles/{vehicle_id}', [VehicleController::class, 'destroy'])
+    ->name('admin.vehicles.destroy');
+    
     Route::get('/admin/maintenance', fn() => view('admin.maintenance'));
+
 
     // Employee User CRUD routes
     Route::post('/admin/employees', [EmployeeController::class, 'store'])

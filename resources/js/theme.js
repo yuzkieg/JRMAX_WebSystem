@@ -30,6 +30,18 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.backgroundColor = mode === 'light' ? 'rgba(255,255,255,0.3)' : 'rgba(38,43,50,0.85)';
             el.style.color = mode === 'light' ? 'black' : 'white';
         });
+        // -------------------- Sidebar --------------------
+        const sidebar = document.getElementById("sidebar");
+
+if (sidebar) {
+    if (mode === "light") {
+        sidebar.style.backgroundColor = "#2F2F2F";  // medium gray
+        sidebar.style.color = "black";
+    } else {
+        sidebar.style.backgroundColor = "rgba(0,0,0,0.8)";
+        sidebar.style.color = "white";
+    }
+}
 
         // -------------------- Tables --------------------
         document.querySelectorAll('table').forEach(table => {
