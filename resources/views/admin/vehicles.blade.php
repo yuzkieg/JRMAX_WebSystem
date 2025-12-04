@@ -3,10 +3,68 @@
 @section('content')
 @vite('resources/css/app.css')
 
+<style>
+/* Theme-driven UI helpers (variables are synced from theme.js) */
+:root {
+    --action-edit: #2563EB;
+    --action-edit-hover: #1E40AF;
+    --action-delete: #B91C1C;
+    --action-delete-hover: #991B1B;
+    --status-green: #16A34A;
+    --nav-tab-text: #ffffff;
+    --type-pill-bg: rgba(255,255,255,0.04);
+    --type-pill-color: #ffffff;
+}
+
+#sidebar nav a {
+    color: var(--nav-tab-text) !important;
+}
+
+.action-edit {
+    background-color: var(--action-edit) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-edit img { filter: brightness(0) invert(1); }
+.action-edit:hover { background-color: var(--action-edit-hover) !important; }
+
+.action-delete {
+    background-color: var(--action-delete) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-delete img { filter: brightness(0) invert(1); }
+.action-delete:hover { background-color: var(--action-delete-hover) !important; }
+
+.type-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--type-pill-bg);
+    color: var(--type-pill-color);
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--status-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+td .action-edit, td .action-delete { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; }
+</style>
+
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
-    <aside class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+    <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
         <div class="p-6 flex flex-col items-center">
             <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
             <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>

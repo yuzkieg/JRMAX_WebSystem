@@ -12,6 +12,7 @@ use App\Http\Controllers\FleetController;
 use App\Http\Controllers\BookingOfficerController;
 use App\Http\Controllers\EmployeeRecord;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\VehicleMaintenanceController;
 
 
 // Public homepage
@@ -88,6 +89,20 @@ Route::middleware(['web', 'admin'])->group(function () {
         ->name('admin.employees.update');
     Route::delete('/admin/employees/{id}', [EmployeeController::class, 'destroy'])
         ->name('admin.employees.destroy');
+
+    // Maintenance CRUD routes
+Route::get('/admin/maintenance', [VehicleMaintenanceController::class, 'index'])
+    ->name('admin.maintenance');
+Route::post('/admin/maintenance', [VehicleMaintenanceController::class, 'store'])
+    ->name('admin.maintenance.store');
+Route::put('/admin/maintenance/{id}', [VehicleMaintenanceController::class, 'update'])
+    ->name('admin.maintenance.update');
+Route::delete('/admin/maintenance/{id}', [VehicleMaintenanceController::class, 'destroy'])
+    ->name('admin.maintenance.destroy');
+Route::patch('/admin/maintenance/{id}/status', [VehicleMaintenanceController::class, 'updateStatus'])
+    ->name('admin.maintenance.status');
+Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class, 'edit'])
+    ->name('admin.maintenance.edit');
 });
 
 Route::middleware(['web', 'fleet_assistant'])->group(function () {
