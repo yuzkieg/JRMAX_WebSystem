@@ -58,13 +58,13 @@
         {{-- SUCCESS MESSAGES --}}
         <div id="successMessageContainer"></div>
 
-        {{-- STATUS FILTERS --}}
+        {{-- STATUS FILTERS (charcoal default; red only when active) --}}
         <div class="flex flex-wrap gap-3 mb-6">
-            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-red-700 text-white hover:bg-red-500" data-status="all">All</button>
-            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600" data-status="scheduled">Scheduled</button>
-            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-blue-700 hover:bg-blue-600" data-status="in progress">In Progress</button>
-            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-green-700 hover:bg-green-600" data-status="completed">Completed</button>
-            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-yellow-700 hover:bg-yellow-600" data-status="cancelled">Cancelled</button>
+            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-white" data-status="all">All</button>
+            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-white" data-status="scheduled">Scheduled</button>
+            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-white" data-status="in progress">In Progress</button>
+            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-white" data-status="completed">Completed</button>
+            <button class="filter-btn px-4 py-2 rounded-lg transition-all duration-200 bg-gray-700 hover:bg-gray-600 text-white" data-status="cancelled">Cancelled</button>
         </div>
 
         {{-- SEARCH AND ADD MAINTENANCE --}}
@@ -102,11 +102,7 @@
                             <div class="text-sm text-gray-400">{{ $maintenance->vehicle->brand ?? '' }} {{ $maintenance->vehicle->model ?? '' }}</div>
                         </td>
                         <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                @if(in_array($maintenance->maintenance_type, ['repair', 'engine service'])) bg-red-900/30 text-red-300
-                                @elseif(in_array($maintenance->maintenance_type, ['oil change', 'tire replacement'])) bg-blue-900/30 text-blue-300
-                                @elseif($maintenance->maintenance_type === 'check-up') bg-green-900/30 text-green-300
-                                @else bg-gray-700 text-gray-300 @endif">
+                            <span class="text-sm font-medium text-gray-300">
                                 {{ ucwords(str_replace('-', ' ', $maintenance->maintenance_type)) }}
                             </span>
                         </td>

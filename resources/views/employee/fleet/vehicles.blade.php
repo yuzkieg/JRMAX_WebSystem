@@ -143,103 +143,173 @@ td .action-edit, td .action-delete { display:inline-flex; align-items:center; ju
             </table>
         </div>
 
-        {{-- ADD / EDIT VEHICLE MODAL --}}
-        <div id="vehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="vehicleBackdrop"></div>
-
-            <div id="vehicleModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4" id="vehicleModalTitle">Add Vehicle</h2>
-
-                <form id="vehicleForm">
-                    <input type="hidden" id="vehicle_id">
-
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Plate No.</label>
-                        <input type="text" id="plate_num" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" placeholder="ABC123" maxlength="7" required>
+      {{-- ADD / EDIT VEHICLE MODAL --}}
+<div id="vehicleModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" id="vehicleBackdrop"></div>
+    
+    <div class="fixed inset-0 overflow-y-auto">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div id="vehicleModalCard" class="relative w-full max-w-2xl transform scale-95 opacity-0 transition-all duration-300">
+                <div class="bg-gradient-to-br from-[#1a2026] to-[#262B32] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+                    {{-- Modal Header --}}
+                    <div class="px-6 py-4 border-b border-white/10 bg-black/20">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-white" id="vehicleModalTitle">Add Vehicle</h2>
+                                    <p class="text-sm text-gray-400 mt-0.5">Enter vehicle details below</p>
+                                </div>
+                            </div>
+                            <button type="button" onclick="closeVehicleModal()" class="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors cursor-pointer">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Brand</label>
-                        <input type="text" id="brand" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" placeholder="Toyota" maxlength="20" required>
-                    </div>
+                    {{-- Modal Body --}}
+                    <form id="vehicleForm" class="p-6">
+                        <input type="hidden" id="vehicle_id">
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Model</label>
-                        <input type="text" id="model" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" placeholder="Fortuner" maxlength="20" required>
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {{-- Column 1 --}}
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Plate Number *</label>
+                                    <input type="text" id="plate_num" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="ABC-1234" maxlength="10" required>
+                                    <p class="text-xs text-gray-500 mt-1">Enter valid plate number</p>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Year</label>
-                        <input type="number" id="year" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" min="1980" max="2099" required>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Brand *</label>
+                                    <input type="text" id="brand" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="Toyota" required>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Body Type</label>
-                        <input type="text" id="body_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" placeholder="SUV" maxlength="10" required>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Model *</label>
+                                    <input type="text" id="model" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="Fortuner" required>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Seat Capacity</label>
-                        <input type="number" id="seat_cap" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" min="1" required>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Year *</label>
+                                    <div class="relative">
+                                        <input type="number" id="year" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" min="1980" max="2099" required>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <span class="text-gray-500 text-sm">YR</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Transmission</label>
-                        <select id="transmission" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500">
-                            <option value="Automatic">Automatic</option>
-                            <option value="Manual">Manual</option>
-                        </select>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Body Type *</label>
+                                    <select id="body_type" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                                        <option value="SUV">SUV</option>
+                                        <option value="Sedan">Sedan</option>
+                                        <option value="MPV">MPV</option>
+                                        <option value="Pickup">Pickup</option>
+                                        <option value="Van">Van</option>
+                                        <option value="Hatchback">Hatchback</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Fuel Type</label>
-                        <select id="fuel_type" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500">
-                            <option value="Gasoline">Gasoline</option>
-                            <option value="Diesel">Diesel</option>
-                            <option value="Electric">Electric</option>
-                            <option value="Hybrid">Hybrid</option>
-                        </select>
-                    </div>
+                            {{-- Column 2 --}}
+                            <div class="space-y-4">
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Seat Capacity *</label>
+                                    <div class="relative">
+                                        <input type="number" id="seat_cap" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" min="1" required>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <span class="text-gray-500 text-sm">seats</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Color</label>
-                        <input type="text" id="color" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" placeholder="White" maxlength="10" required>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Transmission *</label>
+                                    <select id="transmission" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                                        <option value="Automatic">Automatic</option>
+                                        <option value="Manual">Manual</option>
+                                    </select>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Rate (₱)</label>
-                        <input type="number" id="price_rate" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500" min="0" required>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Fuel Type *</label>
+                                    <select id="fuel_type" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                                        <option value="Gasoline">Gasoline</option>
+                                        <option value="Diesel">Diesel</option>
+                                        <option value="Electric">Electric</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                </div>
 
-                    <div class="mb-3">
-                        <label class="block font-semibold mb-1">Driver (Optional)</label>
-                        <select id="driver" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none 
-                        focus:ring-2 focus:ring-red-500">
-                            <option value="">No Driver</option>
-                            @foreach($drivers as $driver)
-                                <option value="{{ $driver->id }}">{{ $driver->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Color *</label>
+                                    <div class="relative">
+                                        <input type="text" id="color" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="White" required>
+                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div class="w-3 h-3 rounded-full bg-current" id="colorPreview"></div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="flex justify-end mt-4 gap-3">
-                        <button type="button" id="closeVehicleModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
-                        <button type="submit" id="saveVehicleBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Save</button>
-                    </div>
-                </form>
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Daily Rate (₱) *</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                            <span class="text-gray-500 text-sm">₱</span>
+                                        </div>
+                                        <input type="number" id="price_rate" class="w-full pl-8 pr-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none 
+                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" min="0" step="100" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">Assigned Driver</label>
+                                    <select id="driver" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none 
+                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">
+                                        <option value="">— No Driver —</option>
+                                        @foreach($drivers as $driver)
+                                            <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Modal Footer --}}
+                        <div class="mt-8 pt-5 border-t border-white/10 flex justify-end gap-3">
+                            <button type="button" onclick="closeVehicleModal()" class="px-5 py-2.5 text-sm font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors cursor-pointer">
+                                Cancel
+                            </button>
+                            <button type="submit" id="saveVehicleBtn" class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Save Vehicle
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-
+    </div>
+</div>
         {{-- DELETE VEHICLE MODAL --}}
         <div id="deleteVehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deleteVehicleBackdrop"></div>
@@ -314,6 +384,33 @@ function renderVehiclesTable() {
 }
 
 /* -------------------------------
+   MODAL UTILITY FUNCTIONS
+--------------------------------*/
+function closeVehicleModal() {
+    const modal = document.getElementById('vehicleModal');
+    const modalCard = document.getElementById('vehicleModalCard');
+    modalCard.style.transform = 'scale(0.95)';
+    modalCard.style.opacity = '0';
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteVehicleModal');
+    const modalCard = modal.querySelector('.modal-content');
+    modalCard.style.transform = 'scale(0.9)';
+    modalCard.style.opacity = '0';
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        // Reset form
+        document.getElementById('deleteVehicleForm').reset();
+        document.getElementById('deleteVehicleError').style.display = 'none';
+    }, 300);
+}
+
+/* -------------------------------
    VEHICLE MODAL LOGIC
 --------------------------------*/
 class VehicleModal {
@@ -328,8 +425,16 @@ class VehicleModal {
 
     initializeEvents() {
         document.getElementById('addVehicleBtn').addEventListener('click', () => this.openModal());
-        document.getElementById('closeVehicleModalBtn').addEventListener('click', () => this.closeModal());
-        this.backdrop.addEventListener('click', () => this.closeModal());
+        
+        // Color preview update
+        document.getElementById('color')?.addEventListener('input', (e) => {
+            const preview = document.getElementById('colorPreview');
+            if (preview) {
+                const color = e.target.value.toLowerCase();
+                preview.style.backgroundColor = color;
+                preview.style.color = color;
+            }
+        });
 
         document.addEventListener('click', async (e) => {
             const editBtn = e.target.closest('.edit-vehicle-btn');
@@ -370,6 +475,13 @@ class VehicleModal {
         document.getElementById('color').value = vehicle.color;
         document.getElementById('price_rate').value = vehicle.price_rate;
 
+        // Update color preview
+        const preview = document.getElementById('colorPreview');
+        if (preview) {
+            preview.style.backgroundColor = vehicle.color.toLowerCase();
+            preview.style.color = vehicle.color.toLowerCase();
+        }
+
         // Driver select (null or number)
         document.getElementById('driver').value = vehicle.driver ?? "";
 
@@ -379,16 +491,9 @@ class VehicleModal {
     showModal() {
         this.modal.classList.remove('hidden');
         setTimeout(() => {
-            this.modalCard.classList.remove('scale-90', 'opacity-0');
-            this.modalCard.classList.add('scale-100', 'opacity-100');
+            this.modalCard.style.transform = 'scale(1)';
+            this.modalCard.style.opacity = '1';
         }, 10);
-    }
-
-    closeModal() {
-        this.modalCard.classList.remove('scale-100', 'opacity-100');
-        this.modalCard.classList.add('scale-90', 'opacity-0');
-
-        setTimeout(() => this.modal.classList.add('hidden'), 300);
     }
 
     resetForm() {
@@ -396,6 +501,13 @@ class VehicleModal {
         document.getElementById('vehicle_id').value = '';
         document.getElementById('transmission').value = 'Automatic';
         document.getElementById('fuel_type').value = 'Gasoline';
+        
+        // Reset color preview
+        const preview = document.getElementById('colorPreview');
+        if (preview) {
+            preview.style.backgroundColor = 'currentColor';
+            preview.style.color = 'currentColor';
+        }
     }
 
     async handleSave(e) {
@@ -459,7 +571,7 @@ class VehicleModal {
                 
                 // Reload vehicles data
                 await loadVehicles();
-                this.closeModal();
+                closeVehicleModal();
             } else {
                 // Handle validation errors
                 if (res.status === 422 && result.errors) {
@@ -510,9 +622,6 @@ class DeleteVehicleModal {
             this.openModal(delBtn.dataset.id, delBtn.dataset.name);
         });
 
-        document.getElementById('cancelDeleteVehicleBtn').addEventListener('click', () => this.closeModal());
-        this.backdrop.addEventListener('click', () => this.closeModal());
-
         this.form.addEventListener('submit', (e) => this.handleDelete(e));
     }
 
@@ -523,21 +632,9 @@ class DeleteVehicleModal {
 
         this.modal.classList.remove('hidden');
         setTimeout(() => {
-            this.modalCard.classList.remove('scale-90', 'opacity-0');
-            this.modalCard.classList.add('scale-100', 'opacity-100');
+            this.modalCard.style.transform = 'scale(1)';
+            this.modalCard.style.opacity = '1';
         }, 10);
-    }
-
-    closeModal() {
-        this.modalCard.classList.remove('scale-100', 'opacity-100');
-        this.modalCard.classList.add('scale-90', 'opacity-0');
-
-        setTimeout(() => {
-            this.modal.classList.add('hidden');
-            this.currentId = null;
-            this.form.reset();
-            this.hideError();
-        }, 300);
     }
 
     hideError() {
@@ -586,7 +683,7 @@ class DeleteVehicleModal {
                 this.showSuccessMessage(result.message || 'Vehicle deleted successfully');
                 // Refresh the vehicles list
                 await loadVehicles();
-                this.closeModal();
+                closeDeleteModal();
             } else {
                 // Handle different error statuses
                 if (res.status === 422) {
@@ -696,6 +793,47 @@ function showSuccessMessage(message, type = 'success') {
     }, 5000);
 }
 
+/* -------------------------------
+   THEME TOGGLE
+--------------------------------*/
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    
+    themeToggle.addEventListener('click', function() {
+        const icon = document.getElementById('theme-icon');
+        const text = this.querySelector('span');
+        
+        if (icon.src.includes('moon.png')) {
+            icon.src = '{{ asset("assets/sun.png") }}';
+            text.textContent = 'Light Mode';
+            document.documentElement.classList.add('light');
+        } else {
+            icon.src = '{{ asset("assets/moon.png") }}';
+            text.textContent = 'Dark Mode';
+            document.documentElement.classList.remove('light');
+        }
+    });
+}
+
+/* -------------------------------
+   SEARCH FUNCTIONALITY
+--------------------------------*/
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+
+        document.querySelectorAll('#vehiclesTable tr').forEach(row => {
+            const plate = row.cells[0]?.textContent.toLowerCase() || '';
+            const brand = row.cells[2]?.textContent.toLowerCase() || '';
+            row.style.display = (plate.includes(term) || brand.includes(term)) ? '' : 'none';
+        });
+    });
+}
+
 // Add animation CSS
 const style = document.createElement('style');
 style.textContent = `
@@ -713,23 +851,16 @@ document.head.appendChild(style);
    INIT PAGE
 --------------------------------*/
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize modal classes
     new VehicleModal();
     new DeleteVehicleModal();
+    
+    // Setup utility functions
+    setupThemeToggle();
+    setupSearch();
 
     // Load initial data
     await loadVehicles();
-
-    // Search functionality
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-
-        document.querySelectorAll('#vehiclesTable tr').forEach(row => {
-            const plate = row.cells[0]?.textContent.toLowerCase() || '';
-            const brand = row.cells[2]?.textContent.toLowerCase() || '';
-            row.style.display = (plate.includes(term) || brand.includes(term)) ? '' : 'none';
-        });
-    });
 
     // Check for session messages
     @if(session('success'))
@@ -739,6 +870,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     @if(session('error'))
         showSuccessMessage('{{ session('error') }}', 'error');
     @endif
+    
+    // Add backdrop click handlers
+    document.getElementById('vehicleBackdrop')?.addEventListener('click', closeVehicleModal);
+    document.getElementById('deleteVehicleBackdrop')?.addEventListener('click', closeDeleteModal);
+    
+    // Add cancel button handler for delete modal
+    document.getElementById('cancelDeleteVehicleBtn')?.addEventListener('click', closeDeleteModal);
 });
 </script>
 @endsection
