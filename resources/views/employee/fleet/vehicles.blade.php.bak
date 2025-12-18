@@ -1,0 +1,291 @@
+@extends('layouts.app')
+
+@section('content')
+@vite('resources/css/app.css')
+
+<style>
+/* Theme-driven UI helpers */
+:root {
+    --action-edit: #2563EB;
+    --action-edit-hover: #1E40AF;
+    --action-delete: #B91C1C;
+    --action-delete-hover: #991B1B;
+    --status-green: #16A34A;
+    --nav-tab-text: #ffffff;
+    --type-pill-bg: rgba(255,255,255,0.04);
+    --type-pill-color: #ffffff;
+}
+
+.action-edit {
+    background-color: var(--action-edit) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-edit img { filter: brightness(0) invert(1); }
+.action-edit:hover { background-color: var(--action-edit-hover) !important; }
+
+.action-delete {
+    background-color: var(--action-delete) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-delete img { filter: brightness(0) invert(1); }
+.action-delete:hover { background-color: var(--action-delete-hover) !important; }
+
+.type-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--type-pill-bg);
+    color: var(--type-pill-color);
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+.status-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: var(--status-green);
+    color: #fff;
+    font-weight: 700;
+    font-size: .85rem;
+}
+
+td .action-edit, td .action-delete { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; }
+/* Hide scrollbar for edit modal while keeping scroll functionality */
+#vehicleModalCard {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    overflow-y: auto;
+}
+#vehicleModalCard::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* View button adjustments */
+.view-vehicle-btn span { display:inline-flex; align-items:center; justify-content:center; }
+.view-vehicle-btn img { width: 1rem; height: 1rem; }
+
+/* Increase edit/delete icon sizes slightly to match admin */
+.edit-vehicle-btn img, .delete-vehicle-btn img { width: 1.25rem !important; height: 1.25rem !important; }
+</style>
+
+<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+
+    {{-- SIDEBAR --}}
+    <aside class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+        <div class="p-6 flex flex-col items-center">
+            <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
+            <h2 class="text-xl font-bold tracking-wide text-red-500">FLEET</h2>
+        </div>
+
+        @php
+            $menuItems = [
+                ['name' => 'Vehicle Management', 'url' => '/employee/fleet/vehicles'],
+                ['name' => 'Vehicle Maintenance', 'url' => '/employee/fleet/maintenance'],
+            ];
+        @endphp
+
+        <nav class="mt-10 space-y-2 px-4">
+            @foreach ($menuItems as $item)
+                <a href="{{ $item['url'] }}"
+                   class="block py-3 px-4 rounded-lg hover:bg-red-600/40 hover:translate-x-2 transition-all duration-300 text-white">
+                    {{ $item['name'] }}
+                </a>
+            @endforeach
+        </nav>
+    </aside>
+
+    {{-- MAIN CONTENT --}}
+    <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        </div>
+                                                            <span class="text-gray-500 text-sm">₱</span>                                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">                                    <div class="relative">                                    <label class="block text-sm font-medium text-gray-300 mb-2">Daily Rate (₱) *</label>
+                                <div class="form-group">                                </div>                                    </div>                                        </div>                                            <div class="w-3 h-3 rounded-full bg-current" id="colorPreview"></div>                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="White" required>                                        <input type="text" id="color" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <div class="relative">                                    <label class="block text-sm font-medium text-gray-300 mb-2">Color *</label>
+                                <div class="form-group">                                </div>                                    </select>                                        <option value="Hybrid">Hybrid</option>                                        <option value="Electric">Electric</option>                                        <option value="Diesel">Diesel</option>                                        <option value="Gasoline">Gasoline</option>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">                                    <select id="fuel_type" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Fuel Type *</label>
+                                <div class="form-group">                                </div>                                    </select>                                        <option value="Manual">Manual</option>                                        <option value="Automatic">Automatic</option>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">                                    <select id="transmission" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Transmission *</label>
+                                <div class="form-group">                                </div>                                    </div>                                        </div>                                            <span class="text-gray-500 text-sm">seats</span>                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" min="1" required>                                        <input type="number" id="seat_cap" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <div class="relative">                                    <label class="block text-sm font-medium text-gray-300 mb-2">Seat Capacity *</label>                                <div class="form-group">                            <div class="space-y-4">
+                            {{-- Column 2 --}}                            </div>                                </div>                                    </select>                                        <option value="Hatchback">Hatchback</option>                                        <option value="Van">Van</option>                                        <option value="Pickup">Pickup</option>                                        <option value="MPV">MPV</option>                                        <option value="Sedan">Sedan</option>                                        <option value="SUV">SUV</option>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all">                                    <select id="body_type" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Body Type *</label>
+                                <div class="form-group">                                </div>                                    </div>                                        </div>                                            <span class="text-gray-500 text-sm">YR</span>                                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">                                        focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" min="1980" max="2099" required>                                        <input type="number" id="year" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <div class="relative">                                    <label class="block text-sm font-medium text-gray-300 mb-2">Year *</label>
+                                <div class="form-group">                                </div>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="Fortuner" required>                                    <input type="text" id="model" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Model *</label>
+                                <div class="form-group">                                </div>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="Toyota" required>                                    <input type="text" id="brand" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Brand *</label>
+                                <div class="form-group">                                </div>                                    <p class="text-xs text-gray-500 mt-1">Enter valid plate number</p>                                    focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all" placeholder="ABC-1234" maxlength="10" required>                                    <input type="text" id="plate_num" class="w-full px-3 py-2.5 bg-black/30 border border-white/10 rounded-lg text-white text-sm placeholder-gray-500 outline-none                                     <label class="block text-sm font-medium text-gray-300 mb-2">Plate Number *</label>                                <div class="form-group">                            <div class="space-y-4">                            {{-- Column 1 --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">                        <input type="hidden" id="vehicle_id">                    <form id="vehicleForm" class="p-6">
+                    {{-- Modal Body --}}                    </div>                        </div>                            </button>                                </svg>                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">                            <button type="button" onclick="closeVehicleModal()" class="text-gray-400 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors cursor-pointer">                            </div>                                </div>                                    <p class="text-sm text-gray-400 mt-0.5">Enter vehicle details below</p>                                    <h2 class="text-xl font-bold text-white" id="vehicleModalTitle">Add Vehicle</h2>                                <div>                                </div>                                    </svg>                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">                                <div class="w-8 h-8 rounded-lg bg-red-600/20 flex items-center justify-center">                            <div class="flex items-center gap-3">                        <div class="flex items-center justify-between">                    <div class="px-6 py-4 border-b border-white/10 bg-black/20">                    {{-- Modal Header --}}                <div class="bg-gradient-to-br from-[#1a2026] to-[#262B32] rounded-2xl shadow-2xl border border-white/10 overflow-hidden">            <div id="vehicleModalCard" class="relative w-full max-w-2xl transform scale-95 opacity-0 transition-all duration-300">        <div class="flex min-h-full items-center justify-center p-4">    
+    <div class="fixed inset-0 overflow-y-auto">    <div class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" id="vehicleBackdrop"></div><div id="vehicleModal" class="fixed inset-0 z-50 hidden">
+      {{-- ADD / EDIT VEHICLE MODAL --}}        </div>            </table>                </tbody>                <tbody id="vehiclesTable" class="text-white">                </thead>                    </tr>                        <th class="p-4 text-center">Actions</th>                        <th class="p-4">Rate</th>                        <th class="p-4">Capacity</th>                        <th class="p-4">Transmission</th>                        <th class="p-4">Color</th>                        <th class="p-4">Brand / Model</th>                        <th class="p-4">Type</th>                        <th class="p-4">Plate No.</th>                    <tr>                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">            <table class="w-full text-left">        <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
+        {{-- VEHICLE TABLE --}}        </div>            </button>                + Add Vehicle
+            <button id="addVehicleBtn" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">                   id="searchInput">                   focus:ring-2 focus:ring-red-500 transition-all duration-300"                   class="w-80 p-3 rounded-xl bg-black/20 text-white placeholder-gray-300 outline-none             <input type="text" placeholder="Search plate, model or brand..."        <div class="flex justify-between items-center mb-6">
+        {{-- SEARCH and ADD VEHICLE --}}        <div id="successMessageContainer"></div>
+        {{-- SUCCESS MESSAGES --}}        </div>            </div>                </form>                    </button>                        <span>Logout</span>                        <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">                    @csrf                <form method="POST" action="/logout">
+                {{-- Logout --}}                </button>                    <span class="font-medium text-white">Dark Mode</span>                    <img id="theme-icon" src="{{ asset('assets/moon.png') }}" class="w-6 h-6 transition-transform duration-500">                <button id="theme-toggle" class="flex items-center gap-2 bg-black/30 backdrop-blur-xl p-2 rounded-lg hover:bg-[#998282] transition-all duration-300 cursor-pointer">                {{-- Theme Toggle --}}
+            <div class="flex items-center space-x-4">            <h1 class="text-3xl font-bold text-red-500 drop-shadow-lg">Vehicle Management</h1>            <div class="flex justify-between items-center mb-6">        {{-- HEADER --}}

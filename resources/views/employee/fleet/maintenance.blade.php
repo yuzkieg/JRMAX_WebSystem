@@ -376,53 +376,55 @@ document.getElementById('searchInput').addEventListener('input', function(e) {
 
 // Status update functionality
 document.addEventListener('click', async function(e) {
-    if (e.target.closest('.status-btn')) {
-        const btn = e.target.closest('.status-btn');
-        const id = btn.dataset.id;
-        const action = btn.dataset.action;
-        
-        let newStatus;
-        if (action === 'next') {
-            const btnText = btn.textContent.trim();
-            if (btnText.includes('Start')) newStatus = 'in progress';
-            else if (btnText.includes('Complete')) newStatus = 'completed';
-        }
-        
-        if (!newStatus) return;
-        
-        try {
-            btn.disabled = true;
-            btn.innerHTML = 'Updating...';
-            
-            const res = await fetch(`/employee/fleet/maintenance/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-            
-            const result = await res.json();
-            
-            if (res.ok) {
-                showSuccessMessage(result.message || 'Status updated successfully', 'success');
-                
-                // Reload page after showing message
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                showSuccessMessage(result.message || 'Error updating status', 'error');
-                btn.disabled = false;
-                btn.innerHTML = action === 'next' ? (newStatus === 'in progress' ? 'Start' : 'Complete') : 'Update';
-            }
-        } catch (error) {
-            showSuccessMessage('Network error: ' + error.message, 'error');
+    // Safely resolve an element to call closest() on (avoid text node target issues)
+    const clickedElem = e.target instanceof Element ? e.target : (e.target && e.target.parentElement) ? e.target.parentElement : null;
+    const btn = clickedElem ? clickedElem.closest('.status-btn') : null;
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+
+    let newStatus;
+    if (action === 'next') {
+        const btnText = btn.textContent.trim();
+        if (btnText.includes('Start')) newStatus = 'in progress';
+        else if (btnText.includes('Complete')) newStatus = 'completed';
+    }
+
+    if (!newStatus) return;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = 'Updating...';
+
+        const res = await fetch(`/employee/fleet/maintenance/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            showSuccessMessage(result.message || 'Status updated successfully', 'success');
+
+            // Reload page after showing message
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showSuccessMessage(result.message || 'Error updating status', 'error');
             btn.disabled = false;
             btn.innerHTML = action === 'next' ? (newStatus === 'in progress' ? 'Start' : 'Complete') : 'Update';
         }
+    } catch (error) {
+        showSuccessMessage('Network error: ' + error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = action === 'next' ? (newStatus === 'in progress' ? 'Start' : 'Complete') : 'Update';
     }
 });
 
@@ -443,9 +445,10 @@ class MaintenanceModal {
 
         // Edit button clicks
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.edit-btn');
+            const clickedElem = e.target instanceof Element ? e.target : (e.target && e.target.parentElement) ? e.target.parentElement : null;
+            const btn = clickedElem ? clickedElem.closest('.edit-btn') : null;
             if (!btn) return;
-            
+
             const id = btn.dataset.id;
             this.openEditModal(id);
         });
@@ -605,9 +608,10 @@ class DeleteMaintenanceModal {
 
     initializeEvents() {
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.delete-btn');
+            const clickedElem = e.target instanceof Element ? e.target : (e.target && e.target.parentElement) ? e.target.parentElement : null;
+            const btn = clickedElem ? clickedElem.closest('.delete-btn') : null;
             if (!btn) return;
-            
+
             this.openModal(btn.dataset.id, btn.dataset.plate);
         });
 

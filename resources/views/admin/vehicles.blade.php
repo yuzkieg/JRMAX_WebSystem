@@ -10,6 +10,8 @@
     --action-edit-hover: #1E40AF;
     --action-delete: #B91C1C;
     --action-delete-hover: #991B1B;
+    --action-view: #10B981;
+    --action-view-hover: #059669;
     --status-green: #16A34A;
     --nav-tab-text: #ffffff;
     --type-pill-bg: rgba(255,255,255,0.04);
@@ -38,6 +40,15 @@
 .action-delete img { filter: brightness(0) invert(1); }
 .action-delete:hover { background-color: var(--action-delete-hover) !important; }
 
+.action-view {
+    background-color: var(--action-view) !important;
+    color: #fff !important;
+    padding: .5rem .9rem;
+    border-radius: .5rem;
+}
+.action-view img { filter: brightness(0) invert(1); }
+.action-view:hover { background-color: var(--action-view-hover) !important; }
+
 .type-pill {
     display: inline-block;
     padding: .18rem .6rem;
@@ -58,7 +69,12 @@
     font-size: .85rem;
 }
 
-td .action-edit, td .action-delete { display:inline-flex; align-items:center; justify-content:center; gap:.35rem; }
+td .action-edit, td .action-delete, td .action-view { 
+    display:inline-flex; 
+    align-items:center; 
+    justify-content:center; 
+    gap:.35rem; 
+}
 
 /* Image styling */
 .vehicle-image {
@@ -67,6 +83,15 @@ td .action-edit, td .action-delete { display:inline-flex; align-items:center; ju
     object-fit: cover;
     border-radius: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vehicle-image-large {
+    width: 256px;
+    height: 192px;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 auto;
 }
 
 .image-preview {
@@ -83,6 +108,80 @@ td .action-edit, td .action-delete { display:inline-flex; align-items:center; ju
 
 .status-unavailable {
     background-color: #DC2626 !important;
+}
+
+/* View Details modal specific */
+.detail-label {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-size: 0.875rem;
+    color: #fff;
+    font-weight: 500;
+}
+
+.detail-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.spec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Hide scrollbar for edit modal while keeping scroll functionality */
+#vehicleModalCard {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    overflow-y: auto;
+}
+#vehicleModalCard::-webkit-scrollbar { 
+    display: none; 
+    width: 0; 
+    height: 0; 
+}
+
+/* Hide scrollbar for view modal too */
+#viewVehicleModalCard {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow-y: auto;
+}
+#viewVehicleModalCard::-webkit-scrollbar { 
+    display: none; 
+    width: 0; 
+    height: 0; 
+}
+
+/* Center View Details label in table */
+.view-vehicle-btn span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Increase icon sizes for edit and delete buttons */
+.edit-vehicle-btn img,
+.delete-vehicle-btn img {
+    width: 1.25rem !important;  /* Increased from 1rem to 1.25rem */
+    height: 1.25rem !important; /* Increased from 1rem to 1.25rem */
+}
+
+.view-vehicle-btn img {
+    width: 1rem;
+    height: 1rem;
 }
 </style>
 
@@ -180,8 +279,13 @@ td .action-edit, td .action-delete { display:inline-flex; align-items:center; ju
         <div id="vehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="vehicleBackdrop"></div>
 
-            <div id="vehicleModalCard" class="modal-content relative w-[500px] p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4" id="vehicleModalTitle">Add Vehicle</h2>
+            <div id="vehicleModalCard" class="modal-content relative w-full max-w-2xl max-h-[85vh] p-4 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+                    <h2 class="text-2xl font-bold text-red-500" id="vehicleModalTitle">Add Vehicle</h2>
+                    <button type="button" onclick="closeVehicleModal()" class="text-gray-400 hover:text-white text-2xl font-light cursor-pointer">
+                        &times;
+                    </button>
+                </div>
 
                 <form id="vehicleForm">
                     <div id="vehicleFormError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm"></div>
@@ -304,10 +408,28 @@ td .action-edit, td .action-delete { display:inline-flex; align-items:center; ju
                     </div>
 
                     <div class="flex justify-end mt-6 gap-3">
-                        <button type="button" id="closeVehicleModalBtn" class="cursor-pointer px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-all">Cancel</button>
+                        <button type="button" onclick="closeVehicleModal()" class="cursor-pointer px-5 py-2.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition-all">Cancel</button>
                         <button type="submit" id="saveVehicleBtn" class="cursor-pointer px-5 py-2.5 bg-red-700 hover:bg-red-600 rounded-lg text-white transition-all">Save Vehicle</button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        {{-- VIEW VEHICLE DETAILS MODAL --}}
+        <div id="viewVehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="viewVehicleBackdrop"></div>
+
+            <div id="viewVehicleModalCard" class="modal-content relative w-full max-w-2xl max-h-[85vh] p-4 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+                    <h2 class="text-2xl font-bold text-red-500" id="viewVehicleModalTitle">Vehicle Details</h2>
+                    <button type="button" onclick="closeViewVehicleModal()" class="text-gray-400 hover:text-white text-2xl font-light cursor-pointer">
+                        &times;
+                    </button>
+                </div>
+
+                <div id="viewVehicleContent">
+                    <!-- Vehicle details will be loaded here -->
+                </div>
             </div>
         </div>
 
@@ -342,6 +464,9 @@ let vehicles = [];
 
 // Global vehicles data from PHP
 const vehiclesData = @json($vehicles ?? []);
+
+// Global modal instances
+let vehicleModalInstance, viewVehicleModalInstance, deleteVehicleModalInstance;
 
 // Image preview function
 function previewImage(event) {
@@ -384,19 +509,17 @@ function renderVehiclesTable() {
             <td class="p-4">
                 <img src="${vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}"}"
                      alt="${vehicle.brand} ${vehicle.model}"
-                     class="vehicle-image hover:scale-105 transition-transform duration-200 cursor-pointer"
-                     onclick="this.classList.toggle('scale-150'); setTimeout(() => this.classList.remove('scale-150'), 2000)">
+                     class="vehicle-image hover:scale-105 transition-transform duration-200 cursor-pointer">
             </td>
-            <td class="p-4 font-semibold plate-cell">${vehicle.plate_num}</td>
-            <td class="p-4 type-cell">
+            <td class="p-4 font-semibold">${vehicle.plate_num}</td>
+            <td class="p-4">
                 <span class="type-pill">${vehicle.body_type}</span>
             </td>
-            <td class="p-4 brand-cell">
+            <td class="p-4">
                 <div class="font-bold">${vehicle.brand}</div>
                 <div class="text-sm text-gray-300">${vehicle.model} (${vehicle.year})</div>
             </td>
-            <td class="p-4 driver-cell">${driverName}</td>
-            <td class="p-4 color-cell">${vehicle.color}</td>
+            <td class="p-4">${vehicle.color}</td>
             <td class="p-4">${vehicle.transmission}</td>
             <td class="p-4">${vehicle.seat_cap} seats</td>
             <td class="p-4 font-bold text-green-400">₱${Number(vehicle.price_rate).toLocaleString()}</td>
@@ -406,18 +529,27 @@ function renderVehiclesTable() {
                 </span>
             </td>
             <td class="p-4 text-center">
-                <div class="flex justify-center gap-3">
-                    <button type="button" class="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow edit-vehicle-btn"
+               <div class="flex justify-center gap-1">
+    <button
+        type="button"
+        class="cursor-pointer px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm shadow view-vehicle-btn flex items-center gap-2"
+        data-id="${vehicle.vehicle_id}"
+    >
+        <img src="{{ asset('assets/file.png') }}" class="w-4 h-4">
+        <span class="text-sm leading-none">View Details</span>
+    </button>
+
+
+
+                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md text-white shadow edit-vehicle-btn flex items-center"
                         data-id="${vehicle.vehicle_id}">
-                        <img src="{{ asset('assets/edit.png') }}" class="w-4 h-4 inline mr-2">
-                        Edit
+                        <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5 inline">
                     </button>
 
-                    <button type="button" class="cursor-pointer px-4 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow delete-vehicle-btn"
+                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-[#742121] hover:bg-red-500 rounded-md text-white shadow delete-vehicle-btn flex items-center"
                         data-id="${vehicle.vehicle_id}"
                         data-name="${vehicle.plate_num}">
-                        <img src="{{ asset('assets/delete.png') }}" class="w-4 h-4 inline mr-2">
-                        Delete
+                        <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5 inline">
                     </button>
                 </div>
             </td>
@@ -435,13 +567,13 @@ class VehicleModal {
         this.modalCard = document.getElementById('vehicleModalCard');
         this.backdrop = document.getElementById('vehicleBackdrop');
         this.form = document.getElementById('vehicleForm');
+        this.closeButton = this.modalCard.querySelector('button[onclick="closeVehicleModal()"]');
 
         this.initializeEvents();
     }
 
     initializeEvents() {
         document.getElementById('addVehicleBtn').addEventListener('click', () => this.openModal());
-        document.getElementById('closeVehicleModalBtn').addEventListener('click', () => this.closeModal());
         this.backdrop.addEventListener('click', () => this.closeModal());
 
         document.addEventListener('click', async (e) => {
@@ -654,6 +786,161 @@ class VehicleModal {
 }
 
 /* -------------------------------
+   VIEW VEHICLE DETAILS MODAL LOGIC
+--------------------------------*/
+class ViewVehicleModal {
+    constructor() {
+        this.modal = document.getElementById('viewVehicleModal');
+        this.modalCard = document.getElementById('viewVehicleModalCard');
+        this.backdrop = document.getElementById('viewVehicleBackdrop');
+        this.content = document.getElementById('viewVehicleContent');
+
+        this.initializeEvents();
+    }
+
+    initializeEvents() {
+        this.backdrop.addEventListener('click', () => this.closeModal());
+        
+        document.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.view-vehicle-btn');
+            if (!viewBtn) return;
+
+            const id = viewBtn.dataset.id;
+            const vehicle = vehicles.find(v => v.vehicle_id == id);
+            if (!vehicle) return;
+
+            this.showVehicleDetails(vehicle);
+        });
+    }
+
+    showVehicleDetails(vehicle) {
+        // Get driver name
+        let driverName = 'No Driver';
+        if (vehicle.driver_info && vehicle.driver_info.name) {
+            driverName = vehicle.driver_info.name;
+        } else if (vehicle.driver && typeof vehicle.driver === 'object' && vehicle.driver.name) {
+            driverName = vehicle.driver.name;
+        }
+        
+        // Determine availability
+        const isAvailable = vehicle.is_available !== false;
+        const statusClass = isAvailable ? 'status-available' : 'status-unavailable';
+        const statusText = isAvailable ? 'Available for Booking' : 'Not Available';
+        
+        const html = `
+            <div class="space-y-6">
+                <!-- Vehicle Image -->
+                <div class="text-center">
+                    <img src="${vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}"}"
+                         alt="${vehicle.brand} ${vehicle.model}"
+                         class="vehicle-image-large mb-4">
+                </div>
+
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="detail-card">
+                        <div class="detail-label">Plate Number</div>
+                        <div class="detail-value font-bold text-xl">${vehicle.plate_num}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="status-pill ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Specifications -->
+                <div class="bg-black/30 p-4 rounded-xl">
+                    <h3 class="text-lg font-semibold text-red-500 mb-3">Vehicle Specifications</h3>
+                    <div class="spec-grid">
+                        <div class="detail-card">
+                            <div class="detail-label">Brand</div>
+                            <div class="detail-value">${vehicle.brand}</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">Model</div>
+                            <div class="detail-value">${vehicle.model}</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">Year</div>
+                            <div class="detail-value">${vehicle.year}</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">Body Type</div>
+                            <div class="detail-value">${vehicle.body_type}</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">Color</div>
+                            <div class="detail-value">${vehicle.color}</div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <div class="detail-label">Seat Capacity</div>
+                            <div class="detail-value">${vehicle.seat_cap} seats</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="detail-card">
+                        <div class="detail-label">Transmission</div>
+                        <div class="detail-value">${vehicle.transmission}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Fuel Type</div>
+                        <div class="detail-value">${vehicle.fuel_type}</div>
+                    </div>
+                </div>
+
+                <!-- Driver Assignment -->
+                <div class="detail-card">
+                    <div class="detail-label">Assigned Driver</div>
+                    <div class="detail-value">${driverName}</div>
+                </div>
+
+                <!-- Pricing Information -->
+                <div class="bg-green-900/20 p-4 rounded-xl border border-green-700/30">
+                    <div class="detail-label">Daily Rental Rate</div>
+                    <div class="detail-value text-2xl font-bold text-green-400">₱${Number(vehicle.price_rate).toLocaleString()}</div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="text-xs text-gray-400 mt-4 pt-4 border-t border-white/10">
+                    <p>Vehicle ID: ${vehicle.vehicle_id}</p>
+                    <p>Last Updated: ${new Date(vehicle.updated_at || vehicle.created_at).toLocaleString()}</p>
+                </div>
+            </div>
+        `;
+
+        this.content.innerHTML = html;
+        document.getElementById('viewVehicleModalTitle').textContent = `${vehicle.brand} ${vehicle.model}`;
+        this.showModal();
+    }
+
+    showModal() {
+        this.modal.classList.remove('hidden');
+        setTimeout(() => {
+            this.modalCard.classList.remove('scale-90', 'opacity-0');
+            this.modalCard.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    closeModal() {
+        this.modalCard.classList.remove('scale-100', 'opacity-100');
+        this.modalCard.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => this.modal.classList.add('hidden'), 300);
+    }
+}
+
+/* -------------------------------
    DELETE MODAL LOGIC
 --------------------------------*/
 class DeleteVehicleModal {
@@ -839,11 +1126,28 @@ async function loadVehicles() {
 }
 
 /* -------------------------------
+   GLOBAL FUNCTIONS FOR MODAL CLOSE BUTTONS
+--------------------------------*/
+function closeVehicleModal() {
+    if (vehicleModalInstance) {
+        vehicleModalInstance.closeModal();
+    }
+}
+
+function closeViewVehicleModal() {
+    if (viewVehicleModalInstance) {
+        viewVehicleModalInstance.closeModal();
+    }
+}
+
+/* -------------------------------
    INIT PAGE
 --------------------------------*/
 document.addEventListener('DOMContentLoaded', async () => {
-    new VehicleModal();
-    new DeleteVehicleModal();
+    // Create modal instances
+    vehicleModalInstance = new VehicleModal();
+    viewVehicleModalInstance = new ViewVehicleModal();
+    deleteVehicleModalInstance = new DeleteVehicleModal();
 
     // Load initial data
     await loadVehicles();
