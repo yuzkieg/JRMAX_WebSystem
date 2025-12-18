@@ -15,6 +15,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\VehicleMaintenanceController;
 use App\Http\Controllers\FleetVehicleController;
 use App\Http\Controllers\FleetMaintenanceController;
+use App\Http\Controllers\BookingController;
 
 
 // Public homepage
@@ -105,6 +106,20 @@ Route::patch('/admin/maintenance/{id}/status', [VehicleMaintenanceController::cl
     ->name('admin.maintenance.status');
 Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class, 'edit'])
     ->name('admin.maintenance.edit');
+
+
+    //Booking
+    Route::get('/admin/booking', [BookingController::class, 'index'])->name('admin.booking');
+    Route::post('/admin/booking', [BookingController::class, 'store'])->name('admin.booking.store');
+    Route::get('/admin/booking/{id}', [BookingController::class, 'show'])->name('admin.booking.show');
+    Route::get('/admin/booking/{id}/edit', [BookingController::class, 'edit'])->name('admin.booking.edit');
+    Route::put('/admin/booking/{id}', [BookingController::class, 'update'])->name('admin.booking.update');
+    Route::get('/admin/booking/calendar', [BookingController::class, 'calendar'])->name('admin.booking.calendar');
+    Route::post('/admin/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('admin.booking.check-availability');
+    Route::get('/admin/booking/stats', [BookingController::class, 'getStats'])->name('admin.booking.stats');
+    
+    // AJAX routes
+    Route::post('/booking/calculate-price', [BookingController::class, 'calculatePrice'])->name('admin.booking.calculate-price');
 });
 
 

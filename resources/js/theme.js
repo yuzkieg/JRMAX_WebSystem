@@ -14,34 +14,62 @@ document.addEventListener("DOMContentLoaded", () => {
             document.head.appendChild(style);
         }
         style.innerHTML = `
-            .modal-content input::placeholder,
-            .modal-content textarea::placeholder,
-            .modal-content select::placeholder,
-            #searchInput::placeholder {
+            input::placeholder,
+            textarea::placeholder,
+            select::placeholder,
+            .form-group input::placeholder,
+            .form-group textarea::placeholder {
                 color: ${color} !important;
             }
         `;
     }
 
+    // -------------------- Apply color variables --------------------
+    function applyColorVars(mode) {
+        const root = document.documentElement;
+        if (mode === 'light') {
+            root.style.setProperty('--nav-bg', '#2F2F2F');
+            root.style.setProperty('--nav-tab-text', '#ffffff');
+            root.style.setProperty('--action-edit', '#2563EB');
+            root.style.setProperty('--action-edit-hover', '#1E40AF');
+            root.style.setProperty('--action-delete', '#B91C1C');
+            root.style.setProperty('--action-delete-hover', '#991B1B');
+            root.style.setProperty('--type-pill-bg', 'rgba(0,0,0,0.1)');
+            root.style.setProperty('--type-pill-color', '#000000');
+        } else {
+            root.style.setProperty('--nav-bg', 'rgba(0,0,0,0.8)');
+            root.style.setProperty('--nav-tab-text', '#ffffff');
+            root.style.setProperty('--action-edit', '#2563EB');
+            root.style.setProperty('--action-edit-hover', '#1E40AF');
+            root.style.setProperty('--action-delete', '#B91C1C');
+            root.style.setProperty('--action-delete-hover', '#991B1B');
+            root.style.setProperty('--type-pill-bg', 'rgba(255,255,255,0.04)');
+            root.style.setProperty('--type-pill-color', '#ffffff');
+        }
+    }
+
     // -------------------- Main function to apply theme --------------------
     function setTheme(mode) {
+        // Apply CSS variables
+        applyColorVars(mode);
+
         // -------------------- Cards --------------------
         document.querySelectorAll('.card-text').forEach(el => {
             el.style.backgroundColor = mode === 'light' ? 'rgba(255,255,255,0.3)' : 'rgba(38,43,50,0.85)';
             el.style.color = mode === 'light' ? 'black' : 'white';
         });
+
         // -------------------- Sidebar --------------------
         const sidebar = document.getElementById("sidebar");
-
-if (sidebar) {
-    if (mode === "light") {
-        sidebar.style.backgroundColor = "#2F2F2F";  // medium gray
-        sidebar.style.color = "black";
-    } else {
-        sidebar.style.backgroundColor = "rgba(0,0,0,0.8)";
-        sidebar.style.color = "white";
-    }
-}
+        if (sidebar) {
+            if (mode === "light") {
+                sidebar.style.backgroundColor = "#2F2F2F";
+                sidebar.style.color = "white";
+            } else {
+                sidebar.style.backgroundColor = "rgba(0,0,0,0.8)";
+                sidebar.style.color = "white";
+            }
+        }
 
         // -------------------- Tables --------------------
         document.querySelectorAll('table').forEach(table => {
@@ -49,14 +77,25 @@ if (sidebar) {
             table.classList.add(mode === 'light' ? 'light-table' : 'dark-table');
         });
 
-        // -------------------- Modals --------------------
-        document.querySelectorAll('.modal-content').forEach(modal => {
+        // -------------------- Form Elements --------------------
+        document.querySelectorAll('.form-group input, .form-group textarea, .form-group select').forEach(input => {
             if (mode === 'light') {
-                modal.classList.add('bg-white', 'text-black');
-                modal.classList.remove('bg-[#262b32]', 'text-white');
+                input.classList.remove('text-white', 'bg-black/20');
+                input.classList.add('text-black', 'bg-gray-200');
             } else {
-                modal.classList.add('bg-[#262b32]', 'text-white');
-                modal.classList.remove('bg-white', 'text-black');
+                input.classList.remove('text-black', 'bg-gray-200');
+                input.classList.add('text-white', 'bg-black/20');
+            }
+        });
+
+        // -------------------- Form Labels --------------------
+        document.querySelectorAll('.form-group label').forEach(label => {
+            if (mode === 'light') {
+                label.classList.remove('text-white');
+                label.classList.add('text-black');
+            } else {
+                label.classList.remove('text-black');
+                label.classList.add('text-white');
             }
         });
 
@@ -67,70 +106,36 @@ if (sidebar) {
             searchInput.classList.toggle('bg-gray-200', mode === 'light');
             searchInput.classList.toggle('bg-black/20', mode !== 'light');
         }
-        // -------------------- Modal text elements --------------------
-document.querySelectorAll('.modal-content p, .modal-content span, .modal-content label').forEach(el => {
-    if (mode === 'light') {
-        el.classList.remove('text-white', 'text-gray-300', 'text-gray-400');
-        el.classList.add('text-black');
-    } else {
-        el.classList.remove('text-black');
-        el.classList.add('text-gray-300');
-    }
-});
-
-        // -------------------- Modal input fields --------------------
-        document.querySelectorAll('.modal-content input, .modal-content textarea, .modal-content select').forEach(input => {
-            if (mode === 'light') {
-                input.classList.remove('text-white', 'bg-black/20');
-                input.classList.add('text-black', 'bg-gray-200');
-            } else {
-                input.classList.remove('text-black', 'bg-gray-200');
-                input.classList.add('text-white', 'bg-black/20');
-            }
-        });
-
-        // -------------------- Delete modal labels & paragraphs --------------------
-        document.querySelectorAll('.modal-content input, .modal-content label, .modal-content p, .modal-content select').forEach(el => {
-            if (mode === 'light') {
-                if (el.tagName === 'INPUT') {
-                    el.classList.remove('text-white', 'bg-black/20');
-                    el.classList.add('text-black', 'bg-gray-200');
-                } else {
-                    el.classList.remove('text-gray-300', 'text-white', 'text-gray-400');
-                    el.classList.add('text-black', 'text-gray-700');
-                }
-            } else {
-                if (el.tagName === 'INPUT') {
-                    el.classList.remove('text-black', 'bg-gray-200');
-                    el.classList.add('text-white', 'bg-black/20');
-                } else {
-                    el.classList.remove('text-black', 'text-gray-700');
-                    el.classList.add('text-gray-300');
-                }
-            }
-        });
 
         // -------------------- Placeholder color --------------------
-        setPlaceholderColor(mode === 'light' ? "#222" : "#ccc");
+        setPlaceholderColor(mode === 'light' ? "#999" : "#ccc");
+
+        // -------------------- Detail Cards --------------------
+        document.querySelectorAll('.detail-card').forEach(card => {
+            if (mode === 'light') {
+                card.style.backgroundColor = 'rgba(0,0,0,0.05)';
+                card.style.color = '#000';
+            } else {
+                card.style.backgroundColor = 'rgba(255,255,255,0.05)';
+                card.style.color = '#fff';
+            }
+        });
 
         // -------------------- Success/Error messages --------------------
-        document.querySelectorAll('#successMessage, #errorMessage').forEach(msg => {
-            if (!msg) return;
+        document.querySelectorAll('.error-message, .success-message').forEach(msg => {
             if (mode === 'light') {
-                if (msg.id === 'successMessage') {
-                    msg.classList.remove('bg-green-600/20','text-green-300','border-green-500');
-                    msg.classList.add('bg-green-200/50','text-green-800','border-green-300');
+                msg.classList.remove('bg-green-600/20', 'text-green-300', 'border-green-500', 'bg-red-600/20', 'text-red-300', 'border-red-500');
+                if (msg.classList.contains('success-message')) {
+                    msg.classList.add('bg-green-200/50', 'text-green-800', 'border-green-300');
                 } else {
-                    msg.classList.remove('bg-red-600/20','text-red-300','border-red-500');
-                    msg.classList.add('bg-red-200/50','text-red-800','border-red-300');
+                    msg.classList.add('bg-red-200/50', 'text-red-800', 'border-red-300');
                 }
             } else {
-                if (msg.id === 'successMessage') {
-                    msg.classList.remove('bg-green-200/50','text-green-800','border-green-300');
-                    msg.classList.add('bg-green-600/20','text-green-300','border-green-500');
+                msg.classList.remove('bg-green-200/50', 'text-green-800', 'border-green-300', 'bg-red-200/50', 'text-red-800', 'border-red-300');
+                if (msg.classList.contains('success-message')) {
+                    msg.classList.add('bg-green-600/20', 'text-green-300', 'border-green-500');
                 } else {
-                    msg.classList.remove('bg-red-200/50','text-red-800','border-red-300');
-                    msg.classList.add('bg-red-600/20','text-red-300','border-red-500');
+                    msg.classList.add('bg-red-600/20', 'text-red-300', 'border-red-500');
                 }
             }
         });

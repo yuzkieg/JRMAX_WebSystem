@@ -6,130 +6,201 @@ use Illuminate\Http\Request;
 use App\Models\Vehicle;
 use App\Models\Driver;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class VehicleController extends Controller
 {
-public function index()
-{
-    // Eager load with the correct relationship name
-    $vehicles = Vehicle::with('driverInfo')->get();
-    
-    $drivers = Driver::all();
-    
-    // Don't transform the data here - let JavaScript handle it
-    // Just pass the vehicles as they are
-    return view('admin.vehicles', [
-        'vehicles' => $vehicles,
-        'drivers' => $drivers,
-    ]);
-}
-
-public function getVehiclesData()
-{
-    try {
+    /**
+     * Display the vehicles management page
+     */
+    public function index()
+    {
+        // Eager load with the correct relationship name
         $vehicles = Vehicle::with('driverInfo')->get();
-        return response()->json($vehicles);
-    } catch (\Exception $e) {
-        \Log::error('Error fetching vehicles data: ' . $e->getMessage());
-        return response()->json([], 500);
+        
+        $drivers = Driver::all();
+        
+        // Pass the vehicles as they are
+        return view('admin.vehicles', [
+            'vehicles' => $vehicles,
+            'drivers' => $drivers,
+        ]);
     }
-}
+
+    /**
+     * Get vehicles data for AJAX requests
+     */
+    public function getVehiclesData()
+    {
+        try {
+            $vehicles = Vehicle::with('driverInfo')->get();
+            return response()->json($vehicles);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching vehicles data: ' . $e->getMessage());
+            return response()->json([], 500);
+        }
+    }
+
+    /**
+     * Store a newly created vehicle
+     */
     public function store(Request $request)
-{
-    try {
-        \Log::info('Vehicle store request data:', $request->all()); // Keep this for debugging
+    {
+        try {
+            \Log::info('Vehicle store request data:', $request->all());
 
-        $validated = $request->validate([
-            'plate_num' => 'required|max:7|unique:vehicles,plate_num',
-            'brand' => 'required|string',
-            'model' => 'required|string',
-            'year' => 'required|integer|between:1980,2099',
-            'body_type' => 'required|string',
-            'seat_cap' => 'required|integer|min:1',
-            'transmission' => 'required|string',
-            'fuel_type' => 'required|string',
-            'color' => 'required|string',
-            'price_rate' => 'required|numeric|min:0',
-            'driver' => 'nullable|integer|exists:drivers,id',
-        ]);
+            // Updated validation - removed unique from model
+            $validated = $request->validate([
+                'plate_num' => 'required|max:7|unique:vehicles,plate_num',
+                'brand' => 'required|string',
+                'model' => 'required|string', // REMOVED: |unique:vehicles,model
+                'year' => 'required|integer|between:1980,2099',
+                'body_type' => 'required|string',
+                'seat_cap' => 'required|integer|min:1',
+                'transmission' => 'required|string|in:Automatic,Manual',
+                'fuel_type' => 'required|string|in:Gasoline,Diesel,Electric,Hybrid',
+                'color' => 'required|string',
+                'price_rate' => 'required|numeric|min:0',
+                'driver' => 'nullable|integer|exists:drivers,id',
+                'is_available' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
 
-        // Handle driver field properly
-        if (!isset($validated['driver']) || $validated['driver'] === '' || $validated['driver'] === 'null') {
-            $validated['driver'] = null;
-        } else {
-            // Ensure driver is cast to integer
-            $validated['driver'] = (int) $validated['driver'];
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/vehicles', $filename);
+                $validated['image'] = $filename;
+            }
+
+            // Handle driver field properly
+            if (!isset($validated['driver']) || $validated['driver'] === '' || $validated['driver'] === 'null') {
+                $validated['driver'] = null;
+            } else {
+                // Ensure driver is cast to integer
+                $validated['driver'] = (int) $validated['driver'];
+            }
+            
+            // Cast other numeric fields
+            $validated['year'] = (int) $validated['year'];
+            $validated['seat_cap'] = (int) $validated['seat_cap'];
+            $validated['price_rate'] = (float) $validated['price_rate'];
+            $validated['is_available'] = $validated['is_available'] ?? true;
+            
+            // Automatically set added_by to current user ID
+            $validated['added_by'] = auth()->check() ? auth()->user()->id : null;
+
+            \Log::info('Vehicle data after processing:', $validated);
+
+            Vehicle::create($validated);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Vehicle added successfully'
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Vehicle store validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false, 
+                'message' => 'Validation error', 
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Vehicle store error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Cast other numeric fields
-        $validated['year'] = (int) $validated['year'];
-        $validated['seat_cap'] = (int) $validated['seat_cap'];
-        $validated['price_rate'] = (float) $validated['price_rate'];
-        
-        // Automatically set added_by to current user ID
-        $validated['added_by'] = auth()->check() ? auth()->user()->id : null;
-
-        \Log::info('Vehicle data after processing:', $validated); // Add this
-
-        Vehicle::create($validated);
-
-        return response()->json(['success' => true, 'message' => 'Vehicle added successfully']);
-        
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        \Log::warning('Vehicle store validation error: ' . json_encode($e->errors()));
-        return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $e->errors()], 422);
-    } catch (\Exception $e) {
-        \Log::error('Vehicle store error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
-        return response()->json(['success' => false, 'message' => 'Server error: ' . $e->getMessage()], 500);
     }
-}
 
+    /**
+     * Update the specified vehicle
+     */
     public function update(Request $request, Vehicle $vehicle)
-{
-    try {
-        $validated = $request->validate([
-            'plate_num' => 'required|max:7|unique:vehicles,plate_num,' . $vehicle->vehicle_id . ',vehicle_id',
-            'brand' => 'required|string',
-            'model' => 'required|string',
-            'year' => 'required|integer|between:1980,2099',
-            'body_type' => 'required|string',
-            'seat_cap' => 'required|integer|min:1',
-            'transmission' => 'required|string',
-            'fuel_type' => 'required|string',
-            'color' => 'required|string',
-            'price_rate' => 'required|numeric|min:0',
-            'driver' => 'nullable|integer|exists:drivers,id',
-        ]);
+    {
+        try {
+            \Log::info('Vehicle update request data:', $request->all());
 
-        // Handle driver field properly
-        if (!isset($validated['driver']) || $validated['driver'] === '' || $validated['driver'] === 'null') {
-            $validated['driver'] = null;
-        } else {
-            // Ensure driver is cast to integer
-            $validated['driver'] = (int) $validated['driver'];
+            // Updated validation - removed unique from model
+            $validated = $request->validate([
+                'plate_num' => 'required|max:7|unique:vehicles,plate_num,' . $vehicle->vehicle_id . ',vehicle_id',
+                'brand' => 'required|string',
+                'model' => 'required|string', // REMOVED: |unique:vehicles,model
+                'year' => 'required|integer|between:1980,2099',
+                'body_type' => 'required|string',
+                'seat_cap' => 'required|integer|min:1',
+                'transmission' => 'required|string|in:Automatic,Manual',
+                'fuel_type' => 'required|string|in:Gasoline,Diesel,Electric,Hybrid',
+                'color' => 'required|string',
+                'price_rate' => 'required|numeric|min:0',
+                'driver' => 'nullable|integer|exists:drivers,id',
+                'is_available' => 'nullable|boolean',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($vehicle->image) {
+                    Storage::delete('public/vehicles/' . $vehicle->image);
+                }
+                
+                $image = $request->file('image');
+                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/vehicles', $filename);
+                $validated['image'] = $filename;
+            } else {
+                // Keep existing image if not uploading new one
+                unset($validated['image']);
+            }
+
+            // Handle driver field properly
+            if (!isset($validated['driver']) || $validated['driver'] === '' || $validated['driver'] === 'null') {
+                $validated['driver'] = null;
+            } else {
+                // Ensure driver is cast to integer
+                $validated['driver'] = (int) $validated['driver'];
+            }
+            
+            // Cast other numeric fields
+            $validated['year'] = (int) $validated['year'];
+            $validated['seat_cap'] = (int) $validated['seat_cap'];
+            $validated['price_rate'] = (float) $validated['price_rate'];
+            $validated['is_available'] = $validated['is_available'] ?? true;
+
+            // Automatically set updated_by to current user ID
+            $validated['updated_by'] = auth()->check() ? auth()->user()->id : null;
+
+            $vehicle->update($validated);
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Vehicle updated successfully'
+            ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning('Vehicle update validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false, 
+                'message' => 'Validation error', 
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Vehicle update error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            return response()->json([
+                'success' => false, 
+                'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Cast other numeric fields
-        $validated['year'] = (int) $validated['year'];
-        $validated['seat_cap'] = (int) $validated['seat_cap'];
-        $validated['price_rate'] = (float) $validated['price_rate'];
-
-        // Automatically set updated_by to current user ID
-        $validated['updated_by'] = auth()->check() ? auth()->user()->id : null;
-
-        $vehicle->update($validated);
-
-        return response()->json(['success' => true, 'message' => 'Vehicle updated successfully']);
-        
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        \Log::warning('Vehicle update validation error: ' . json_encode($e->errors()));
-        return response()->json(['success' => false, 'message' => 'Validation error', 'errors' => $e->errors()], 422);
-    } catch (\Exception $e) {
-        \Log::error('Vehicle update error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
-        return response()->json(['success' => false, 'message' => 'Server error: ' . $e->getMessage()], 500);
     }
-}
 
+    /**
+     * Remove the specified vehicle
+     */
     public function destroy(Request $request, $vehicle_id)
     {
         try {
@@ -167,6 +238,11 @@ public function getVehiclesData()
                     'success' => false, 
                     'message' => 'Incorrect password. Please try again.'
                 ], 422);
+            }
+
+            // Delete image if exists
+            if ($vehicle->image) {
+                Storage::delete('public/vehicles/' . $vehicle->image);
             }
 
             $vehicle->delete();
