@@ -283,7 +283,7 @@ td .action-edit, td .action-delete, td .action-view {
                 </div>
 
                 <form id="vehicleForm">
-                    <div id="vehicleFormError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm"></div>
+                    <div id="vehicleFormError" class="hidden error-message mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm"></div>
                     <input type="hidden" id="vehicle_id">
                     
                     {{-- IMAGE UPLOAD SECTION --}}
@@ -436,7 +436,7 @@ td .action-edit, td .action-delete, td .action-view {
                 <p class="mb-4 text-gray-300">Enter your password to confirm deletion of <span id="deleteVehicleName" class="font-semibold text-white"></span>.</p>
                 
                 {{-- DELETE ERROR MESSAGE --}}
-                <div id="deleteVehicleError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
+                <div id="deleteVehicleError" class="hidden error-message mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
                     <span id="deleteVehicleErrorText"></span>
                 </div>
                 
@@ -721,7 +721,7 @@ class VehicleModal {
             const result = await res.json();
 
             if (result.success) {
-                this.showSuccessMessage(result.message || 'Vehicle saved successfully');
+                showSuccessMessage(result.message || 'Vehicle saved successfully', 'success');
                 await loadVehicles();
                 this.closeModal();
             } else {
@@ -740,7 +740,7 @@ class VehicleModal {
             }
         } catch (error) {
             console.error('Save error:', error);
-            alert('Error: ' + error.message);
+            showSuccessMessage('Error: ' + error.message, 'error');
         } finally {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
@@ -1031,7 +1031,7 @@ class DeleteVehicleModal {
             const result = await res.json();
 
             if (res.ok) {
-                this.showSuccessMessage(result.message || 'Vehicle deleted successfully');
+                showSuccessMessage(result.message || 'Vehicle deleted successfully', 'success');
                 await loadVehicles();
                 this.closeModal();
             } else {
@@ -1110,7 +1110,7 @@ async function loadVehicles() {
         
         const main = document.querySelector('main');
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300';
+        errorDiv.className = 'error-message mb-6 p-4 bg-red-600/20 border border-red-500 rounded-xl text-red-300';
         errorDiv.textContent = 'Error loading vehicles. Please refresh the page.';
         main.insertBefore(errorDiv, main.firstChild);
         
@@ -1164,7 +1164,7 @@ function showSuccessMessage(message, type = 'success') {
     
     const div = document.createElement('div');
     div.id = 'dynamicSuccessMessage';
-    div.className = `mb-6 p-4 ${bgColor} border rounded-xl ${textColor} backdrop-blur-sm transition-all duration-300 animate-fadeIn`;
+    div.className = `${type === 'success' ? 'success-message' : type === 'error' ? 'error-message' : ''} mb-6 p-4 ${bgColor} border rounded-xl ${textColor} backdrop-blur-sm transition-all duration-300 animate-fadeIn`;
     div.innerHTML = `
         <div class="flex items-center justify-between">
             <div class="flex items-center">

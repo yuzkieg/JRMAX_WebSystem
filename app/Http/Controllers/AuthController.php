@@ -41,7 +41,7 @@ if ($user->role === 'fleet_assistant') {
     return redirect('/employee/fleet/vehicles'); 
 }
 if ($user->role === 'booking_officer') {
-    return redirect('/employee/book/bookingdash'); 
+    return redirect('/employee/bookingdash'); 
 }
     if ($user->role === 'user') {
 

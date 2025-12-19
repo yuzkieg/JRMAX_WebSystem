@@ -108,7 +108,7 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     ->name('admin.maintenance.edit');
 
 
-    //Booking
+    // Admin Booking Management Routes
     Route::get('/admin/booking', [BookingController::class, 'index'])->name('admin.booking');
     Route::post('/admin/booking', [BookingController::class, 'store'])->name('admin.booking.store');
     Route::get('/admin/booking/{id}', [BookingController::class, 'show'])->name('admin.booking.show');
@@ -152,16 +152,45 @@ Route::middleware(['web', 'fleet_assistant'])->group(function () {
         ->name('employee.fleet.maintenance.status');
 });
 
+// Booking Officer routes
 Route::middleware(['web', 'booking_officer'])->group(function () {
-
-    Route::get('/employee/fleet/fleetdash', [FleetController::class, 'index'])
-        ->name('employee.fleet.fleetdash');
-
+    // Booking Management Dashboard - MUST COME FIRST
+    Route::get('/employee/bookingdash', [BookingOfficerController::class, 'index'])
+        ->name('employee.booking.index');
+    
+    // Additional Booking Officer Features (specific routes before generic ones)
+    Route::get('/employee/booking/calendar', [BookingOfficerController::class, 'calendar'])
+        ->name('employee.booking.calendar');
+    Route::post('/employee/booking/check-availability', [BookingOfficerController::class, 'checkAvailability'])
+        ->name('employee.booking.check-availability');
+    Route::get('/employee/booking/stats', [BookingOfficerController::class, 'getStatsJson'])
+        ->name('employee.booking.stats');
+    // Inside Booking Officer routes group (after line 174 in your web.php)
+    Route::get('/employee/booking/revenue-stats', [BookingOfficerController::class, 'getRevenueStats'])
+    ->name('employee.booking.revenue-stats');
+    // Customer Management
+    Route::get('/employee/booking/customers', [BookingOfficerController::class, 'customers'])
+        ->name('employee.booking.customers');
+    
+    // AJAX routes
+    Route::post('/employee/booking/calculate-price', [BookingOfficerController::class, 'calculatePrice'])
+        ->name('employee.booking.calculate-price');
+    
+    // Booking CRUD Operations - Put generic {id} routes LAST
+    Route::post('/employee/booking', [BookingOfficerController::class, 'store'])
+        ->name('employee.booking.store');
+    Route::get('/employee/booking/{id}', [BookingOfficerController::class, 'show'])
+        ->name('employee.booking.show');
+    Route::get('/employee/booking/{id}/edit', [BookingOfficerController::class, 'edit'])
+        ->name('employee.booking.edit');
+    Route::put('/employee/booking/{id}', [BookingOfficerController::class, 'update'])
+        ->name('employee.booking.update');
+    
+    // Status update route (keep only ONE definition)
+    Route::put('/employee/booking/{id}/status', [BookingOfficerController::class, 'updateStatus'])
+        ->name('employee.booking.update-status');
 });
-
 Route::middleware(['web', 'user'])->group(function () {
-
     Route::get('/user/dashboard', [UserController::class, 'index'])
         ->name('user.dashboard');
-
 });
