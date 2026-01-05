@@ -156,7 +156,7 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="employeeBackdrop"></div>
 
             <div id="employeeModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4" id="employeeModalTitle">Add Employee</h2>
+                <h2 class="text-2xl font-bold text-red-500 mb-4" id="employeeModalTitle">Add User</h2>
 
                 {{-- CLIENT-SIDE VALIDATION MESSAGES --}}
                 <div id="clientSideErrors" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">

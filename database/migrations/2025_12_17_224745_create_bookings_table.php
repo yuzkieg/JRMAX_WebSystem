@@ -38,9 +38,9 @@ return new class extends Migration
 
         // 3. Create Booking table if not exists
         if (!Schema::hasTable('Booking')) {
-            Schema::create('Booking', function (Blueprint $table) {
+            Schema::create('bookings', function (Blueprint $table) {
                 $table->id('boarding_id');
-                $table->unsignedBigInteger('client_id');
+                $table->unsignedBigInteger('client_id'); // Add here
                 $table->date('boarding_date');
                 $table->datetime('start_datetime');
                 $table->datetime('end_datetime');
@@ -53,8 +53,6 @@ return new class extends Migration
                 $table->unsignedBigInteger('updated_by')->nullable();
                 $table->text('special_requests')->nullable();
                 $table->timestamps();
-
-                // Foreign keys will be added separately
             });
         }
 

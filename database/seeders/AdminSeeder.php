@@ -13,9 +13,15 @@ class AdminSeeder extends Seeder
         // Prevent duplicate seeding: create or update by email
         $admins = [
             [
+                'name' => 'Admin',
+                'email' => 'admin@sample.com',
+                'password' => Hash::make('admin123'), // your desired password
+                'role' => 'admin',
+            ],
+            [
                 'name' => 'Admin One',
                 'email' => 'admin1@example.com',
-                'password' => Hash::make('password'), // change in production
+                'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
             [
@@ -30,7 +36,7 @@ class AdminSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
-        ];
+        ];        
 
         foreach ($admins as $data) {
             // updateOrCreate ensures idempotent seeding
