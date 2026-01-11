@@ -68,7 +68,6 @@ class BookingController extends Controller
         // Validate request
         $validated = $request->validate([
             'client_id' => 'required|exists:Client,Editor_id',
-            'boarding_date' => 'required|date',
             'start_datetime' => 'required|date_format:Y-m-d\TH:i',
             'end_datetime' => 'required|date_format:Y-m-d\TH:i|after:start_datetime',
             'pickup_location' => 'required|string|max:255',
@@ -78,6 +77,7 @@ class BookingController extends Controller
             'vehicle_ids.*' => 'exists:vehicles,vehicle_id',
             'total_price' => 'required|numeric|min:0',
             'status_id' => 'required|exists:BookingStatus,status_id',
+            'payment_method' => 'nullable|string',
             'special_requests' => 'nullable|string'
         ]);
 
@@ -99,7 +99,6 @@ class BookingController extends Controller
             // Create booking
             $booking = Booking::create([
                 'client_id' => $validated['client_id'],
-                'boarding_date' => $validated['boarding_date'],
                 'start_datetime' => $start,
                 'end_datetime' => $end,
                 'pickup_location' => $validated['pickup_location'],
@@ -107,6 +106,7 @@ class BookingController extends Controller
                 'driver_id' => $validated['driver_id'],
                 'total_price' => $validated['total_price'],
                 'status_id' => $validated['status_id'],
+                'payment_method' => $validated['payment_method'],
                 'special_requests' => $validated['special_requests'],
                 'created_by' => auth()->id(),
                 'updated_by' => auth()->id()

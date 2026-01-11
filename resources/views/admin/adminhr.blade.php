@@ -3,6 +3,15 @@
 @section('content')
 @vite('resources/css/app.css')
 
+<style>
+    .actions-menu.dropup {
+        bottom: 100%;
+        top: auto;
+        margin-bottom: 0.5rem;
+        margin-top: 0;
+    }
+</style>
+
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
@@ -124,7 +133,7 @@
         </div>
 
         {{-- TABLE --}}
-        <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
+        <div class="rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
             <table class="w-full text-left">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                     <tr>
@@ -140,22 +149,36 @@
                             <td class="p-4">{{ $employee->name }}</td>
                             <td class="p-4">{{ $employee->email }}</td>
                             <td class="p-4">{{ $employee->position }}</td>
-                            <td class="p-4 text-center flex justify-center gap-3">
-                                <button class="edit-btn cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
-                                        data-type="employee"
-                                        data-id="{{ $employee->id }}"
-                                        data-name="{{ $employee->name }}"
-                                        data-email="{{ $employee->email }}"
-                                        data-role="{{ $employee->position }}">
-                                    <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
-                                </button>
+                            <td class="p-4 text-center">
+                                <div class="relative inline-block">
+                                    <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="5" cy="12" r="1.5" />
+                                            <circle cx="12" cy="12" r="1.5" />
+                                            <circle cx="19" cy="12" r="1.5" />
+                                        </svg>
+                                    </button>
 
-                                <button class="delete-btn cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
-                                        data-type="employee"
-                                        data-id="{{ $employee->id }}"
-                                        data-name="{{ $employee->name }}">
-                                    <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
-                                </button>
+                                    <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                                        <button class="edit-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                                data-type="employee"
+                                                data-id="{{ $employee->id }}"
+                                                data-name="{{ $employee->name }}"
+                                                data-email="{{ $employee->email }}"
+                                                data-role="{{ $employee->position }}">
+                                            <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
+                                            <span>Edit</span>
+                                        </button>
+
+                                        <button class="delete-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                                data-type="employee"
+                                                data-id="{{ $employee->id }}"
+                                                data-name="{{ $employee->name }}">
+                                            <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -165,23 +188,37 @@
                             <td class="p-4">{{ $driver->name }}</td>
                             <td class="p-4">{{ $driver->email }}</td>
                             <td class="p-4">{{ $driver->license_num }}</td>
-                            <td class="p-4 text-center flex justify-center gap-3">
-                                <button class="edit-btn cursor-pointer px-5 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
-                                        data-type="driver"
-                                        data-id="{{ $driver->id }}"
-                                        data-name="{{ $driver->name }}"
-                                        data-email="{{ $driver->email }}"
-                                        data-license="{{ $driver->license_num }}"
-                                        data-date="{{ $driver->dateadded }}">
-                                    <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="inline w-6 h-6">
-                                </button>
+                            <td class="p-4 text-center">
+                                <div class="relative inline-block">
+                                    <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="5" cy="12" r="1.5" />
+                                            <circle cx="12" cy="12" r="1.5" />
+                                            <circle cx="19" cy="12" r="1.5" />
+                                        </svg>
+                                    </button>
 
-                                <button class="delete-btn cursor-pointer px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg text-white shadow transition-all duration-200 hover:scale-105"
-                                        data-type="driver"
-                                        data-id="{{ $driver->id }}"
-                                        data-name="{{ $driver->name }}">
-                                    <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="inline w-6 h-6">
-                                </button>
+                                    <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                                        <button class="edit-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                                data-type="driver"
+                                                data-id="{{ $driver->id }}"
+                                                data-name="{{ $driver->name }}"
+                                                data-email="{{ $driver->email }}"
+                                                data-license="{{ $driver->license_num }}"
+                                                data-date="{{ $driver->dateadded }}">
+                                            <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
+                                            <span>Edit</span>
+                                        </button>
+
+                                        <button class="delete-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                                data-type="driver"
+                                                data-id="{{ $driver->id }}"
+                                                data-name="{{ $driver->name }}">
+                                            <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -513,6 +550,45 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => deleteModal.querySelector('.modal-content').classList.remove('scale-90', 'opacity-0'), 10);
         });
     });
+
+// Actions menu toggles (three-dots)
+document.querySelectorAll('.actions-toggle').forEach(toggle => {
+    const menu = toggle.nextElementSibling;
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // Close other open menus
+        document.querySelectorAll('.actions-menu').forEach(m => {
+            if (m !== menu) {
+                m.classList.add('hidden');
+                m.classList.remove('dropup');
+            }
+        });
+        // Toggle current menu
+        if (menu) {
+            menu.classList.toggle('hidden');
+            
+            // Check if menu would go off-screen and position upward if needed
+            if (!menu.classList.contains('hidden')) {
+                setTimeout(() => {
+                    const rect = menu.getBoundingClientRect();
+                    const isOffScreen = rect.bottom > window.innerHeight;
+                    
+                    if (isOffScreen) {
+                        menu.classList.add('dropup');
+                    } else {
+                        menu.classList.remove('dropup');
+                    }
+                }, 0);
+            }
+        }
+    });
+    if (menu) menu.addEventListener('click', e => e.stopPropagation());
+});
+
+// Close any open action menus when clicking outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.actions-menu').forEach(m => m.classList.add('hidden'));
+});
 
     function hideDeleteError() {
         deleteError.style.display = 'none';

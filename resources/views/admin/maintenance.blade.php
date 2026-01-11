@@ -4,6 +4,35 @@
 
 @vite('resources/css/app.css')
 
+<style>
+    .actions-menu.dropup {
+        bottom: 100%;
+        top: auto;
+        margin-bottom: 0.5rem;
+        margin-top: 0;
+    }
+    /* Actions dropdown styling */
+    .actions { position: relative; display: inline-block; }
+    .actions-toggle { background: transparent; border: none; color: inherit; padding: .25rem; border-radius: .5rem; }
+    .actions-menu { position: absolute; right: 0; top: 100%; margin-top: 0.5rem; min-width: 10rem; background: #1f2937; border: 1px solid rgba(255,255,255,0.06); border-radius: .75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.6); z-index: 40; display: none; overflow: hidden; }
+    .actions-menu.show { display: block; }
+    .actions-menu button { display: flex; align-items: center; gap: .5rem; width: 100%; text-align: left; padding: .5rem .75rem; background: transparent; border: none; color: #e5e7eb; }
+    .actions-menu button:hover { background: rgba(255,255,255,0.03); }
+
+    .status-pill {
+        display: inline-block;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        font-size: medium;
+    }
+
+    .status-pill.pending { background: transparent; color: #FFFF00 ; }
+    .status-pill.confirmed { background: transparent; color: #fff; }
+    .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
+    .status-pill.completed { background: transparent; color: #93FF54   ; }
+    .status-pill.cancelled { background: transparent; color: #FF0000 ; }
+</style>
+
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
@@ -88,16 +117,16 @@
         </div>
 
         {{-- MAINTENANCE TABLE --}}
-        <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
+        <div class="rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
             <table class="w-full text-left">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                     <tr>
                         <th class="p-4">Vehicle</th>
                         <th class="p-4">Type</th>
-                        <th class="p-4">Description</th>
                         <th class="p-4">Scheduled Date</th>
                         <th class="p-4">Status</th>
                         <th class="p-4">Cost</th>
+                        <th class="p-4">Description</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
@@ -106,63 +135,65 @@
                     <tr class="border-b border-white/10 hover:bg-white/10 transition-all" data-status="{{ $maintenance->status }}">
                         <td class="p-4">
                             <div class="font-semibold">{{ $maintenance->vehicle->plate_num ?? 'N/A' }}</div>
-                            <div class="text-sm text-gray-400">{{ $maintenance->vehicle->brand ?? '' }} {{ $maintenance->vehicle->model ?? '' }}</div>
                         </td>
                         <td class="p-4">
                             <span class="text-sm font-medium text-gray-300">
                                 {{ ucwords(str_replace('-', ' ', $maintenance->maintenance_type)) }}
                             </span>
                         </td>
-                        <td class="p-4 max-w-xs truncate" title="{{ $maintenance->description }}">
-                            {{ Str::limit($maintenance->description, 50) }}
-                            @if($maintenance->odometer_reading)
-                            <div class="text-sm text-gray-400 mt-1">
-                                Odometer: {{ number_format($maintenance->odometer_reading) }} km
-                            </div>
-                            @endif
-                        </td>
                         <td class="p-4">
                             {{ $maintenance->scheduled_date ? \Carbon\Carbon::parse($maintenance->scheduled_date)->format('M d, Y') : 'N/A' }}
                         </td>
                         <td class="p-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium 
-                                @if($maintenance->status === 'scheduled') bg-gray-700 text-gray-300
-                                @elseif($maintenance->status === 'in progress') bg-blue-900/30 text-blue-300
-                                @elseif($maintenance->status === 'completed') bg-green-900/30 text-green-300
-                                @else bg-red-900/30 text-red-300 @endif">
-                                {{ ucfirst($maintenance->status) }}
-                            </span>
-                            @if($maintenance->started_at)
-                            <div class="text-xs text-gray-400 mt-1">
-                                Started: {{ \Carbon\Carbon::parse($maintenance->started_at)->format('M d') }}
-                            </div>
-                            @endif
+                            @php
+                                // map maintenance statuses to standard status-pill classes
+                                $statusClass = 'pending';
+                                if ($maintenance->status === 'scheduled') $statusClass = 'pending';
+                                elseif ($maintenance->status === 'in progress') $statusClass = 'ongoing';
+                                elseif ($maintenance->status === 'completed') $statusClass = 'completed';
+                                elseif ($maintenance->status === 'cancelled') $statusClass = 'cancelled';
+                            @endphp
+                            <span class="status-pill {{ $statusClass }}">{{ ucfirst($maintenance->status) }}</span>
                         </td>
                         <td class="p-4 font-semibold">
                             ₱{{ number_format($maintenance->cost, 2) }}
                         </td>
+                        
+                        <td class="p-4 max-w-xs truncate" title="{{ $maintenance->description }}">
+                            {{ Str::limit($maintenance->description, 50) }}
+                        </td>
                         <td class="p-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                @if($maintenance->status !== 'completed' && $maintenance->status !== 'cancelled')
-                                <button class="status-btn cursor-pointer px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition-all duration-200"
-                                        data-id="{{ $maintenance->maintenance_ID }}"
-                                        data-action="next">
-                                    @if($maintenance->status === 'scheduled') Start
-                                    @elseif($maintenance->status === 'in progress') Complete
-                                    @endif
-                                </button>
-                                @endif
-                                
-                                <button class="edit-btn cursor-pointer px-3 py-1 bg-yellow-600 hover:bg-yellow-500 rounded-lg text-white text-sm transition-all duration-200"
-                                        data-id="{{ $maintenance->maintenance_ID }}">
-                                    <img src="{{ asset('assets/edit.png') }}" class="w-4 h-4 inline">
-                                </button>
-                                
-                                <button class="delete-btn cursor-pointer px-3 py-1 bg-[#742121] hover:bg-red-500 rounded-lg text-white text-sm transition-all duration-200"
-                                        data-id="{{ $maintenance->maintenance_ID }}"
-                                        data-plate="{{ $maintenance->vehicle->plate_num ?? '' }}">
-                                    <img src="{{ asset('assets/delete.png') }}" class="w-4 h-4 inline">
-                                </button>
+                            <div class="flex justify-center">
+                                <div class="actions">
+                                    <button class="actions-toggle" aria-haspopup="true" aria-expanded="false">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    </button>
+
+                                    <div class="actions-menu" role="menu">
+                                        @if($maintenance->status !== 'completed' && $maintenance->status !== 'cancelled')
+                                        <button class="status-btn" data-id="{{ $maintenance->maintenance_ID }}" data-action="next" role="menuitem">
+                                            @if($maintenance->status === 'scheduled')
+                                            <span>Start</span>
+                                            @elseif($maintenance->status === 'in progress')
+                                            <span class="flex items-center">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                Complete
+                                            </span>
+                                            @endif
+                                        </button>
+                                        @endif
+
+                                        <button class="edit-btn" data-id="{{ $maintenance->maintenance_ID }}" role="menuitem">
+                                            <img src="{{ asset('assets/edit.png') }}" class="w-4 h-4 inline"> <span>Edit</span>
+                                        </button>
+
+                                        <button class="delete-btn" data-id="{{ $maintenance->maintenance_ID }}" data-plate="{{ $maintenance->vehicle->plate_num ?? '' }}" role="menuitem">
+                                            <img src="{{ asset('assets/delete.png') }}" class="w-4 h-4 inline"> <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -735,6 +766,48 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Actions dropdown toggle and outside-click handling
+document.addEventListener('click', function(e) {
+    const toggle = e.target.closest('.actions-toggle');
+
+    if (toggle) {
+        const actions = toggle.closest('.actions');
+        const menu = actions.querySelector('.actions-menu');
+
+        // Close other open menus
+        document.querySelectorAll('.actions-menu.show').forEach(m => {
+            if (m !== menu) m.classList.remove('show');
+        });
+
+        // Toggle this menu
+        menu.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', menu.classList.contains('show'));
+
+        // After shown, adjust dropup if it would overflow viewport
+        if (menu.classList.contains('show')) {
+            const rect = menu.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight) {
+                menu.classList.add('dropup');
+            } else {
+                menu.classList.remove('dropup');
+            }
+        }
+
+        e.stopPropagation();
+        return;
+    }
+
+    // If clicking a menu item, let its handler run then close the menu shortly after
+    if (e.target.closest('.actions-menu button')) {
+        const menu = e.target.closest('.actions-menu');
+        setTimeout(() => menu.classList.remove('show'), 100);
+        return;
+    }
+
+    // Click outside: close all menus
+    document.querySelectorAll('.actions-menu.show').forEach(m => m.classList.remove('show'));
+});
 </script>
 
 <script>

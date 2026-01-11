@@ -77,21 +77,7 @@
             </button>
         </form>
 
-        <div class="flex items-center mt-6">
-            <div class="flex-grow h-[1px] bg-gray-600"></div>
-            <span class="px-3 text-gray-400 text-sm">OR</span>
-            <div class="flex-grow h-[1px] bg-gray-600"></div>
-        </div>
-
-        <!-- Google Sign In Button -->
-        <a href="{{ route('google.login') }}"
-           class="w-full flex items-center justify-center gap-3 py-3 mt-4 rounded-lg bg-white text-gray-700 font-semibold
-                 hover:bg-gray-200 active:scale-95 transition-all duration-300">
-
-            <img src="{{ asset('assets/google.png') }}" class="w-5 h-5" alt="Google Logo">
-            Continue with Google
-        </a>
-
+    
 
         <p class="text-center text-gray-300 text-sm mt-4">
             Don't have an account?

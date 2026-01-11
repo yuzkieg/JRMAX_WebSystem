@@ -19,6 +19,7 @@ class Booking extends Model
         'driver_id',
         'total_price',
         'status_id',
+        'payment_method',
         'special_requests',
         'created_by',
         'updated_by'

@@ -657,36 +657,6 @@ th.text-center, td.text-center {
                    <!-- Will be populated by JavaScript -->
                </div>
            </div>
-
-           {{-- BOOKING STATISTICS CARDS --}}
-           <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-               <div class="stat-card">
-                   <div class="stat-value">{{ $stats['total'] ?? 0 }}</div>
-                   <div class="stat-label">Total Bookings</div>
-                   <div class="stat-trend">
-                       @php
-                           $yesterdayBookings = 0; // This should come from your database
-                           $todayBookings = $stats['total'] ?? 0;
-                           $bookingChange = $todayBookings - $yesterdayBookings;
-                           $trendClass = $bookingChange > 0 ? 'trend-up' : ($bookingChange < 0 ? 'trend-down' : 'trend-neutral');
-                           $trendIcon = $bookingChange > 0 ? '↑' : ($bookingChange < 0 ? '↓' : '→');
-                       @endphp
-                       <span class="{{ $trendClass }}">{{ $trendIcon }} {{ abs($bookingChange) }} from yesterday</span>
-                   </div>
-               </div>
-               <div class="stat-card">
-                   <div class="stat-value" style="color: #F59E0B;">{{ $stats['pending'] ?? 0 }}</div>
-                   <div class="stat-label">Pending</div>
-               </div>
-               <div class="stat-card">
-                   <div class="stat-value" style="color: #3B82F6;">{{ $stats['active'] ?? 0 }}</div>
-                   <div class="stat-label">Active</div>
-               </div>
-               <div class="stat-card">
-                   <div class="stat-value" style="color: #10B981;">{{ $stats['completedBookings'] ?? 0 }}</div>
-                   <div class="stat-label">Completed</div>
-               </div>
-           </div>
        </div>
 
    </main>

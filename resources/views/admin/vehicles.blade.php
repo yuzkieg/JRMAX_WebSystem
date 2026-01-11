@@ -18,6 +18,13 @@
     --type-pill-color: #ffffff;
 }
 
+.actions-menu.dropup {
+    bottom: 100%;
+    top: auto;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
 #sidebar nav a {
     color: var(--nav-tab-text) !important;
 }
@@ -61,13 +68,20 @@
 
 .status-pill {
     display: inline-block;
-    padding: .18rem .6rem;
-    border-radius: 9999px;
-    background: var(--status-green);
-    color: #fff;
+    padding: .25rem .75rem;
+    border-radius: 0.5rem;
     font-weight: 700;
-    font-size: .85rem;
+    font-size: medium;
 }
+
+.status-pill.pending { background: transparent; color: #FFFF00 ; }
+.status-pill.confirmed { background: transparent; color: #fff; }
+.status-pill.ongoing { background: transparent; color: #ADD8E6 ; }
+.status-pill.completed { background: transparent; color: #93FF54 ; }
+.status-pill.cancelled { background: transparent; color: #FF0000 ; }
+
+.status-available { background: var(--status-green) !important; color: #93FF54 !important; }
+.status-unavailable { background: var(--action-delete) !important; color: #FF0000 !important; }
 
 td .action-edit, td .action-delete, td .action-view { 
     display:inline-flex; 
@@ -103,11 +117,15 @@ td .action-edit, td .action-delete, td .action-view {
 }
 
 .status-available {
-    background-color: #16A34A !important;
+    color: #16A34A !important;
+    font-size: medium;
+    background: transparent !important;
 }
 
 .status-unavailable {
-    background-color: #DC2626 !important;
+    color: #EE4B2B !important;
+    font-size: medium;
+    background: transparent !important;
 }
 
 /* View Details modal specific */
@@ -259,7 +277,7 @@ td .action-edit, td .action-delete, td .action-view {
         </div>
 
         {{-- VEHICLE TABLE --}}
-        <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
+        <div class=" rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
             <table class="w-full text-left">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                     <tr>
@@ -534,33 +552,87 @@ function renderVehiclesTable() {
                 </span>
             </td>
             <td class="p-4 text-center">
-               <div class="flex justify-center gap-1">
-    <button
-        type="button"
-        class="cursor-pointer px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm shadow view-vehicle-btn flex items-center gap-2"
-        data-id="${vehicle.vehicle_id}"
-    >
-        <img src="{{ asset('assets/file.png') }}" class="w-4 h-4">
-        <span class="text-sm leading-none">View Details</span>
-    </button>
+               <div class="flex justify-center">
+                    <div class="relative inline-block">
+                        <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="5" cy="12" r="1.5" />
+                                <circle cx="12" cy="12" r="1.5" />
+                                <circle cx="19" cy="12" r="1.5" />
+                            </svg>
+                        </button>
 
+                        <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                            <button class="view-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                                <img src="{{ asset('assets/file.png') }}" alt="View" class="w-5 h-5">
+                                <span>View Details</span>
+                            </button>
 
+                            <button class="edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                                <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
+                                <span>Edit</span>
+                            </button>
 
-                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md text-white shadow edit-vehicle-btn flex items-center"
-                        data-id="${vehicle.vehicle_id}">
-                        <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5 inline">
-                    </button>
-
-                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-[#742121] hover:bg-red-500 rounded-md text-white shadow delete-vehicle-btn flex items-center"
-                        data-id="${vehicle.vehicle_id}"
-                        data-name="${vehicle.plate_num}">
-                        <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5 inline">
-                    </button>
+                            <button class="delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}" data-name="${vehicle.plate_num}">
+                                <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </td>
         `;
-        tbody.appendChild(tr);
+            tbody.appendChild(tr);
     });
+
+    // Initialize action menus after rendering
+    initActionMenus();
+}
+
+// Initialize actions menu toggles for dynamically rendered rows
+function initActionMenus() {
+    document.querySelectorAll('.actions-toggle').forEach(toggle => {
+        const menu = toggle.nextElementSibling;
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close other open menus
+            document.querySelectorAll('.actions-menu').forEach(m => {
+                if (m !== menu) {
+                    m.classList.add('hidden');
+                    m.classList.remove('dropup');
+                }
+            });
+            // Toggle current menu
+            if (menu) {
+                menu.classList.toggle('hidden');
+
+                if (!menu.classList.contains('hidden')) {
+                    setTimeout(() => {
+                        const rect = menu.getBoundingClientRect();
+                        const isOffScreen = rect.bottom > window.innerHeight;
+
+                        if (isOffScreen) {
+                            menu.classList.add('dropup');
+                        } else {
+                            menu.classList.remove('dropup');
+                        }
+                    }, 0);
+                }
+            }
+        });
+    });
+
+    // Close any open action menus when clicking outside (add listener once)
+    if (!window._vehicleActionsInit) {
+        document.addEventListener('click', (e) => {
+            // Don't close menu if click is on toggle or inside a menu
+            if (e.target.closest('.actions-toggle') || e.target.closest('.actions-menu')) {
+                return;
+            }
+            document.querySelectorAll('.actions-menu').forEach(m => m.classList.add('hidden'));
+        });
+        window._vehicleActionsInit = true;
+    }
 }
 
 /* -------------------------------

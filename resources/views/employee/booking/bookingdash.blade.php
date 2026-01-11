@@ -645,10 +645,10 @@ th.text-center, td.text-center {
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
-    <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+    <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72 flex flex-col">
         <div class="p-6 flex flex-col items-center">
             <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
-            <h2 class="text-xl font-bold tracking-wide text-red-500">BOOKING OFFICER</h2>
+            <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>
         </div>
 
         @php
@@ -657,14 +657,30 @@ th.text-center, td.text-center {
             ];
         @endphp
 
-        <nav class="mt-10 space-y-2 px-4">
+        <nav class="mt-10 space-y-2 px-4 flex-1 overflow-y-auto">
             @foreach ($menuItems as $item)
+                @php
+                    // Check if current URL matches menu item URL
+                    $isActive = request()->is(ltrim($item['url'],'/'));
+                @endphp
                 <a href="{{ $item['url'] }}"
-                   class="block py-3 px-4 rounded-lg hover:bg-red-600/40 hover:translate-x-2 transition-all duration-300 text-white">
+                    class="block py-3 px-4 rounded-lg transition-all duration-300 text-white 
+                    {{ $isActive ? 'bg-red-600/60 translate-x-2' : 'hover:bg-red-600/40 hover:translate-x-2' }}">
                     {{ $item['name'] }}
                 </a>
             @endforeach
         </nav>
+
+        {{-- Logout Button at bottom --}}
+        <div class="p-4 mt-auto">
+            <form method="POST" action="/logout" id="logoutForm" class="w-full">
+                @csrf
+                <button type="button" onclick="confirmLogout(event)" class="flex items-left gap-2 py-3 px-4 w-full bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 font-bold">
+                    <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
     {{-- MAIN CONTENT --}}
@@ -675,28 +691,13 @@ th.text-center, td.text-center {
             <h1 id="pageTitle" class="text-3xl font-bold text-red-500 drop-shadow-lg">Booking Management</h1>
 
             <div class="flex items-center space-x-4">
-                {{-- Refresh Revenue Stats --}}
-                <button id="refreshRevenueBtn" onclick="refreshRevenueStats()" class="refresh-btn">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    Refresh Stats
-                </button>
-
                 {{-- Theme Toggle --}}
                 <button id="theme-toggle" class="flex items-center gap-2 bg-black/30 backdrop-blur-xl p-2 rounded-lg hover:bg-[#998282] transition-all duration-300 cursor-pointer">
                     <img id="theme-icon" src="{{ asset('assets/moon.png') }}" class="w-6 h-6 transition-transform duration-500">
                     <span class="font-medium text-white">Dark Mode</span>
                 </button>
 
-                {{-- Logout --}}
-                <form method="POST" action="/logout">
-                    @csrf
-                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
-                        <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
-                        <span>Logout</span>
-                    </button>
-                </form>
+                
             </div>
         </div>
 
@@ -751,79 +752,13 @@ th.text-center, td.text-center {
             </div>
         @endif
 
-        {{-- ========== INDEX VIEW ========== --}}
+                {{-- ========== INDEX VIEW ========== --}}
         <div id="indexView" class="view-section active">
-            {{-- REVENUE STATISTICS SECTION --}}
-            <div class="revenue-chart-container mb-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="revenue-chart-title">Revenue Overview</h2>
-                    <div class="flex items-center gap-3">
-                        <div class="revenue-tabs">
-                            <button class="revenue-tab active" onclick="switchRevenuePeriod('today')">Today</button>
-                            <button class="revenue-tab" onclick="switchRevenuePeriod('monthly')">This Month</button>
-                            <button class="revenue-tab" onclick="switchRevenuePeriod('total')">All Time</button>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- REVENUE STATS CARDS --}}
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="revenueStats">
-                    <div class="stat-card" onclick="switchRevenuePeriod('today')">
-                        <div class="stat-value" id="todayRevenue">₱{{ number_format($stats['todayRevenue'] ?? 0, 2) }}</div>
-                        <div class="stat-label">Today's Revenue</div>
-                        <div class="stat-trend" id="todayTrend">
-                            <span class="trend-neutral">Loading trend...</span>
-                        </div>
-                    </div>
-                    <div class="stat-card" onclick="switchRevenuePeriod('monthly')">
-                        <div class="stat-value" id="monthlyRevenue">₱{{ number_format($stats['monthlyRevenue'] ?? 0, 2) }}</div>
-                        <div class="stat-label">Monthly Revenue</div>
-                        <div class="stat-trend" id="monthlyTrend">
-                            <span class="trend-neutral">Loading trend...</span>
-                        </div>
-                    </div>
-                    <div class="stat-card" onclick="switchRevenuePeriod('total')">
-                        <div class="stat-value" id="totalRevenue">₱{{ number_format($stats['totalRevenue'] ?? 0, 2) }}</div>
-                        <div class="stat-label">Total Revenue</div>
-                        <div class="stat-trend" id="totalTrend">
-                            <span class="trend-neutral">Loading trend...</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="avgBookingValue">₱{{ number_format($stats['totalRevenue'] > 0 ? $stats['totalRevenue'] / $stats['total'] : 0, 2) }}</div>
-                        <div class="stat-label">Avg. Booking Value</div>
-                        <div class="stat-trend">
-                            <span class="trend-neutral">Per booking</span>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- REVENUE CHART --}}
-                <div class="revenue-chart" id="revenueChart">
-                    <canvas id="revenueChartCanvas"></canvas>
-                </div>
-
-                {{-- ADDITIONAL REVENUE DATA --}}
-                <div class="revenue-data-grid" id="additionalRevenueData">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-
-            {{-- BOOKING STATISTICS CARDS --}}
+            {{-- STATISTICS CARDS --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div class="stat-card">
                     <div class="stat-value">{{ $stats['total'] ?? 0 }}</div>
                     <div class="stat-label">Total Bookings</div>
-                    <div class="stat-trend">
-                        @php
-                            $yesterdayBookings = 0; // This should come from your database
-                            $todayBookings = $stats['total'] ?? 0;
-                            $bookingChange = $todayBookings - $yesterdayBookings;
-                            $trendClass = $bookingChange > 0 ? 'trend-up' : ($bookingChange < 0 ? 'trend-down' : 'trend-neutral');
-                            $trendIcon = $bookingChange > 0 ? '↑' : ($bookingChange < 0 ? '↓' : '→');
-                        @endphp
-                        <span class="{{ $trendClass }}">{{ $trendIcon }} {{ abs($bookingChange) }} from yesterday</span>
-                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" style="color: #F59E0B;">{{ $stats['pending'] ?? 0 }}</div>
@@ -839,6 +774,8 @@ th.text-center, td.text-center {
                 </div>
             </div>
 
+        {{-- ========== INDEX VIEW ========== --}}
+        <div id="indexView" class="view-section active">
             {{-- SEARCH AND ADD BOOKING --}}
             <div class="flex justify-between items-center mb-6">
                 <input type="text" placeholder="Search booking ID, client name..."
@@ -1136,10 +1073,6 @@ th.text-center, td.text-center {
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Global variables
-let revenueChart = null;
-let currentRevenuePeriod = 'today';
-
 // View switching
 function switchView(view) {
     document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -1467,8 +1400,6 @@ function updateStatus(bookingId, statusId, buttonElement) {
     .then(data => {
         // Show success message in UI
         showNotification('success', `Booking ${statusNames[statusId].toLowerCase()} successfully!`);
-        // Refresh revenue stats after status update
-        refreshRevenueStats();
         // Refresh the page after a short delay
         setTimeout(() => {
             location.reload();
@@ -1540,8 +1471,6 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
     })
     .then(data => {
         showNotification('success', isUpdate ? 'Booking updated successfully!' : 'Booking created successfully!');
-        // Refresh revenue stats after booking creation/update
-        refreshRevenueStats();
         // Refresh the page after a short delay
         setTimeout(() => {
             location.reload();
@@ -1555,262 +1484,6 @@ document.getElementById('bookingForm').addEventListener('submit', function(e) {
         showNotification('error', 'Error: ' + err.message);
     });
 });
-
-// REVENUE STATISTICS FUNCTIONS
-
-// Switch revenue period
-function switchRevenuePeriod(period) {
-    currentRevenuePeriod = period;
-    
-    // Update active tab
-    document.querySelectorAll('.revenue-tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.revenue-tab').forEach(tab => {
-        if (tab.textContent.toLowerCase().includes(period)) {
-            tab.classList.add('active');
-        }
-    });
-    
-    // Load revenue data for the selected period
-    loadRevenueData(period);
-}
-
-// Load revenue data
-function loadRevenueData(period) {
-    fetch(`/employee/booking/stats`)
-        .then(r => r.json())
-        .then(data => {
-            updateRevenueStats(data, period);
-            updateRevenueChart(data, period);
-            updateAdditionalRevenueData(data);
-        })
-        .catch(err => {
-            console.error('Error loading revenue data:', err);
-            showNotification('error', 'Failed to load revenue statistics');
-        });
-}
-
-// Update revenue statistics
-function updateRevenueStats(data, period) {
-    // Update main revenue stats
-    document.getElementById('todayRevenue').textContent = '₱' + (data.todayRevenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('monthlyRevenue').textContent = '₱' + (data.monthlyRevenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('totalRevenue').textContent = '₱' + (data.totalRevenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    
-    // Calculate average booking value
-    const avgValue = data.total > 0 ? data.totalRevenue / data.total : 0;
-    document.getElementById('avgBookingValue').textContent = '₱' + avgValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    
-    // Update trends (you would need historical data for this)
-    updateTrends(data);
-}
-
-// Update revenue trends
-function updateTrends(data) {
-    // This is a simplified example - you would need to fetch historical data
-    // For now, we'll just show placeholder trends
-    const todayTrend = document.getElementById('todayTrend');
-    const monthlyTrend = document.getElementById('monthlyTrend');
-    const totalTrend = document.getElementById('totalTrend');
-    
-    // Example trends - replace with actual calculations from your database
-    todayTrend.innerHTML = '<span class="trend-up">↑ 15% from yesterday</span>';
-    monthlyTrend.innerHTML = '<span class="trend-up">↑ 8% from last month</span>';
-    totalTrend.innerHTML = '<span class="trend-up">↑ 25% from last year</span>';
-}
-
-// Update revenue chart
-function updateRevenueChart(data, period) {
-    const ctx = document.getElementById('revenueChartCanvas').getContext('2d');
-    
-    // Destroy existing chart if it exists
-    if (revenueChart) {
-        revenueChart.destroy();
-    }
-    
-    // Prepare chart data based on period
-    let labels, chartData, backgroundColor;
-    
-    if (period === 'today') {
-        // Last 24 hours in 4-hour intervals
-        labels = ['12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM'];
-        chartData = [1200, 800, 1500, 2500, 1800, 900]; // Example data
-        backgroundColor = 'rgba(239, 68, 68, 0.3)';
-    } else if (period === 'monthly') {
-        // Last 30 days
-        labels = [];
-        chartData = [];
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.getDate());
-            // Example data - random values between 500 and 5000
-            chartData.push(Math.floor(Math.random() * 4500) + 500);
-        }
-        backgroundColor = 'rgba(59, 130, 246, 0.3)';
-    } else {
-        // Total - last 12 months
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        labels = months;
-        chartData = months.map(() => Math.floor(Math.random() * 20000) + 5000);
-        backgroundColor = 'rgba(16, 185, 129, 0.3)';
-    }
-    
-    revenueChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: `Revenue (₱)`,
-                data: chartData,
-                backgroundColor: backgroundColor,
-                borderColor: period === 'today' ? '#EF4444' : period === 'monthly' ? '#3B82F6' : '#10B981',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.4,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: period === 'today' ? '#EF4444' : period === 'monthly' ? '#3B82F6' : '#10B981',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    borderWidth: 1,
-                    callbacks: {
-                        label: function(context) {
-                            return `₱${context.parsed.y.toLocaleString()}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#9CA3AF'
-                    }
-                },
-                y: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#9CA3AF',
-                        callback: function(value) {
-                            return '₱' + value.toLocaleString();
-                        }
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-// Update additional revenue data
-function updateAdditionalRevenueData(data) {
-    const container = document.getElementById('additionalRevenueData');
-    
-    const revenueData = {
-        'Revenue by Status': {
-            'Confirmed': data.revenue_by_status?.confirmed || 0,
-            'Ongoing': data.revenue_by_status?.ongoing || 0,
-            'Completed': data.revenue_by_status?.completed || 0
-        },
-        'Performance Metrics': {
-            'Avg. Daily Revenue': data.totalRevenue > 0 ? Math.round(data.totalRevenue / 365) : 0,
-            'Conversion Rate': '85%', // Example
-            'Customer Lifetime Value': '₱' + (data.totalRevenue > 0 ? Math.round(data.totalRevenue / data.total * 3) : 0).toLocaleString()
-        }
-    };
-    
-    let html = '';
-    
-    Object.entries(revenueData).forEach(([category, items]) => {
-        html += `
-            <div class="revenue-data-item">
-                <div class="revenue-data-label">${category}</div>
-                ${Object.entries(items).map(([label, value]) => `
-                    <div class="mt-2">
-                        <div class="text-sm text-gray-400">${label}</div>
-                        <div class="revenue-data-value">
-                            ${typeof value === 'number' ? '₱' + value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : value}
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    });
-    
-    // Add 7-day trend data if available
-    if (data.last_7_days_revenue && data.last_7_days_revenue.length > 0) {
-        const last7Days = data.last_7_days_revenue;
-        const total7Days = last7Days.reduce((sum, day) => sum + (day.revenue || 0), 0);
-        const avg7Days = total7Days / 7;
-        
-        html += `
-            <div class="revenue-data-item">
-                <div class="revenue-data-label">7-Day Trend</div>
-                <div class="mt-2">
-                    <div class="text-sm text-gray-400">Total (7 days)</div>
-                    <div class="revenue-data-value">₱${total7Days.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                </div>
-                <div class="mt-2">
-                    <div class="text-sm text-gray-400">Daily Average</div>
-                    <div class="revenue-data-value">₱${avg7Days.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-                </div>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html;
-}
-
-// Refresh revenue stats
-function refreshRevenueStats() {
-    const refreshBtn = document.getElementById('refreshRevenueBtn');
-    const originalHtml = refreshBtn.innerHTML;
-    
-    // Show spinning animation
-    refreshBtn.classList.add('spinning');
-    refreshBtn.innerHTML = '<span class="loading-spinner"></span>Refreshing...';
-    refreshBtn.disabled = true;
-    
-    // Load fresh data
-    loadRevenueData(currentRevenuePeriod);
-    
-    // Also get fresh booking stats
-    fetch(`/employee/booking/stats`)
-        .then(r => r.json())
-        .then(data => {
-            showNotification('success', 'Revenue statistics refreshed successfully!');
-        })
-        .catch(err => {
-            console.error('Error refreshing stats:', err);
-            showNotification('error', 'Failed to refresh statistics');
-        })
-        .finally(() => {
-            // Restore button state after 1.5 seconds
-            setTimeout(() => {
-                refreshBtn.classList.remove('spinning');
-                refreshBtn.innerHTML = originalHtml;
-                refreshBtn.disabled = false;
-            }, 1500);
-        });
-}
 
 // Function to show notification messages
 function showNotification(type, message) {
@@ -1933,6 +1606,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+function confirmLogout(event) {
+    event.preventDefault();
+    if (confirm('Are you sure you want to logout?')) {
+        document.getElementById('logoutForm').submit();
+    }
+}
 </script>
 
 @endsection

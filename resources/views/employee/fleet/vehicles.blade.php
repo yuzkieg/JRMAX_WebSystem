@@ -187,11 +187,11 @@ td .action-edit, td .action-delete, td .action-view {
 
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
-    {{-- SIDEBAR --}}
-    <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+        {{-- SIDEBAR --}}
+    <aside id="sidebar" class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72 flex flex-col">
         <div class="p-6 flex flex-col items-center">
             <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
-            <h2 class="text-xl font-bold tracking-wide text-red-500">FLEET</h2>
+            <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>
         </div>
 
         @php
@@ -201,14 +201,30 @@ td .action-edit, td .action-delete, td .action-view {
             ];
         @endphp
 
-        <nav class="mt-10 space-y-2 px-4">
+        <nav class="mt-10 space-y-2 px-4 flex-1 overflow-y-auto">
             @foreach ($menuItems as $item)
+                @php
+                    // Check if current URL matches menu item URL
+                    $isActive = request()->is(ltrim($item['url'],'/'));
+                @endphp
                 <a href="{{ $item['url'] }}"
-                   class="block py-3 px-4 rounded-lg transition-all duration-300 text-white {{ request()->is(ltrim($item['url'], '/') . '*') ? 'bg-red-600/60 translate-x-2' : 'hover:bg-red-600/40 hover:translate-x-2' }}">
+                    class="block py-3 px-4 rounded-lg transition-all duration-300 text-white 
+                    {{ $isActive ? 'bg-red-600/60 translate-x-2' : 'hover:bg-red-600/40 hover:translate-x-2' }}">
                     {{ $item['name'] }}
                 </a>
             @endforeach
         </nav>
+
+        {{-- Logout Button at bottom --}}
+        <div class="p-4 mt-auto">
+            <form method="POST" action="/logout" id="logoutForm" class="w-full">
+                @csrf
+                <button type="button" onclick="confirmLogout(event)" class="flex items-left gap-2 py-3 px-4 w-full bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 font-bold">
+                    <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
     {{-- MAIN CONTENT --}}
@@ -224,15 +240,6 @@ td .action-edit, td .action-delete, td .action-view {
                     <img id="theme-icon" src="{{ asset('assets/moon.png') }}" class="w-6 h-6 transition-transform duration-500">
                     <span class="font-medium text-white">Dark Mode</span>
                 </button>
-
-                {{-- Logout --}}
-                <form method="POST" action="/logout">
-                    @csrf
-                    <button class="flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
-                        <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
-                        <span>Logout</span>
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -534,16 +541,30 @@ function renderVehiclesTable() {
                         <span class="text-sm leading-none">View Details</span>
                     </button>
 
-                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-md text-white shadow edit-vehicle-btn flex items-center"
-                        data-id="${vehicle.vehicle_id}">
-                        <img src="{{ asset('assets/edit.png') }}" class="w-5 h-5 inline">
-                    </button>
+                    <div class="relative inline-block">
+                        <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="5" cy="12" r="1.5" />
+                                <circle cx="12" cy="12" r="1.5" />
+                                <circle cx="19" cy="12" r="1.5" />
+                            </svg>
+                        </button>
 
-                    <button type="button" class="cursor-pointer px-2 py-1.5 bg-[#742121] hover:bg-red-500 rounded-md text-white shadow delete-vehicle-btn flex items-center"
-                        data-id="${vehicle.vehicle_id}"
-                        data-name="${vehicle.plate_num}">
-                        <img src="{{ asset('assets/delete.png') }}" class="w-5 h-5 inline">
-                    </button>
+                        <div class="actions-menu hidden absolute right-0 mt-2 w-44 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                            <button class="edit-btn edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                    data-id="${vehicle.vehicle_id}">
+                                <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
+                                <span>Edit</span>
+                            </button>
+
+                            <button class="delete-btn delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                                    data-id="${vehicle.vehicle_id}"
+                                    data-name="${vehicle.plate_num}">
+                                <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </td>
         `;
@@ -1268,6 +1289,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     @if(session('error'))
         showSuccessMessage('{{ session('error') }}', 'error');
     @endif
+    // Actions menu toggles (three-dots)
+    document.querySelectorAll('.actions-toggle').forEach(toggle => {
+        const menu = toggle.nextElementSibling;
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close other open menus
+            document.querySelectorAll('.actions-menu').forEach(m => {
+                if (m !== menu) {
+                    m.classList.add('hidden');
+                    m.classList.remove('dropup');
+                }
+            });
+            // Toggle current menu
+            if (menu) {
+                menu.classList.toggle('hidden');
+
+                // Check if menu would go off-screen and position upward if needed
+                if (!menu.classList.contains('hidden')) {
+                    setTimeout(() => {
+                        const rect = menu.getBoundingClientRect();
+                        const isOffScreen = rect.bottom > window.innerHeight;
+
+                        if (isOffScreen) {
+                            menu.classList.add('dropup');
+                        } else {
+                            menu.classList.remove('dropup');
+                        }
+                    }, 0);
+                }
+            }
+        });
+        if (menu) menu.addEventListener('click', e => e.stopPropagation());
+    });
+
+    // Close any open action menus when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.actions-menu').forEach(m => m.classList.add('hidden'));
+    });
 });
+
+function confirmLogout(event) {
+    event.preventDefault();
+    if (confirm('Are you sure you want to logout?')) {
+        document.getElementById('logoutForm').submit();
+    }
+}
 </script>
 @endsection

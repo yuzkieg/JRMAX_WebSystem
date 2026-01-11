@@ -17,6 +17,23 @@
     --nav-tab-text: #ffffff;
 }
 
+.actions-menu.dropup {
+    bottom: 100%;
+    top: auto;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.actions { position: relative; display: inline-block; }
+.actions-toggle { background: transparent; border: none; color: inherit; padding: .5rem; border-radius: .5rem; cursor: pointer; }
+.actions-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+.actions-menu { position: absolute; right: 0; top: 100%; margin-top: 0.5rem; min-width: 10rem; background: #262B32; border: 1px solid rgba(255,255,255,0.1); border-radius: .75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.6); z-index: 40; display: none; overflow: hidden; }
+.actions-menu.show { display: block; }
+.actions-menu button { display: flex; align-items: center; gap: .5rem; width: 100%; text-align: left; padding: .5rem .75rem; background: transparent; border: none; color: #e5e7eb; cursor: pointer; }
+.actions-menu button:hover { background-color: rgba(255,255,255,0.05); }
+.actions-menu.dropup { bottom: 100%; top: auto; margin-top: 0; margin-bottom: 0.5rem; }
+.actions-menu button:hover { background: rgba(255,255,255,0.05); }
+
 #sidebar nav a {
     color: var(--nav-tab-text) !important;
 }
@@ -40,16 +57,16 @@
 .status-pill {
     display: inline-block;
     padding: .25rem .75rem;
-    border-radius: 9999px;
+    border-radius: 0.5rem;
     font-weight: 700;
-    font-size: .85rem;
+    font-size: medium;
 }
 
-.status-pill.pending { background: var(--status-pending); color: #000; }
+.status-pill.pending { background: var(--status-pending); color: #FFFF00 ; }
 .status-pill.confirmed { background: var(--status-confirmed); color: #fff; }
-.status-pill.ongoing { background: var(--status-ongoing); color: #fff; }
-.status-pill.completed { background: var(--status-completed); color: #fff; }
-.status-pill.cancelled { background: var(--status-cancelled); color: #fff; }
+.status-pill.ongoing { background: var(--status-ongoing); color: #ADD8E6 ; }
+.status-pill.completed { background: var(--status-completed); color: #93FF54 ; }
+.status-pill.cancelled { background: var(--status-cancelled); color: #FF0000 ; }
 
 .stat-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
@@ -526,7 +543,7 @@ td .action-edit, td .action-delete {
             </div>
 
             {{-- BOOKINGS TABLE --}}
-            <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
+            <div class=" rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
                 <table class="w-full text-left">
                     <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                         <tr>
@@ -566,7 +583,22 @@ td .action-edit, td .action-delete {
                                     <span class="status-pill {{ $statusClass }}">{{ $booking->status->status_name ?? 'Unknown' }}</span>
                                 </td>
                                 <td class="p-4 text-center">
-                                    <button onclick="showBooking({{ $booking->boarding_id }})" class="cursor-pointer px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-sm transition-all">View Details</button>
+                                    <div class="actions">
+                                        <button type="button" class="actions-toggle" aria-expanded="false">
+                                            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                <circle cx="5" cy="12" r="1.5" />
+                                                <circle cx="12" cy="12" r="1.5" />
+                                                <circle cx="19" cy="12" r="1.5" />
+                                            </svg>
+                                        </button>
+
+                                        <div class="actions-menu" role="menu">
+                                            <button class="view-booking-btn" data-id="{{ $booking->boarding_id }}" role="menuitem">
+                                                <img src="{{ asset('assets/file.png') }}" alt="View" class="w-5 h-5">
+                                                <span>View Details</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
@@ -673,10 +705,6 @@ td .action-edit, td .action-delete {
                                 </select>
                             </div>
 
-                            <div class="form-group">
-                                <label for="boarding_date">Boarding Date *</label>
-                                <input type="date" name="boarding_date" id="boarding_date" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
-                            </div>
                         </div>
                     </div>
 
@@ -873,7 +901,7 @@ function showBooking(id) {
             <div class="modal-card">
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-red-500">Booking #${String(booking.boarding_id).padStart(6,'0')}</h2>
+                        <h2 class="text-3xl font-bold text-white">#${String(booking.boarding_id).padStart(6,'0')}</h2>
                         <div class="text-sm text-gray-400 mt-1">
                             Created: ${formatDate(booking.created_at)}
                         </div>
@@ -1124,6 +1152,56 @@ if (createBtn) {
         }, 50);
     });
 }
+
+// Actions dropdown toggle
+document.addEventListener('click', function(e) {
+    const toggle = e.target.closest('.actions-toggle');
+
+    if (toggle) {
+        const actions = toggle.closest('.actions');
+        const menu = actions.querySelector('.actions-menu');
+
+        // Close other open menus
+        document.querySelectorAll('.actions-menu.show').forEach(m => {
+            if (m !== menu) m.classList.remove('show');
+        });
+
+        // Toggle this menu
+        menu.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', menu.classList.contains('show'));
+
+        // Check for dropup
+        if (menu.classList.contains('show')) {
+            const rect = menu.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight) {
+                menu.classList.add('dropup');
+            } else {
+                menu.classList.remove('dropup');
+            }
+        }
+
+        e.stopPropagation();
+        return;
+    }
+
+    // If clicking a menu item, close the menu shortly after
+    if (e.target.closest('.actions-menu button')) {
+        const menu = e.target.closest('.actions-menu');
+        setTimeout(() => menu.classList.remove('show'), 100);
+        return;
+    }
+
+    // Click outside: close all menus
+    document.querySelectorAll('.actions-menu.show').forEach(m => m.classList.remove('show'));
+});
+
+// View booking handler
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.view-booking-btn')) {
+        const id = e.target.closest('.view-booking-btn').dataset.id;
+        showBooking(id);
+    }
+});
 </script>
 
 <script>
