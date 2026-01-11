@@ -77,6 +77,12 @@
             </button>
         </form>
 
+        <div class="flex items-center mt-6">
+            <div class="flex-grow h-[1px] bg-gray-600"></div>
+            <span class="px-3 text-gray-400 text-sm">OR</span>
+            <div class="flex-grow h-[1px] bg-gray-600"></div>
+        </div>
+
         <!-- Google Sign In Button -->
         <a href="{{ route('google.login') }}"
            class="w-full flex items-center justify-center gap-3 py-3 mt-4 rounded-lg bg-white text-gray-700 font-semibold
@@ -86,13 +92,8 @@
             Continue with Google
         </a>
 
-        <div class="flex items-center my-8">
-            <div class="flex-grow h-[1px] bg-gray-600"></div>
-            <span class="px-3 text-gray-400 text-sm">OR</span>
-            <div class="flex-grow h-[1px] bg-gray-600"></div>
-        </div>
 
-        <p class="text-center text-gray-300 text-sm">
+        <p class="text-center text-gray-300 text-sm mt-4">
             Don't have an account?
             <a href="#" class="text-red-400 hover:text-red-500 font-medium transition">Sign Up</a>
         </p>

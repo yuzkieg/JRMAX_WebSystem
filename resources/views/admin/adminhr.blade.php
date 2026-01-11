@@ -6,7 +6,7 @@
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
 
     {{-- SIDEBAR --}}
-    <aside class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 hover:w-72">
+    <aside class="w-64 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 flex flex-col">
         <div class="p-6 flex flex-col items-center">
             <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
             <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>
@@ -19,19 +19,34 @@
                 ['name' => 'Vehicle Management', 'url' => '/admin/vehicles'],
                 ['name' => 'Vehicle Maintenance', 'url' => '/admin/maintenance'],
                 ['name' => 'User Management', 'url' => '/admin/users'],
-                ['name' => 'Reports', 'url' => '/admin/reports'],
-                ['name' => 'Booking', 'url' => '/admin/booking'],
+                ['name' => 'Booking Management', 'url' => '/admin/booking'],
             ];
+            $currentPath = request()->path();
         @endphp
 
-        <nav class="mt-10 space-y-2 px-4">
+        <nav class="mt-10 space-y-2 px-4 flex-1 overflow-y-auto">
             @foreach ($menuItems as $item)
+                @php
+                    $isActive = request()->is(ltrim($item['url'],'/'));
+                @endphp
                 <a href="{{ $item['url'] }}"
-                   class="block py-3 px-4 rounded-lg hover:bg-red-600/40 hover:translate-x-2 transition-all duration-300 text-white">
+                   class="block py-3 px-4 rounded-lg transition-all duration-300 text-white
+                   {{ $isActive ? 'bg-red-600/60 translate-x-2' : 'hover:bg-red-600/40 hover:translate-x-2' }}">
                     {{ $item['name'] }}
                 </a>
             @endforeach
         </nav>
+
+        {{-- Logout Button at bottom --}}
+        <div class="p-4 mt-auto">
+            <form method="POST" action="/logout" id="logoutForm" class="w-full">
+                @csrf
+                <button type="button" onclick="confirmLogout(event)" class="flex items-left gap-2 py-3 px-4 w-full bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 font-bold">
+                    <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
     {{-- MAIN CONTENT --}}
@@ -46,15 +61,6 @@
                     <img id="theme-icon" src="{{ asset('assets/moon.png') }}" class="w-6 h-6 transition-transform duration-500">
                     <span class="font-medium text-white">Dark Mode</span>
                 </button>
-
-                {{-- Logout --}}
-                <form method="POST" action="/logout">
-                    @csrf
-                    <button class="cursor-pointer flex items-center gap-2 px-5 py-2 bg-[#742121] hover:bg-red-500 rounded-lg shadow-md transition-all duration-200 hover:scale-105 text-white">
-                        <img src="{{ asset('assets/logout.png') }}" class="w-6 h-6">
-                        <span>Logout</span>
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -188,17 +194,14 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="employeeBackdrop"></div>
             <div id="employeeModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
                 <h2 class="text-2xl font-bold text-red-500 mb-4" id="modalTitle">Add Employee</h2>
-                
                 {{-- CLIENT-SIDE VALIDATION MESSAGES --}}
                 <div id="clientSideErrors" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">
                     <ul id="clientErrorList"></ul>
                 </div>
-
                 <form method="POST" id="employeeForm">
                     @csrf
                     <input type="hidden" name="_method" id="employee_hidden_method" value="POST">
                     <input type="hidden" name="id" id="employee_id">
-
                     <div class="mb-4">
                         <label class="block font-semibold mb-1">Name</label>
                         <input type="text" name="name" id="employee_name" required
@@ -213,7 +216,6 @@
                                placeholder="Enter email">
                         <span class="text-red-400 text-sm hidden" id="emailError"></span>
                     </div>
-
                     <div class="mb-4" id="positionField">
                         <label class="block font-semibold mb-1">Position</label>
                         <select name="position" id="employee_role" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
@@ -223,7 +225,6 @@
                         </select>
                         <span class="text-red-400 text-sm hidden" id="positionError"></span>
                     </div>
-
                     <div class="mb-4" id="licenseField" style="display:none;">
                         <label class="block font-semibold mb-1">License No.</label>
                         <input type="text" name="license_num" id="employee_license"
@@ -231,13 +232,11 @@
                                placeholder="Enter license number">
                         <span class="text-red-400 text-sm hidden" id="licenseError"></span>
                     </div>
-
                     <div class="mb-4" id="dateAddedField" style="display:none;">
                         <label class="block font-semibold mb-1">Date Added</label>
                         <input type="date" name="dateadded" id="driver_dateadded"
                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                     </div>
-
                     <div class="flex justify-end mt-6 gap-3">
                         <button type="button" id="closeEmployeeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
                         <button type="submit" id="submitEmployeeBtn" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Save</button>
@@ -249,11 +248,9 @@
         {{-- DELETE MODAL WITH PASSWORD CONFIRMATION --}}
         <div id="deleteEmployeeModal" class="fixed inset-0 flex items-center justify-center z-[60] hidden">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" id="deleteEmployeeBackdrop"></div>
-
             <form id="deleteEmployeeForm" method="POST" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
                 @csrf
                 <input type="hidden" name="_method" value="DELETE">
-
                 <div class="text-center mb-6">
                     <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                         <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -262,12 +259,10 @@
                     </div>
                     <h2 class="text-2xl font-bold text-red-500 mb-2">Confirm Delete</h2>
                     <p class="text-gray-300 mb-4">Enter your password to confirm deletion of "<span id="deleteEmployeeName" class="font-semibold"></span>"</p>
-                    
                     {{-- DELETE ERROR MESSAGE --}}
                     <div id="deleteError" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
                         <span id="deleteErrorText"></span>
                     </div>
-                    
                     {{-- Password Input --}}
                     <div class="mb-4 text-left">
                         <input type="password" name="admin_password" required
@@ -276,7 +271,6 @@
                         <p class="text-xs text-gray-400 mt-1 ms-1">This action cannot be undone.</p>
                     </div>
                 </div>
-
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" id="cancelDeleteEmployeeBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
                     <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-200">Delete</button>
@@ -310,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setActive(type) {
         activeHrType = type;
-        
         // Update button styles
         if(type === 'employee'){
             navEmployees.classList.add('bg-red-700'); 
@@ -327,7 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addBtn.textContent = '+ Add Driver';
             document.getElementById('thirdColumnHeader').textContent = 'License';
         }
-        
         // Filter the table
         filterTableRows(type);
     }
@@ -335,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tab click handlers
     navEmployees.addEventListener('click', () => setActive('employee'));
     navDrivers.addEventListener('click', () => setActive('driver'));
-    
+
     // Initialize with employees visible
     setActive(activeHrType);
 
@@ -354,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openModal(type = activeHrType, data = {}) {
         modalTitle.textContent = data.id ? `Edit ${type === 'driver' ? 'Driver' : 'Employee'}` : `Add ${type === 'driver' ? 'Driver' : 'Employee'}`;
-        
         // Set form action
         if (data.id) {
             form.action = type === 'employee' 
@@ -365,7 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? "{{ route('admin.hr.store') }}" 
                 : "{{ route('admin.drivers.store') }}";
         }
-        
         // Set method
         form.querySelector('#employee_hidden_method').value = data.id ? 'PUT' : 'POST';
 
@@ -373,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('employee_id').value = data.id || '';
         document.getElementById('employee_name').value = data.name || '';
         document.getElementById('employee_email').value = data.email || '';
-        
+
         if(type === 'driver'){
             positionField.style.display = 'none';
             licenseField.style.display = 'block';
@@ -389,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Clear errors
         clearErrors();
-        
+
         modal.classList.remove('hidden');
         setTimeout(() => { 
             modalCard.classList.remove('scale-90', 'opacity-0'); 
@@ -477,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add button click
-    addBtn.addEventListener('click', () => openModal());
+    document.getElementById('addHrBtn').addEventListener('click', () => openModal());
 
     // Edit buttons
     document.querySelectorAll('.edit-btn').forEach(btn => {
@@ -495,8 +485,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Close modal buttons
-    closeBtn.addEventListener('click', closeModal);
-    backdrop.addEventListener('click', closeModal);
+    document.getElementById('closeEmployeeModalBtn').addEventListener('click', closeModal);
+    document.getElementById('employeeBackdrop').addEventListener('click', closeModal);
 
     // Delete Modal Logic
     const deleteModal = document.getElementById('deleteEmployeeModal');
@@ -538,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle delete form submission
     deleteForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const submitButton = this.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
 
@@ -560,13 +550,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok) {
                 // Show success message
                 showSuccessMessage(result.message || 'Record deleted successfully.');
-                
+
                 // Remove the row from table
                 if (currentDeleteButton) {
                     const row = currentDeleteButton.closest('tr');
                     if (row) row.remove();
                 }
-                
+
                 closeDeleteModal();
             } else {
                 showDeleteError(result.message || 'An error occurred while deleting.');
@@ -592,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg> k
+                    </svg>
                     <span>${message}</span>
                 </div>
                 <button onclick="this.parentElement.parentElement.remove()" class="text-green-300 hover:text-white">
@@ -601,11 +591,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </svg>
                 </button>
             </div>`;
-
         const firstChild = main.firstElementChild;
         if (firstChild) main.insertBefore(div, firstChild);
         else main.appendChild(div);
-        
         setTimeout(() => div.remove(), 5000);
     }
 
@@ -618,14 +606,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    cancelDeleteBtn.addEventListener('click', closeDeleteModal);
-    deleteBackdrop.addEventListener('click', closeDeleteModal);
+    document.getElementById('cancelDeleteEmployeeBtn').addEventListener('click', closeDeleteModal);
+    document.getElementById('deleteEmployeeBackdrop').addEventListener('click', closeDeleteModal);
 
     // Search functionality
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', () => {
         const searchTerm = searchInput.value.toLowerCase();
-        
         allRows.forEach(row => {
             const editBtn = row.querySelector('.edit-btn');
             if (editBtn) {
@@ -636,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     cells.forEach(cell => {
                         rowText += cell.textContent.toLowerCase() + ' ';
                     });
-                    
                     row.style.display = rowText.includes(searchTerm) ? '' : 'none';
                 }
             }
@@ -653,4 +639,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<script>
+    function confirmLogout(event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to logout?')) {
+            document.getElementById('logoutForm').submit();
+        }
+    }
+</script>
 @endsection

@@ -2,7 +2,7 @@
 
 @section('content')
 
-@vite(['resources/js/app.js', 'resources/js/theme', 'resources/css/app.css'])
+@vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/theme.js'])
 
 {{-- HEADER --}}
 <header class="fixed top-0 left-0 w-full bg-black/70 text-white shadow-lg z-50 backdrop-blur-md">

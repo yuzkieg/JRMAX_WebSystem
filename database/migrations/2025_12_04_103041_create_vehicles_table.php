@@ -29,11 +29,11 @@ public function up(): void
         $table->unsignedBigInteger('driver')->nullable();
         $table->foreign('driver')->references('id')->on('drivers')->nullOnDelete();
 
-        $table->bigInteger('added_by')->nullable();
-        $table->bigInteger('updated_by')->nullable();
+        $table->unsignedBigInteger('added_by')->nullable();
+        $table->unsignedBigInteger('updated_by')->nullable();
 
-        $table->foreign('added_by')->references('id')->on('users');
-        $table->foreign('updated_by')->references('id')->on('users');
+        $table->foreign('added_by')->references('id')->on('users')->nullOnDelete();
+        $table->foreign('updated_by')->references('id')->on('users')->nullOnDelete();
 
 
 

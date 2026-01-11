@@ -204,7 +204,7 @@ td .action-edit, td .action-delete, td .action-view {
         <nav class="mt-10 space-y-2 px-4">
             @foreach ($menuItems as $item)
                 <a href="{{ $item['url'] }}"
-                   class="block py-3 px-4 rounded-lg hover:bg-red-600/40 hover:translate-x-2 transition-all duration-300 text-white">
+                   class="block py-3 px-4 rounded-lg transition-all duration-300 text-white {{ request()->is(ltrim($item['url'], '/') . '*') ? 'bg-red-600/60 translate-x-2' : 'hover:bg-red-600/40 hover:translate-x-2' }}">
                     {{ $item['name'] }}
                 </a>
             @endforeach
