@@ -68,7 +68,6 @@
 
 .status-pill {
     display: inline-block;
-    padding: .25rem .75rem;
     border-radius: 0.5rem;
     font-weight: 700;
     font-size: medium;

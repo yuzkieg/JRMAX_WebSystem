@@ -54,19 +54,18 @@
 }
 .action-delete:hover { background-color: var(--action-delete-hover) !important; }
 
-.status-pill {
-    display: inline-block;
-    padding: .25rem .75rem;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    font-size: medium;
-}
 
-.status-pill.pending { background: var(--status-pending); color: #FFFF00 ; }
-.status-pill.confirmed { background: var(--status-confirmed); color: #fff; }
-.status-pill.ongoing { background: var(--status-ongoing); color: #ADD8E6 ; }
-.status-pill.completed { background: var(--status-completed); color: #93FF54 ; }
-.status-pill.cancelled { background: var(--status-cancelled); color: #FF0000 ; }
+    .status-pill {
+        display: inline-block;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        font-size: medium;
+    }
+    .status-pill.pending { background: transparent; color: #FFFF00 ; }
+    .status-pill.confirmed { background: transparent; color: #0FC2A7; }
+    .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
+    .status-pill.completed { background: transparent; color: #93FF54   ; }
+    .status-pill.cancelled { background: transparent; color: #FF0000 ; }
 
 .stat-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
@@ -562,9 +561,9 @@ td .action-edit, td .action-delete {
                             <tr class="border-b border-white/10 hover:bg-white/10 transition-all booking-row">
                                 <td class="p-4 font-semibold">#{{ str_pad($booking->boarding_id, 6, '0', STR_PAD_LEFT) }}</td>
                                 <td class="p-4 booking-client">{{ $booking->client->first_name ?? 'N/A' }} {{ $booking->client->last_name ?? '' }}</td>
-                                <td class="p-4">
+                                <td class="p-4 !border-0">
                                     @foreach($booking->vehicles as $bv)
-                                        <span class="inline-block px-2 py-1 bg-blue-600/30 text-blue-200 rounded text-xs mr-1">
+                                        <span class="inline-block px-2 py-1 text-sm text-white mr-1">
                                             {{ $bv->vehicle->brand ?? 'N/A' }}
                                         </span>
                                     @endforeach
@@ -572,7 +571,7 @@ td .action-edit, td .action-delete {
                                 <td class="p-4 text-sm">{{ $booking->start_datetime ? $booking->start_datetime->format('M d H:i') : 'N/A' }}</td>
                                 <td class="p-4 text-sm">{{ $booking->end_datetime ? $booking->end_datetime->format('M d H:i') : 'N/A' }}</td>
                                 <td class="p-4 font-bold text-green-400">₱{{ number_format($booking->total_price, 2) }}</td>
-                                <td class="p-4">
+                                <td class="p-4 !border-0">
                                     @php
                                         $statusClass = 'pending';
                                         if ($booking->status_id == 2) $statusClass = 'confirmed';

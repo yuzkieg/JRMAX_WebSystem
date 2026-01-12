@@ -20,11 +20,11 @@
     .actions-menu button:hover { background: rgba(255,255,255,0.03); }
 
     .status-pill {
-        display: inline-block;
-        border-radius: 0.5rem;
-        font-weight: 700;
-        font-size: medium;
-    }
+    display: inline-block;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: medium;
+}
 
     .status-pill.pending { background: transparent; color: #FFFF00 ; }
     .status-pill.confirmed { background: transparent; color: #fff; }
@@ -124,9 +124,9 @@
                         <th class="p-4">Vehicle</th>
                         <th class="p-4">Type</th>
                         <th class="p-4">Scheduled Date</th>
-                        <th class="p-4">Status</th>
                         <th class="p-4">Cost</th>
                         <th class="p-4">Description</th>
+                        <th class="p-4">Status</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
@@ -144,6 +144,12 @@
                         <td class="p-4">
                             {{ $maintenance->scheduled_date ? \Carbon\Carbon::parse($maintenance->scheduled_date)->format('M d, Y') : 'N/A' }}
                         </td>
+                        <td class="p-4 font-semibold">
+                            ₱{{ number_format($maintenance->cost, 2) }}
+                        </td>
+                        <td class="p-4 max-w-xs truncate" title="{{ $maintenance->description }}">
+                            {{ Str::limit($maintenance->description, 50) }}
+                        </td>
                         <td class="p-4">
                             @php
                                 // map maintenance statuses to standard status-pill classes
@@ -154,13 +160,6 @@
                                 elseif ($maintenance->status === 'cancelled') $statusClass = 'cancelled';
                             @endphp
                             <span class="status-pill {{ $statusClass }}">{{ ucfirst($maintenance->status) }}</span>
-                        </td>
-                        <td class="p-4 font-semibold">
-                            ₱{{ number_format($maintenance->cost, 2) }}
-                        </td>
-                        
-                        <td class="p-4 max-w-xs truncate" title="{{ $maintenance->description }}">
-                            {{ Str::limit($maintenance->description, 50) }}
                         </td>
                         <td class="p-4 text-center">
                             <div class="flex justify-center">
