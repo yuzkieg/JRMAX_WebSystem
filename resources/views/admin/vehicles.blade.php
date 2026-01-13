@@ -85,32 +85,47 @@
 .action-view img { filter: brightness(0) invert(1); }
 .action-view:hover { background-color: var(--action-view-hover) !important; }
 
-.type-pill {
-    display: inline-block;
-    padding: .18rem .6rem;
-    border-radius: 9999px;
-    background: #00000026;
-    color: #fff;
-    font-weight: 600;
-    font-size: .9rem;
-}
-
-.dark .type-pill {
-    display: inline-block;
-    padding: .18rem .6rem;
-    border-radius: 9999px;
-    background: #8a8686;
-    color: #000000;
-    font-weight: 600;
-    font-size: .9rem;
-}
-
 .status-pill {
     display: inline-block;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    font-size: medium;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px; /* Full rounded pill shape */
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-align: center;
+    transition: all 0.3s ease;
 }
+
+/* Available Status - Green Pill */
+.status-pill.available {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+/* Unavailable Status - Red Pill */
+.status-pill.unavailable {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* Light mode adjustments */
+.dark .status-pill.available {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.4);
+}
+
+.dark .status-pill.unavailable {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+}
+
+/* Hover effect for pills */
+.status-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 
 .status-pill.pending { background: transparent; color: #FFFF00 ; }
 .status-pill.confirmed { background: transparent; color: #fff; }
@@ -152,18 +167,6 @@ td .action-edit, td .action-delete, td .action-view {
     object-fit: cover;
     border-radius: 0.5rem;
     border: 2px dashed rgba(255, 255, 255, 0.2);
-}
-
-.status-available {
-    color: #16A34A !important;
-    font-size: medium;
-    background: transparent !important;
-}
-
-.status-unavailable {
-    color: #EE4B2B !important;
-    font-size: medium;
-    background: transparent !important;
 }
 
 /* View Details modal specific */
@@ -522,7 +525,7 @@ function previewImage(event) {
     }
 }
 
-// Render vehicles table with image support
+// Updated renderVehiclesTable function - Replace the status cell part
 function renderVehiclesTable() {
     const tbody = document.getElementById('vehiclesTable');
     tbody.innerHTML = '';
@@ -536,76 +539,74 @@ function renderVehiclesTable() {
             driverName = vehicle.driver.name;
         }
         
-        // Determine availability class
+        // Determine availability - UPDATED to use pill classes
         const isAvailable = vehicle.is_available !== false;
-        const statusClass = isAvailable ? 'status-available' : 'status-unavailable';
+        const statusClass = isAvailable ? 'available' : 'unavailable';
         const statusText = isAvailable ? 'Available' : 'Unavailable';
         
         const tr = document.createElement('tr');
+        tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
 
-tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
+        // Construct the vehicle image URL
+        const vehicleImageUrl = vehicle.image 
+            ? `/storage/${vehicle.image}`
+            : window.DEFAULT_VEHICLE_IMAGE;
 
-// Construct the vehicle image URL dynamically (from previous fix)
-const vehicleImageUrl = vehicle.image 
-    ? `/storage/${vehicle.image}`
-    : window.DEFAULT_VEHICLE_IMAGE;
+        tr.innerHTML = `
+            <td class="p-4 text-center">
+                <img src="${vehicleImageUrl}"
+                     alt="${vehicle.brand} ${vehicle.model}"
+                     class="vehicle-image inline-block">
+            </td>
+            <td class="p-4 text-center">${vehicle.plate_num}</td>
+            <td class="p-4 text-center">
+                <span class="type-pill">${vehicle.body_type}</span>
+            </td>
+            <td class="p-4">
+                <div class="text-center">${vehicle.brand}</div>
+            </td>
+            <td class="p-4 text-center">${vehicle.model} (${vehicle.year})</td>
+            <td class="p-4 text-center">${vehicle.color}</td>
+            <td class="p-4 text-center">${vehicle.transmission}</td>
+            <td class="p-4 text-center">${vehicle.seat_cap} seats</td>
+            <td class="p-4 text-right">₱${Number(vehicle.price_rate).toLocaleString()}</td>
+            <td class="p-4 text-center">
+                <span class="status-pill ${statusClass}">
+                    ${statusText}
+                </span>
+            </td>
+            <td class="p-4 text-center">
+                <div class="flex justify-center">
+                    <div class="relative inline-block">
+                        <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="5" cy="12" r="1.5" />
+                                <circle cx="12" cy="12" r="1.5" />
+                                <circle cx="19" cy="12" r="1.5" />
+                            </svg>
+                        </button>
 
-tr.innerHTML = `
-    <td class="p-4 text-center">
-        <img src="${vehicleImageUrl}"
-             alt="${vehicle.brand} ${vehicle.model}"
-             class="vehicle-image inline-block">
-    </td>
-    <td class="p-4 text-center">${vehicle.plate_num}</td>
-    <td class="p-4 text-center">
-        <span class="type-pill">${vehicle.body_type}</span>
-    </td>
-    <td class="p-4">
-        <div class="text-center">${vehicle.brand}</div>
-    </td>
-    <td class="p-4 text-center">${vehicle.model} (${vehicle.year})</td>
-    <td class="p-4 text-center">${vehicle.color}</td>
-    <td class="p-4 text-center">${vehicle.transmission}</td>
-    <td class="p-4 text-center">${vehicle.seat_cap} seats</td>
-    <td class="p-4 text-right">₱${Number(vehicle.price_rate).toLocaleString()}</td>
-    <td class="p-4 text-center">
-        <span class="status-pill ${statusClass}">
-            ${statusText}
-        </span>
-    </td>
-    <td class="p-4 text-center">
-        <div class="flex justify-center">
-            <div class="relative inline-block">
-                <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
-                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="5" cy="12" r="1.5" />
-                        <circle cx="12" cy="12" r="1.5" />
-                        <circle cx="19" cy="12" r="1.5" />
-                    </svg>
-                </button>
+                        <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                            <button class="view-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                                <img src="${window.ICON_VIEW}" alt="View" class="w-5 h-5">
+                                <span>View Details</span>
+                            </button>
 
-                <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
-                    <button class="view-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
-                        <img src="${window.ICON_VIEW}" alt="View" class="w-5 h-5">
-                        <span>View Details</span>
-                    </button>
+                            <button class="edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                                <img src="${window.ICON_EDIT}" alt="Edit" class="w-5 h-5">
+                                <span>Edit</span>
+                            </button>
 
-                    <button class="edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
-                        <img src="${window.ICON_EDIT}" alt="Edit" class="w-5 h-5">
-                        <span>Edit</span>
-                    </button>
-
-                    <button class="delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}" data-name="${vehicle.plate_num}">
-                        <img src="${window.ICON_DELETE}" alt="Delete" class="w-5 h-5">
-                        <span>Delete</span>
-                    </button>
+                            <button class="delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}" data-name="${vehicle.plate_num}">
+                                <img src="${window.ICON_DELETE}" alt="Delete" class="w-5 h-5">
+                                <span>Delete</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </td>
-`;
-tbody.appendChild(tr);
-
+            </td>
+        `;
+        tbody.appendChild(tr);
     });
 
     // Initialize action menus after rendering

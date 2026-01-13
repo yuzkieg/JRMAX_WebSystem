@@ -57,16 +57,44 @@
 
     .status-pill {
     display: inline-block;
-    border-radius: 0.5rem;
-    font-weight: 700;
-    font-size: medium;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+    background: transparent;
 }
 
-    .status-pill.pending { background: transparent; color: #FFFF00 ; }
-    .status-pill.confirmed { background: transparent; color: #fff; }
-    .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
-    .status-pill.completed { background: transparent; color: #93FF54   ; }
-    .status-pill.cancelled { background: transparent; color: #FF0000 ; }
+/* Pending */
+.status-pill.pending {
+    color: #fff;
+    background: #facc15;
+}
+
+/* Confirmed */
+.status-pill.confirmed {
+    color: #fff;
+    background: #8b5cf6;
+}
+
+/* Ongoing */
+.status-pill.ongoing {
+    color: #fff;
+    background: #38bdf8;
+}
+
+/* Completed */
+.status-pill.completed {
+    color: #fff;
+    background: #22c55e;
+}
+
+/* Cancelled */
+.status-pill.cancelled {
+    color: #fff;
+    background: #ef4444;
+}
+
 
     
 #searchInput {
