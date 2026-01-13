@@ -4,6 +4,82 @@
 @vite('resources/css/app.css')
 
 <style>
+    :root {
+    --action-edit: #2563EB;
+    --action-edit-hover: #1E40AF;
+    --action-delete: #B91C1C;
+    --action-delete-hover: #991B1B;
+    --status-pending: #F59E0B;
+    --status-confirmed: #3B82F6;
+    --status-ongoing: #8B5CF6;
+    --status-completed: #10B981;
+    --status-cancelled: #EF4444;
+}
+
+/* Nav links - base styles */
+#sidebar nav a {
+    color: #ffffff; /* Always white by default */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Light mode - non-active links become dark */
+.dark #sidebar nav a:not(.bg-red-600\/60) {
+    color: #1e293b;
+}
+
+/* Active link - ALWAYS white in both themes */
+#sidebar nav a.bg-red-600\/60 {
+    color: #ffffff !important;
+}
+
+/* Hover states - keep same red shade */
+#sidebar nav a:hover {
+    background-color: rgba(220, 38, 38, 0.4) !important; /* Same red in both themes */
+}
+
+/* Active state - keep same red shade */
+#sidebar nav a.bg-red-600\/60 {
+    background-color: rgba(220, 38, 38) !important; /* Same red in both themes */
+}
+
+/* Logo styling - smooth transition */
+#sidebar img[src*="logo.png"] {
+    transition: filter 0.3s ease;
+}
+
+/* Darken logo in light mode while keeping red tones */
+.dark #sidebar img[src*="logo.png"] {
+    filter: brightness(0.3) saturate(1.5);
+}
+
+#navEmployees.bg-red-700,
+#navDrivers.bg-red-700 {
+    color: #ffffff !important;
+}
+
+#searchInput {
+    background-color: rgba(62, 61, 61, 0.2) !important; /* Semi-transparent black */
+    color: #ffffff !important; /* White text */
+}
+
+.dark #searchInput {
+    background-color: rgba(119, 119, 119, 0.2) !important; /* Semi-transparent white */
+    color: #000000 !important; /* Dark text */
+    border-color: #000000 !important; /* Force border to black */
+}
+
+/* Specific rule for placeholder in light mode */
+.dark #searchInput::placeholder {
+    color: #4a4a4a !important; /* Dark gray for placeholder */
+    opacity: 1; /* Ensure full opacity if default is lower */
+}
+
+/* Light mode - inactive buttons get dark text */
+.dark #navEmployees:not(.bg-red-700),
+.dark #navDrivers:not(.bg-red-700) {
+    color: #1e293b !important;
+}
+
     .actions-menu.dropup {
         bottom: 100%;
         top: auto;
@@ -12,15 +88,15 @@
     }
 </style>
 
-<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+<div class="flex min-h-screen text-white transition-colors duration-500">
 
     @include('admin.layout.sidebar')
     {{-- MAIN CONTENT --}}
-    <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+    <main class="min-h-screen transition-all duration-300 p-8" style="margin-left: 18rem; width: calc(100% - 18rem);">
 
         {{-- HEADER --}}
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-red-500 drop-shadow-lg">HR Management</h1>
+            <h1 id="pageTitle" class="text-3xl font-bold text-red-500 drop-shadow-lg">HR Management</h1>
             <div class="flex items-center space-x-4">
                 {{-- Theme Toggle --}}
                 <button id="theme-toggle" class="flex items-center gap-2 bg-black/30 backdrop-blur-xl p-2 rounded-lg hover:bg-[#998282] transition-all duration-300 cursor-pointer">
@@ -75,7 +151,7 @@
         {{-- TOP NAVIGATION: Employees / Drivers --}}
         <div class="flex gap-4 mb-6" role="tablist" aria-label="HR navigation">
             <button id="navEmployees" data-type="employee" class="cursor-pointer px-6 py-2 bg-red-700 hover:bg-red-500 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Employees</button>
-            <button id="navDrivers" data-type="driver" class="cursor-pointer px-6 py-2 bg-black/30 hover:bg-red-600/40 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Drivers</button>
+            <button id="navDrivers" data-type="driver" class="cursor-pointer px-6 py-2 bg-black hover:bg-red-500 rounded-xl shadow-lg transition-all duration-300 hover:scale-105">Drivers</button>
         </div>
 
         {{-- SEARCH AND ADD --}}
@@ -90,19 +166,21 @@
         </div>
 
         {{-- TABLE --}}
-        <div class="rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
-            <table class="w-full text-left">
-                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
+        <div class="rounded-2xl shadow-2xl backdrop-blur-xl">
+            <table class="w-full text-left dark-table">
+                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide text-center">
                     <tr>
+                        <th class="p-4">ID</th>
                         <th class="p-4">Name</th>
                         <th class="p-4">Email</th>
                         <th class="p-4" id="thirdColumnHeader">Position / License</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="hrTable" class="text-white">
+                <tbody id="hrTable" class="text-white text-center">
                     @foreach($employeesrecord as $employee)
                         <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
+                            <td class="p-4">{{ $employee->id }}</td>
                             <td class="p-4">{{ $employee->name }}</td>
                             <td class="p-4">{{ $employee->email }}</td>
                             <td class="p-4">{{ $employee->position }}</td>
@@ -142,6 +220,7 @@
 
                     @foreach($drivers as $driver)
                         <tr class="border-b border-white/10 hover:bg-white/10 transition-all">
+                            <td class="p-4">{{ $driver->id }}</td>
                             <td class="p-4">{{ $driver->name }}</td>
                             <td class="p-4">{{ $driver->email }}</td>
                             <td class="p-4">{{ $driver->license_num }}</td>
@@ -669,6 +748,46 @@ document.addEventListener('click', () => {
         if (successMessage) successMessage.remove();
         if (errorMessage) errorMessage.remove();
     }, 5000);
+});
+
+// Theme toggle functionality
+document.getElementById('theme-toggle').addEventListener('click', function() {
+    const html = document.documentElement;
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = this.querySelector('span');
+    
+    html.classList.toggle('dark');
+    body.classList.toggle('dark');
+    
+    if (html.classList.contains('dark')) {
+        themeIcon.src = '{{ asset('assets/sun.png') }}';
+        themeText.textContent = 'Light Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    } else {
+        themeIcon.src = '{{ asset('assets/moon.png') }}';
+        themeText.textContent = 'Dark Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    }
+});
+
+// Run on page load and watch for changes
+document.addEventListener('DOMContentLoaded', function() {
+    updateTheme();
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                updateTheme();
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true
+    });
 });
 </script>
 

@@ -69,10 +69,8 @@ class VehicleController extends Controller
 
             // Handle image upload
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/vehicles', $filename);
-                $validated['image'] = $filename;
+                $imagePath = $request->file('image')->store('profile', 'public');
+                $validated['image'] = $imagePath;
             }
 
             // Handle driver field properly

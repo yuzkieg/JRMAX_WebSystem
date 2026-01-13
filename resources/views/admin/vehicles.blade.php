@@ -13,9 +13,6 @@
     --action-view: #10B981;
     --action-view-hover: #059669;
     --status-green: #16A34A;
-    --nav-tab-text: #ffffff;
-    --type-pill-bg: rgba(255,255,255,0.04);
-    --type-pill-color: #ffffff;
 }
 
 .actions-menu.dropup {
@@ -25,8 +22,40 @@
     margin-top: 0;
 }
 
+/* Nav links - base styles */
 #sidebar nav a {
-    color: var(--nav-tab-text) !important;
+    color: #ffffff; /* Always white by default */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Light mode - non-active links become dark */
+.dark #sidebar nav a:not(.bg-red-600\/60) {
+    color: #1e293b;
+}
+
+/* Active link - ALWAYS white in both themes */
+#sidebar nav a.bg-red-600\/60 {
+    color: #ffffff !important;
+}
+
+/* Hover states - keep same red shade */
+#sidebar nav a:hover {
+    background-color: rgba(220, 38, 38, 0.4) !important; /* Same red in both themes */
+}
+
+/* Active state - keep same red shade */
+#sidebar nav a.bg-red-600\/60 {
+    background-color: rgba(220, 38, 38) !important; /* Same red in both themes */
+}
+
+/* Logo styling - smooth transition */
+#sidebar img[src*="logo.png"] {
+    transition: filter 0.3s ease;
+}
+
+/* Darken logo in light mode while keeping red tones */
+.dark #sidebar img[src*="logo.png"] {
+    filter: brightness(0.3) saturate(1.5);
 }
 
 .action-edit {
@@ -60,8 +89,18 @@
     display: inline-block;
     padding: .18rem .6rem;
     border-radius: 9999px;
-    background: var(--type-pill-bg);
-    color: var(--type-pill-color);
+    background: #00000026;
+    color: #fff;
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+.dark .type-pill {
+    display: inline-block;
+    padding: .18rem .6rem;
+    border-radius: 9999px;
+    background: #8a8686;
+    color: #000000;
     font-weight: 600;
     font-size: .9rem;
 }
@@ -200,14 +239,31 @@ td .action-edit, td .action-delete, td .action-view {
     width: 1rem;
     height: 1rem;
 }
+
+#searchInput {
+    background-color: rgba(62, 61, 61, 0.2) !important; /* Semi-transparent black */
+    color: #ffffff !important; /* White text */
+}
+
+.dark #searchInput {
+    background-color: rgba(119, 119, 119, 0.2) !important; /* Semi-transparent white */
+    color: #000000 !important; /* Dark text */
+    border-color: #000000 !important; /* Force border to black */
+}
+
+/* Specific rule for placeholder in light mode */
+.dark #searchInput::placeholder {
+    color: #4a4a4a !important; /* Dark gray for placeholder */
+    opacity: 1; /* Ensure full opacity if default is lower */
+}
 </style>
 
-<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+<div class="flex min-h-screen text-white transition-colors duration-500">
 
     @include('admin.layout.sidebar')
 
     {{-- MAIN CONTENT --}}
-    <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+    <main class="min-h-screen transition-all duration-300 p-8" style="margin-left: 18rem; width: calc(100% - 18rem);">
 
         {{-- HEADER --}}
         <div class="flex justify-between items-center mb-6">
@@ -235,14 +291,15 @@ td .action-edit, td .action-delete, td .action-view {
         </div>
 
         {{-- VEHICLE TABLE --}}
-        <div class=" rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
-            <table class="w-full text-left">
-                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
+        <div class=" rounded-2xl shadow-2xl backdrop-blur-xl">
+            <table class="w-full text-left dark-table">
+                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide text-center">
                     <tr>
                         <th class="p-4">Image</th>
                         <th class="p-4">Plate No.</th>
                         <th class="p-4">Type</th>
-                        <th class="p-4">Brand / Model</th>
+                        <th class="p-4">Brand</th>
+                        <th class="p-4">Model</th>
                         <th class="p-4">Color</th>
                         <th class="p-4">Transmission</th>
                         <th class="p-4">Capacity</th>
@@ -485,62 +542,70 @@ function renderVehiclesTable() {
         const statusText = isAvailable ? 'Available' : 'Unavailable';
         
         const tr = document.createElement('tr');
-        tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
-        tr.innerHTML = `
-            <td class="p-4">
-                <img src="${vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}"}"
-                     alt="${vehicle.brand} ${vehicle.model}"
-                     class="vehicle-image hover:scale-105 transition-transform duration-200 cursor-pointer">
-            </td>
-            <td class="p-4 font-semibold">${vehicle.plate_num}</td>
-            <td class="p-4">
-                <span class="type-pill">${vehicle.body_type}</span>
-            </td>
-            <td class="p-4">
-                <div class="font-bold">${vehicle.brand}</div>
-                <div class="text-sm text-gray-300">${vehicle.model} (${vehicle.year})</div>
-            </td>
-            <td class="p-4">${vehicle.color}</td>
-            <td class="p-4">${vehicle.transmission}</td>
-            <td class="p-4">${vehicle.seat_cap} seats</td>
-            <td class="p-4 font-bold text-green-400">₱${Number(vehicle.price_rate).toLocaleString()}</td>
-            <td class="p-4">
-                <span class="status-pill ${statusClass}">
-                    ${statusText}
-                </span>
-            </td>
-            <td class="p-4 text-center">
-               <div class="flex justify-center">
-                    <div class="relative inline-block">
-                        <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
-                            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="5" cy="12" r="1.5" />
-                                <circle cx="12" cy="12" r="1.5" />
-                                <circle cx="19" cy="12" r="1.5" />
-                            </svg>
-                        </button>
 
-                        <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
-                            <button class="view-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
-                                <img src="{{ asset('assets/file.png') }}" alt="View" class="w-5 h-5">
-                                <span>View Details</span>
-                            </button>
+tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
 
-                            <button class="edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
-                                <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
-                                <span>Edit</span>
-                            </button>
+// Construct the vehicle image URL dynamically (from previous fix)
+const vehicleImageUrl = vehicle.image 
+    ? `/storage/${vehicle.image}`
+    : window.DEFAULT_VEHICLE_IMAGE;
 
-                            <button class="delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}" data-name="${vehicle.plate_num}">
-                                <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
-                                <span>Delete</span>
-                            </button>
-                        </div>
-                    </div>
+tr.innerHTML = `
+    <td class="p-4 text-center">
+        <img src="${vehicleImageUrl}"
+             alt="${vehicle.brand} ${vehicle.model}"
+             class="vehicle-image inline-block">
+    </td>
+    <td class="p-4 text-center">${vehicle.plate_num}</td>
+    <td class="p-4 text-center">
+        <span class="type-pill">${vehicle.body_type}</span>
+    </td>
+    <td class="p-4">
+        <div class="text-center">${vehicle.brand}</div>
+    </td>
+    <td class="p-4 text-center">${vehicle.model} (${vehicle.year})</td>
+    <td class="p-4 text-center">${vehicle.color}</td>
+    <td class="p-4 text-center">${vehicle.transmission}</td>
+    <td class="p-4 text-center">${vehicle.seat_cap} seats</td>
+    <td class="p-4 text-right">₱${Number(vehicle.price_rate).toLocaleString()}</td>
+    <td class="p-4 text-center">
+        <span class="status-pill ${statusClass}">
+            ${statusText}
+        </span>
+    </td>
+    <td class="p-4 text-center">
+        <div class="flex justify-center">
+            <div class="relative inline-block">
+                <button type="button" class="actions-toggle p-2 rounded-full hover:bg-white/10 focus:outline-none" aria-expanded="false">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="5" cy="12" r="1.5" />
+                        <circle cx="12" cy="12" r="1.5" />
+                        <circle cx="19" cy="12" r="1.5" />
+                    </svg>
+                </button>
+
+                <div class="actions-menu hidden absolute right-0 mt-2 w-40 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
+                    <button class="view-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                        <img src="${window.ICON_VIEW}" alt="View" class="w-5 h-5">
+                        <span>View Details</span>
+                    </button>
+
+                    <button class="edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}">
+                        <img src="${window.ICON_EDIT}" alt="Edit" class="w-5 h-5">
+                        <span>Edit</span>
+                    </button>
+
+                    <button class="delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="${vehicle.vehicle_id}" data-name="${vehicle.plate_num}">
+                        <img src="${window.ICON_DELETE}" alt="Delete" class="w-5 h-5">
+                        <span>Delete</span>
+                    </button>
                 </div>
-            </td>
-        `;
-            tbody.appendChild(tr);
+            </div>
+        </div>
+    </td>
+`;
+tbody.appendChild(tr);
+
     });
 
     // Initialize action menus after rendering
@@ -1200,6 +1265,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 });
+
+
+// Theme toggle functionality
+document.getElementById('theme-toggle').addEventListener('click', function() {
+    const html = document.documentElement;
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = this.querySelector('span');
+    
+    html.classList.toggle('dark');
+    body.classList.toggle('dark');
+    
+    if (html.classList.contains('dark')) {
+        themeIcon.src = '{{ asset('assets/sun.png') }}';
+        themeText.textContent = 'Light Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    } else {
+        themeIcon.src = '{{ asset('assets/moon.png') }}';
+        themeText.textContent = 'Dark Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    }
+});
+
+// Run on page load and watch for changes
+document.addEventListener('DOMContentLoaded', function() {
+    updateTheme();
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                updateTheme();
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true
+    });
+});
+// Theme switching function
+function updateTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // Update any dynamic theme-dependent elements if needed
+    const cards = document.querySelectorAll('.light-card, .dark-card');
+    cards.forEach(card => {
+        if (isDark) {
+            card.classList.remove('light-card');
+            card.classList.add('dark-card');
+        } else {
+            card.classList.remove('dark-card');
+            card.classList.add('light-card');
+        }
+    });
+}
+
 </script>
 
 <script>

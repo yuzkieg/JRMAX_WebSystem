@@ -5,6 +5,42 @@
 @vite('resources/css/app.css')
 
 <style>
+    /* Nav links - base styles */
+#sidebar nav a {
+    color: #ffffff; /* Always white by default */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Light mode - non-active links become dark */
+.dark #sidebar nav a:not(.bg-red-600\/60) {
+    color: #1e293b;
+}
+
+/* Active link - ALWAYS white in both themes */
+#sidebar nav a.bg-red-600\/60 {
+    color: #ffffff !important;
+}
+
+/* Hover states - keep same red shade */
+#sidebar nav a:hover {
+    background-color: rgba(220, 38, 38, 0.4) !important; /* Same red in both themes */
+}
+
+/* Active state - keep same red shade */
+#sidebar nav a.bg-red-600\/60 {
+    background-color: rgba(220, 38, 38) !important; /* Same red in both themes */
+}
+
+/* Logo styling - smooth transition */
+#sidebar img[src*="logo.png"] {
+    transition: filter 0.3s ease;
+}
+
+/* Darken logo in light mode while keeping red tones */
+.dark #sidebar img[src*="logo.png"] {
+    filter: brightness(0.3) saturate(1.5);
+}
+
     .actions-menu.dropup {
         bottom: 100%;
         top: auto;
@@ -31,14 +67,32 @@
     .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
     .status-pill.completed { background: transparent; color: #93FF54   ; }
     .status-pill.cancelled { background: transparent; color: #FF0000 ; }
+
+    
+#searchInput {
+    background-color: rgba(62, 61, 61, 0.2) !important; /* Semi-transparent black */
+    color: #ffffff !important; /* White text */
+}
+
+.dark #searchInput {
+    background-color: rgba(119, 119, 119, 0.2) !important; /* Semi-transparent white */
+    color: #000000 !important; /* Dark text */
+    border-color: #000000 !important; /* Force border to black */
+}
+
+/* Specific rule for placeholder in light mode */
+.dark #searchInput::placeholder {
+    color: #4a4a4a !important; /* Dark gray for placeholder */
+    opacity: 1; /* Ensure full opacity if default is lower */
+}
 </style>
 
-<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+<div class="flex min-h-screen text-white transition-colors duration-500">
 
     @include('admin.layout.sidebar')
 
     {{-- MAIN CONTENT --}}
-    <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+    <main class="min-h-screen transition-all duration-300 p-8" style="margin-left: 18rem; width: calc(100% - 18rem);">
 
         {{-- HEADER --}}
         <div class="flex justify-between items-center mb-6">
@@ -76,10 +130,11 @@
         </div>
 
         {{-- MAINTENANCE TABLE --}}
-        <div class="rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
-            <table class="w-full text-left">
-                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
+        <div class=" rounded-2xl shadow-2xl backdrop-blur-xl">
+            <table class="w-full text-left dark-table">
+                <thead class="bg-black/30 text-white uppercase text-sm tracking-wide text-center">
                     <tr>
+                        <th class="p-4">Plate No.</th>
                         <th class="p-4">Vehicle</th>
                         <th class="p-4">Type</th>
                         <th class="p-4">Scheduled Date</th>
@@ -93,23 +148,26 @@
                     @foreach($maintenances as $maintenance)
                     <tr class="border-b border-white/10 hover:bg-white/10 transition-all" data-status="{{ $maintenance->status }}">
                         <td class="p-4">
-                            <div class="font-semibold">{{ $maintenance->vehicle->plate_num ?? 'N/A' }}</div>
+                            <div class="text-center">{{ $maintenance->vehicle->plate_num ?? 'N/A' }}</div>
                         </td>
                         <td class="p-4">
-                            <span class="text-sm font-medium text-gray-300">
+                            <div class="text-center">{{ $maintenance->vehicle->brand ?? 'N/A' }}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <span>
                                 {{ ucwords(str_replace('-', ' ', $maintenance->maintenance_type)) }}
                             </span>
                         </td>
-                        <td class="p-4">
+                        <td class="p-4 text-center">
                             {{ $maintenance->scheduled_date ? \Carbon\Carbon::parse($maintenance->scheduled_date)->format('M d, Y') : 'N/A' }}
                         </td>
-                        <td class="p-4 font-semibold">
+                        <td class="p-4 text-right">
                             ₱{{ number_format($maintenance->cost, 2) }}
                         </td>
-                        <td class="p-4 max-w-xs truncate" title="{{ $maintenance->description }}">
+                        <td class="p-4 max-w-xs truncate text-center" title="{{ $maintenance->description }}">
                             {{ Str::limit($maintenance->description, 50) }}
                         </td>
-                        <td class="p-4">
+                        <td class="p-4 text-center">
                             @php
                                 // map maintenance statuses to standard status-pill classes
                                 $statusClass = 'pending';
@@ -765,6 +823,47 @@ document.addEventListener('click', function(e) {
 
     // Click outside: close all menus
     document.querySelectorAll('.actions-menu.show').forEach(m => m.classList.remove('show'));
+});
+
+// Theme toggle functionality
+document.getElementById('theme-toggle').addEventListener('click', function() {
+    const html = document.documentElement;
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = this.querySelector('span');
+    
+    html.classList.toggle('dark');
+    body.classList.toggle('dark');
+    
+    if (html.classList.contains('dark')) {
+        themeIcon.src = '{{ asset('assets/sun.png') }}';
+        themeText.textContent = 'Light Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    } else {
+        themeIcon.src = '{{ asset('assets/moon.png') }}';
+        themeText.textContent = 'Dark Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    }
+});
+
+
+// Run on page load and watch for changes
+document.addEventListener('DOMContentLoaded', function() {
+    updateTheme();
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                updateTheme();
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true
+    });
 });
 </script>
 

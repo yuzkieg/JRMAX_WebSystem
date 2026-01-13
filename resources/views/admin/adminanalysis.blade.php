@@ -14,11 +14,42 @@
     --status-ongoing: #8B5CF6;
     --status-completed: #10B981;
     --status-cancelled: #EF4444;
-    --nav-tab-text: #ffffff;
 }
 
+/* Nav links - base styles */
 #sidebar nav a {
-    color: var(--nav-tab-text) !important;
+    color: #ffffff; /* Always white by default */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Light mode - non-active links become dark */
+.dark #sidebar nav a:not(.bg-red-600\/60) {
+    color: #1e293b;
+}
+
+/* Active link - ALWAYS white in both themes */
+#sidebar nav a.bg-red-600\/60 {
+    color: #ffffff !important;
+}
+
+/* Hover states - keep same red shade */
+#sidebar nav a:hover {
+    background-color: rgba(220, 38, 38, 0.4) !important; /* Same red in both themes */
+}
+
+/* Active state - keep same red shade */
+#sidebar nav a.bg-red-600\/60 {
+    background-color: rgba(220, 38, 38) !important; /* Same red in both themes */
+}
+
+/* Logo styling - smooth transition */
+#sidebar img[src*="logo.png"] {
+    transition: filter 0.3s ease;
+}
+
+/* Darken logo in light mode while keeping red tones */
+.dark #sidebar img[src*="logo.png"] {
+    filter: brightness(0.3) saturate(1.5);
 }
 
 .action-edit {
@@ -27,6 +58,7 @@
     padding: .5rem .9rem;
     border-radius: .5rem;
 }
+
 .action-edit:hover { background-color: var(--action-edit-hover) !important; }
 
 .action-delete {
@@ -51,97 +83,7 @@
 .status-pill.completed { background: var(--status-completed); color: #fff; }
 .status-pill.cancelled { background: var(--status-cancelled); color: #fff; }
 
-.stat-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.stat-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card .stat-value {
-    font-size: 1.875rem;
-    font-weight: bold;
-    color: #fff;
-}
-
-.stat-card .stat-label {
-    font-size: 0.875rem;
-    color: #9CA3AF;
-    margin-top: 0.5rem;
-}
-
-.stat-card .stat-trend {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.stat-card .trend-up { color: #10B981; }
-.stat-card .trend-down { color: #EF4444; }
-.stat-card .trend-neutral { color: #9CA3AF; }
-
-.revenue-chart-container {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
-    margin-bottom: 1.5rem;
-}
-
-.revenue-chart-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 1rem;
-}
-
-.revenue-tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.revenue-tab {
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #9CA3AF;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.revenue-tab:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
-.revenue-tab.active {
-    background: #EF4444;
-    color: #fff;
-    border-color: #EF4444;
-}
-
-.revenue-chart {
-    height: 300px;
-    width: 100%;
-    position: relative;
-}
+/* REMOVED duplicate .stat-card styles - these are handled in app.blade.php */
 
 .revenue-data-grid {
     display: grid;
@@ -182,6 +124,20 @@
 .delta-positive { color: #10B981; }
 .delta-negative { color: #EF4444; }
 .delta-neutral { color: #9CA3AF; }
+
+/* Light mode revenue data items */
+.dark .revenue-data-item {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.dark .revenue-data-label {
+    color: #64748b;
+}
+
+.dark .revenue-data-value {
+    color: #1e293b;
+}
 
 .form-group {
     margin-bottom: 1.5rem;
@@ -504,37 +460,15 @@ th.text-center, td.text-center {
     font-size: 0.75rem;
 }
 
-/* Refresh button */
-.refresh-btn {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    color: #3B82F6;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-}
-
-.refresh-btn:hover {
-    background: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.5);
-}
-
-.refresh-btn.spinning svg {
-    animation: spin 1s linear infinite;
-}
+/* REMOVED duplicate .refresh-btn styles - these are handled in app.blade.php */
 </style>
 
-<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+<div class="flex min-h-screen text-white transition-colors duration-500">
 
    @include('admin.layout.sidebar')
 
-   {{-- MAIN CONTENT WRAPPER --}}
-   <main id="dashboard-wrapper" class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+   {{-- MAIN CONTENT WRAPPER - REMOVED ml-64, p-8 (handled in CSS now) --}}
+   <main class="min-h-screen transition-all duration-300 p-8" style="margin-left: 18rem; width: calc(100% - 18rem);">
 
        {{-- Header --}}
        <div class="flex justify-between items-center mb-8">

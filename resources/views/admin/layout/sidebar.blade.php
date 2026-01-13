@@ -1,8 +1,8 @@
 {{-- SIDEBAR --}}
-   <aside id="sidebar" class="w-72 bg-black/80 h-screen fixed top-0 left-0 shadow-xl border-r border-white/10 backdrop-blur-xl transition-all duration-300 flex flex-col">
+   <aside id="sidebar" class="w-72 h-screen fixed top-0 left-0 shadow-xl backdrop-blur-xl flex flex-col">
        <div class="p-6 flex flex-col items-center">
-           <img src="{{ asset('assets/logo.png') }}" class="w-20 h-20 mb-4 transition-all duration-300 hover:scale-105">
-           <h2 class="text-xl font-bold tracking-wide text-red-500">ADMIN</h2>
+           <img src="{{ asset('assets/logo.png') }}" class="logo w-20 h-20 mb-4">
+           <h2 class="text-xl font-bold tracking-wide text-red-500">{{ auth()->user()->name ?? 'ADMIN' }}</h2>
        </div>
 
        @php

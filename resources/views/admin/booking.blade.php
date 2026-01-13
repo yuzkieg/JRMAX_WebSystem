@@ -14,8 +14,44 @@
     --status-ongoing: #8B5CF6;
     --status-completed: #10B981;
     --status-cancelled: #EF4444;
-    --nav-tab-text: #ffffff;
 }
+
+/* Nav links - base styles */
+#sidebar nav a {
+    color: #ffffff; /* Always white by default */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Light mode - non-active links become dark */
+.dark #sidebar nav a:not(.bg-red-600\/60) {
+    color: #1e293b;
+}
+
+/* Active link - ALWAYS white in both themes */
+#sidebar nav a.bg-red-600\/60 {
+    color: #ffffff !important;
+}
+
+/* Hover states - keep same red shade */
+#sidebar nav a:hover {
+    background-color: rgba(220, 38, 38, 0.4) !important; /* Same red in both themes */
+}
+
+/* Active state - keep same red shade */
+#sidebar nav a.bg-red-600\/60 {
+    background-color: rgba(220, 38, 38) !important; /* Same red in both themes */
+}
+
+/* Logo styling - smooth transition */
+#sidebar img[src*="logo.png"] {
+    transition: filter 0.3s ease;
+}
+
+/* Darken logo in light mode while keeping red tones */
+.dark #sidebar img[src*="logo.png"] {
+    filter: brightness(0.3) saturate(1.5);
+}
+
 
 .actions-menu.dropup {
     bottom: 100%;
@@ -33,10 +69,6 @@
 .actions-menu button:hover { background-color: rgba(255,255,255,0.05); }
 .actions-menu.dropup { bottom: 100%; top: auto; margin-top: 0; margin-bottom: 0.5rem; }
 .actions-menu button:hover { background: rgba(255,255,255,0.05); }
-
-#sidebar nav a {
-    color: var(--nav-tab-text) !important;
-}
 
 .action-edit {
     background-color: var(--action-edit) !important;
@@ -66,32 +98,6 @@
     .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
     .status-pill.completed { background: transparent; color: #93FF54   ; }
     .status-pill.cancelled { background: transparent; color: #FF0000 ; }
-
-.stat-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-.stat-card .stat-value {
-    font-size: 1.875rem;
-    font-weight: bold;
-    color: #fff;
-}
-
-.stat-card .stat-label {
-    font-size: 0.875rem;
-    color: #9CA3AF;
-    margin-top: 0.5rem;
-}
 
 .form-group {
     margin-bottom: 1.5rem;
@@ -393,14 +399,31 @@ td .action-edit, td .action-delete {
     border-color: #EF4444 !important;
     color: #FCA5A5 !important;
 }
+
+#searchInput {
+    background-color: rgba(62, 61, 61, 0.2) !important; /* Semi-transparent black */
+    color: #ffffff !important; /* White text */
+}
+
+.dark #searchInput {
+    background-color: rgba(119, 119, 119, 0.2) !important; /* Semi-transparent white */
+    color: #000000 !important; /* Dark text */
+    border-color: #000000 !important; /* Force border to black */
+}
+
+/* Specific rule for placeholder in light mode */
+.dark #searchInput::placeholder {
+    color: #4a4a4a !important; /* Dark gray for placeholder */
+    opacity: 1; /* Ensure full opacity if default is lower */
+}
 </style>
 
-<div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
+<div class="flex min-h-screen text-white transition-colors duration-500">
 
     @include('admin.layout.sidebar')
 
     {{-- MAIN CONTENT --}}
-    <main class="ml-64 w-full min-h-screen p-8 transition-all duration-300">
+    <main class="min-h-screen transition-all duration-300 p-8" style="margin-left: 18rem; width: calc(100% - 18rem);">
 
         {{-- HEADER --}}
         <div class="flex justify-between items-center mb-6">
@@ -501,8 +524,8 @@ td .action-edit, td .action-delete {
             </div>
 
             {{-- BOOKINGS TABLE --}}
-            <div class=" rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
-                <table class="w-full text-left">
+            <div class=" rounded-2xl shadow-2xl backdrop-blur-xl">
+                <table class="w-full text-left dark-table">
                     <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                         <tr>
                             <th class="p-4">Booking ID</th>
@@ -1159,6 +1182,48 @@ document.addEventListener('click', function(e) {
         const id = e.target.closest('.view-booking-btn').dataset.id;
         showBooking(id);
     }
+});
+
+
+// Theme toggle functionality
+document.getElementById('theme-toggle').addEventListener('click', function() {
+    const html = document.documentElement;
+    const body = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = this.querySelector('span');
+    
+    html.classList.toggle('dark');
+    body.classList.toggle('dark');
+    
+    if (html.classList.contains('dark')) {
+        themeIcon.src = '{{ asset('assets/sun.png') }}';
+        themeText.textContent = 'Light Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    } else {
+        themeIcon.src = '{{ asset('assets/moon.png') }}';
+        themeText.textContent = 'Dark Mode';
+        themeIcon.classList.add('rotate-360');
+        setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
+    }
+});
+
+
+// Run on page load and watch for changes
+document.addEventListener('DOMContentLoaded', function() {
+    updateTheme();
+    
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                updateTheme();
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true
+    });
 });
 </script>
 
