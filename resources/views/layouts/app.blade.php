@@ -114,6 +114,14 @@ aside {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
 }
 
+.stat-card-booking {
+    background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
 .stat-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.6);
@@ -259,6 +267,14 @@ aside {
     padding: 1.5rem;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+}
+
+.dark .stat-card-booking {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
     box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
 }
 

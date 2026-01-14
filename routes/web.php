@@ -122,8 +122,7 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     // AJAX routes
     Route::post('/booking/calculate-price', [BookingController::class, 'calculatePrice'])->name('admin.booking.calculate-price');
 
-    Route::get('/admin/audit', [AuditController::class, 'index'])
-        ->name('admin.audit.logs');
+    Route::get('/admin/audit', [AuditController::class, 'index'])->name('admin.audit.logs');
 });
 
 

@@ -493,19 +493,19 @@ td .action-edit, td .action-delete {
         <div id="indexView" class="view-section active">
             {{-- STATISTICS CARDS --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="stat-card">
+                <div class="stat-card-booking">
                     <div class="stat-value">{{ $stats['total'] ?? 0 }}</div>
                     <div class="stat-label">Total Bookings</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-booking">
                     <div class="stat-value" style="color: #F59E0B;">{{ $stats['pending'] ?? 0 }}</div>
                     <div class="stat-label">Pending</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-booking">
                     <div class="stat-value" style="color: #3B82F6;">{{ $stats['active'] ?? 0 }}</div>
                     <div class="stat-label">Active</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card-booking">
                     <div class="stat-value" style="color: #10B981;">{{ $stats['completedBookings'] ?? 0 }}</div>
                     <div class="stat-label">Completed</div>
                 </div>
