@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Middleware\SuperAdminMiddleware;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\FleetController;
@@ -120,6 +121,9 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     
     // AJAX routes
     Route::post('/booking/calculate-price', [BookingController::class, 'calculatePrice'])->name('admin.booking.calculate-price');
+
+    Route::get('/admin/audit', [AuditController::class, 'index'])
+        ->name('admin.audit.logs');
 });
 
 

@@ -13,6 +13,7 @@
                ['name' => 'Vehicle Maintenance', 'url' => '/admin/maintenance'],
                ['name' => 'User Management', 'url' => '/admin/users'],
                ['name' => 'Booking Management', 'url' => '/admin/booking'],
+               ['name' => 'Audit Logs', 'url' => '/admin/audit'],
            ];
        @endphp
 
