@@ -155,10 +155,11 @@ td .action-edit, td .action-delete, td .action-view {
 .vehicle-image-large {
     width: 256px;
     height: 192px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 0.75rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     margin: 0 auto;
+    padding: 0.5rem;
 }
 
 .image-preview {
@@ -337,7 +338,7 @@ td .action-edit, td .action-delete, td .action-view {
                         <label class="block font-semibold mb-3">Vehicle Image</label>
                         <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
                             <div class="relative">
-                                <img id="vehicleImagePreview" src="{{ asset('assets/default-vehicle.jpg') }}" 
+                                <img id="`vehicleImagePreview`" src="{{ asset('assets/default-vehicle.jpg') }}" 
                                      class="image-preview hover:opacity-90 transition-opacity cursor-pointer"
                                      onclick="document.getElementById('image').click()">
                                 <input type="file" id="image" accept="image/*" 
@@ -512,7 +513,7 @@ let vehicleModalInstance, viewVehicleModalInstance, deleteVehicleModalInstance;
 // Image preview function
 function previewImage(event) {
     const input = event.target;
-    const preview = document.getElementById('vehicleImagePreview');
+    const preview = document.getElementById('`vehicleImagePreview`');
     
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -717,7 +718,7 @@ class VehicleModal {
         document.getElementById('is_available').checked = vehicle.is_available !== false;
         
         // Set image preview
-        const preview = document.getElementById('vehicleImagePreview');
+        const preview = document.getElementById('`vehicleImagePreview`');
         preview.src = vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}";
         
         this.showModal();
@@ -740,7 +741,7 @@ class VehicleModal {
     resetForm() {
         this.form.reset();
         document.getElementById('vehicle_id').value = '';
-        document.getElementById('vehicleImagePreview').src = "{{ asset('assets/default-vehicle.jpg') }}";
+        document.getElementById('`vehicleImagePreview`').src = "{{ asset('assets/default-vehicle.jpg') }}";
         document.getElementById('is_available').checked = true;
     }
 
@@ -915,116 +916,121 @@ class ViewVehicleModal {
     }
 
     showVehicleDetails(vehicle) {
-        // Get driver name
-        let driverName = 'No Driver';
-        if (vehicle.driver_info && vehicle.driver_info.name) {
-            driverName = vehicle.driver_info.name;
-        } else if (vehicle.driver && typeof vehicle.driver === 'object' && vehicle.driver.name) {
-            driverName = vehicle.driver.name;
-        }
-        
-        // Determine availability
-        const isAvailable = vehicle.is_available !== false;
-        const statusClass = isAvailable ? 'status-available' : 'status-unavailable';
-        const statusText = isAvailable ? 'Available for Booking' : 'Not Available';
-        
-        const html = `
-            <div class="space-y-6">
-                <!-- Vehicle Image -->
-                <div class="text-center">
-                    <img src="${vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}"}"
-                         alt="${vehicle.brand} ${vehicle.model}"
-                         class="vehicle-image-large mb-4">
-                </div>
+    // Get driver name
+    let driverName = 'No Driver';
+    if (vehicle.driver_info && vehicle.driver_info.name) {
+        driverName = vehicle.driver_info.name;
+    } else if (vehicle.driver && typeof vehicle.driver === 'object' && vehicle.driver.name) {
+        driverName = vehicle.driver.name;
+    }
+    
+    // Determine availability
+    const isAvailable = vehicle.is_available !== false;
+    const statusClass = isAvailable ? 'status-available' : 'status-unavailable';
+    const statusText = isAvailable ? 'Available for Booking' : 'Not Available';
+    
+    // Construct the vehicle image URL (same as in renderVehiclesTable)
+    const vehicleImageUrl = vehicle.image 
+        ? `/storage/${vehicle.image}`
+        : window.DEFAULT_VEHICLE_IMAGE;
+    
+    const html = `
+        <div class="space-y-6">
+            <!-- Vehicle Image -->
+            <div class="text-center">
+                <img src="${vehicleImageUrl}"
+                     alt="${vehicle.brand} ${vehicle.model}"
+                     class="vehicle-image-large mb-4">
+            </div>
 
-                <!-- Basic Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="detail-card">
-                        <div class="detail-label">Plate Number</div>
-                        <div class="detail-value font-bold text-xl">${vehicle.plate_num}</div>
-                    </div>
-                    
-                    <div class="detail-card">
-                        <div class="detail-label">Status</div>
-                        <div class="detail-value">
-                            <span class="status-pill ${statusClass}">${statusText}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Vehicle Specifications -->
-                <div class="bg-black/30 p-4 rounded-xl">
-                    <h3 class="text-lg font-semibold text-red-500 mb-3">Vehicle Specifications</h3>
-                    <div class="spec-grid">
-                        <div class="detail-card">
-                            <div class="detail-label">Brand</div>
-                            <div class="detail-value">${vehicle.brand}</div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-label">Model</div>
-                            <div class="detail-value">${vehicle.model}</div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-label">Year</div>
-                            <div class="detail-value">${vehicle.year}</div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-label">Body Type</div>
-                            <div class="detail-value">${vehicle.body_type}</div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-label">Color</div>
-                            <div class="detail-value">${vehicle.color}</div>
-                        </div>
-                        
-                        <div class="detail-card">
-                            <div class="detail-label">Seat Capacity</div>
-                            <div class="detail-value">${vehicle.seat_cap} seats</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Technical Details -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="detail-card">
-                        <div class="detail-label">Transmission</div>
-                        <div class="detail-value">${vehicle.transmission}</div>
-                    </div>
-                    
-                    <div class="detail-card">
-                        <div class="detail-label">Fuel Type</div>
-                        <div class="detail-value">${vehicle.fuel_type}</div>
-                    </div>
-                </div>
-
-                <!-- Driver Assignment -->
+            <!-- Basic Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="detail-card">
-                    <div class="detail-label">Assigned Driver</div>
-                    <div class="detail-value">${driverName}</div>
+                    <div class="detail-label">Plate Number</div>
+                    <div class="detail-value font-bold text-xl">${vehicle.plate_num}</div>
                 </div>
-
-                <!-- Pricing Information -->
-                <div class="bg-green-900/20 p-4 rounded-xl border border-green-700/30">
-                    <div class="detail-label">Daily Rental Rate</div>
-                    <div class="detail-value text-2xl font-bold text-green-400">₱${Number(vehicle.price_rate).toLocaleString()}</div>
-                </div>
-
-                <!-- Additional Information -->
-                <div class="text-xs text-gray-400 mt-4 pt-4 border-t border-white/10">
-                    <p>Vehicle ID: ${vehicle.vehicle_id}</p>
-                    <p>Last Updated: ${new Date(vehicle.updated_at || vehicle.created_at).toLocaleString()}</p>
+                
+                <div class="detail-card">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="status-pill ${statusClass}">${statusText}</span>
+                    </div>
                 </div>
             </div>
-        `;
 
-        this.content.innerHTML = html;
-        document.getElementById('viewVehicleModalTitle').textContent = `${vehicle.brand} ${vehicle.model}`;
-        this.showModal();
-    }
+            <!-- Vehicle Specifications -->
+            <div class="bg-black/30 p-4 rounded-xl">
+                <h3 class="text-lg font-semibold text-red-500 mb-3">Vehicle Specifications</h3>
+                <div class="spec-grid">
+                    <div class="detail-card">
+                        <div class="detail-label">Brand</div>
+                        <div class="detail-value">${vehicle.brand}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Model</div>
+                        <div class="detail-value">${vehicle.model}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Year</div>
+                        <div class="detail-value">${vehicle.year}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Body Type</div>
+                        <div class="detail-value">${vehicle.body_type}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Color</div>
+                        <div class="detail-value">${vehicle.color}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label">Seat Capacity</div>
+                        <div class="detail-value">${vehicle.seat_cap} seats</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="detail-card">
+                    <div class="detail-label">Transmission</div>
+                    <div class="detail-value">${vehicle.transmission}</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-label">Fuel Type</div>
+                    <div class="detail-value">${vehicle.fuel_type}</div>
+                </div>
+            </div>
+
+            <!-- Driver Assignment -->
+            <div class="detail-card">
+                <div class="detail-label">Assigned Driver</div>
+                <div class="detail-value">${driverName}</div>
+            </div>
+
+            <!-- Pricing Information -->
+            <div class="bg-green-900/20 p-4 rounded-xl border border-green-700/30">
+                <div class="detail-label">Daily Rental Rate</div>
+                <div class="detail-value text-2xl font-bold text-green-400">₱${Number(vehicle.price_rate).toLocaleString()}</div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="text-xs text-gray-400 mt-4 pt-4 border-t border-white/10">
+                <p>Vehicle ID: ${vehicle.vehicle_id}</p>
+                <p>Last Updated: ${new Date(vehicle.updated_at || vehicle.created_at).toLocaleString()}</p>
+            </div>
+        </div>
+    `;
+
+    this.content.innerHTML = html;
+    document.getElementById('viewVehicleModalTitle').textContent = `${vehicle.brand} ${vehicle.model}`;
+    this.showModal();
+}
 
     showModal() {
         this.modal.classList.remove('hidden');
