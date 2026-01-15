@@ -183,6 +183,19 @@ td .action-edit, td .action-delete, td .action-view {
     width: 1rem;
     height: 1rem;
 }
+
+/* Allow dropdowns to escape table bounds */
+table {
+    overflow: visible !important;
+}
+
+tbody {
+    overflow: visible !important;
+}
+
+.actions-menu {
+    z-index: 9999;
+}
 </style>
 
 <div class="flex min-h-screen bg-[#1A1F24] text-white transition-colors duration-500" id="dashboard-wrapper">
@@ -256,8 +269,8 @@ td .action-edit, td .action-delete, td .action-view {
         </div>
 
         {{-- VEHICLE TABLE --}}
-        <div class="overflow-hidden rounded-2xl shadow-2xl backdrop-blur-xl card-text dark-card">
-            <table class="w-full text-left">
+        <div class="rounded-2xl shadow-2xl backdrop-blur-xl overflow-visible">
+            <table class="w-full text-left dark-table overflow-visible">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide">
                     <tr>
                         <th class="p-4">Image</th>

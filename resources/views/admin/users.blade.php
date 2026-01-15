@@ -59,6 +59,19 @@
     opacity: 1; /* Ensure full opacity if default is lower */
 }
 
+/* Allow dropdowns to escape table bounds */
+table {
+    overflow: visible !important;
+}
+
+tbody {
+    overflow: visible !important;
+}
+
+.actions-menu {
+    z-index: 9999;
+}
+
 </style>
 
 <div class="flex min-h-screen text-white transition-colors duration-500">
@@ -136,8 +149,8 @@
         </div>
 
         {{-- USER TABLE --}}
-        <div class="rounded-2xl shadow-2xl backdrop-blur-xl">
-            <table class="w-full text-left dark-table">
+        <div class="rounded-2xl shadow-2xl backdrop-blur-xl overflow-visible">
+            <table class="w-full text-left dark-table overflow-visible">
                 <thead class="bg-black/30 text-white uppercase text-sm tracking-wide text-center">
                     <tr>
                         <th class="p-4">ID</th>
