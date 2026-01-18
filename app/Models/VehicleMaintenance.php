@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VehicleMaintenance extends Model
 {
-    use HasFactory;
+    use HasFactory,Auditable;
 
     protected $primaryKey = 'maintenance_ID';
     protected $table = 'vehicle_maintenance';
@@ -42,5 +43,10 @@ class VehicleMaintenance extends Model
     public function reporter()
     {
         return $this->belongsTo(User::class, 'reported_by');
+    }
+
+    protected function getAuditModule()
+    {
+        return 'Maintenances';
     }
 }

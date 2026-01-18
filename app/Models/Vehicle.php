@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Vehicle extends Model
 {
-    use HasFactory;
+    use HasFactory,Auditable;
 
     protected $primaryKey = 'vehicle_id';
     protected $table = 'vehicles';
@@ -65,5 +66,10 @@ class Vehicle extends Model
         
         // Return default vehicle image
         return asset('assets/default-vehicle.jpg');
+    }
+
+    protected function getAuditModule()
+    {
+        return 'Vehicles';
     }
 }

@@ -122,7 +122,29 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     // AJAX routes
     Route::post('/booking/calculate-price', [BookingController::class, 'calculatePrice'])->name('admin.booking.calculate-price');
 
-    Route::get('/admin/audit', [AuditController::class, 'index'])->name('admin.audit.logs');
+     // Main audit log page
+    Route::get('/audit-logs', [AuditController::class, 'index'])->name('admin.audit.index');
+    
+    // View specific audit log details (AJAX)
+    Route::get('/audit-logs/{id}', [AuditController::class, 'show'])->name('admin.audit.show');
+    
+    // Get audit logs data (for AJAX filtering)
+    Route::get('/audit-logs-data', [AuditController::class, 'getData'])->name('admin.audit.data');
+    
+    // Export audit logs to CSV
+    Route::get('/audit-logs-export', [AuditController::class, 'export'])->name('admin.audit.export');
+    
+    // Get audit statistics
+    Route::get('/audit-stats', [AuditController::class, 'getStats'])->name('admin.audit.stats');
+    
+    // Cleanup old logs (admin utility)
+    Route::post('/audit-cleanup', [AuditController::class, 'cleanup'])->name('admin.audit.cleanup');
+    
+    // User activity timeline
+    Route::get('/audit-user/{userId}', [AuditController::class, 'userActivity'])->name('admin.audit.user');
+    
+    // Record-specific activity
+    Route::post('/audit-record-activity', [AuditController::class, 'recordActivity'])->name('admin.audit.record');
 });
 
 

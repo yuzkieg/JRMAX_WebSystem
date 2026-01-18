@@ -191,7 +191,6 @@ class BookingController extends Controller
                 'data' => [
                     'boarding_id' => $booking->boarding_id,
                     'client_id' => $booking->client_id,
-                    'boarding_date' => $booking->boarding_date,
                     'start_datetime' => $start->format('Y-m-d H:i'),
                     'end_datetime' => $end->format('Y-m-d H:i'),
                     'duration' => [

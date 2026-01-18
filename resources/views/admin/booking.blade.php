@@ -87,17 +87,83 @@
 .action-delete:hover { background-color: var(--action-delete-hover) !important; }
 
 
-    .status-pill {
-        display: inline-block;
-        border-radius: 0.5rem;
-        font-weight: 700;
-        font-size: medium;
-    }
-    .status-pill.pending { background: transparent; color: #FFFF00 ; }
-    .status-pill.confirmed { background: transparent; color: #0FC2A7; }
-    .status-pill.ongoing { background: transparent; color: #ADD8E6  ; }
-    .status-pill.completed { background: transparent; color: #93FF54   ; }
-    .status-pill.cancelled { background: transparent; color: #FF0000 ; }
+    /* Enhanced Status Pill Styles - Match Vehicle Page */
+.status-pill {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px; /* Full rounded pill shape */
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* Pending Status - Yellow/Amber Pill */
+.status-pill.pending {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+/* Confirmed Status - Blue Pill */
+.status-pill.confirmed {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+/* Ongoing Status - Purple Pill */
+.status-pill.ongoing {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+}
+
+/* Completed Status - Green Pill */
+.status-pill.completed {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+/* Cancelled Status - Red Pill */
+.status-pill.cancelled {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+/* Light mode adjustments */
+.dark .status-pill.pending {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.4);
+}
+
+.dark .status-pill.confirmed {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.4);
+}
+
+.dark .status-pill.ongoing {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    box-shadow: 0 2px 4px rgba(124, 58, 237, 0.4);
+}
+
+.dark .status-pill.completed {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 2px 4px rgba(5, 150, 105, 0.4);
+}
+
+.dark .status-pill.cancelled {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+}
+
+/* Hover effect for pills */
+.status-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 
 .form-group {
     margin-bottom: 1.5rem;
