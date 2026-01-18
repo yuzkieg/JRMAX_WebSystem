@@ -849,7 +849,7 @@ tbody {
                                 <input type="number" name="total_price" id="total_price" required step="0.01" min="0" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                             </div>
 
-                            {{-- <div class="form-group">
+                            <div class="form-group">
                                 <label for="status_id">Booking Status *</label>
                                 <select name="status_id" id="status_id" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                                     <option value="">-- Select Status --</option>
@@ -857,7 +857,7 @@ tbody {
                                         <option value="{{ $status->status_id }}">{{ $status->status_name }}</option>
                                     @endforeach
                                 </select>
-                            </div> --}}
+                            </div>
 
                             <div class="form-group">
                                 <label for="payment_method">Payment Method</label>

@@ -286,6 +286,7 @@ class BookingController extends Controller
                 'data' => [
                     'boarding_id' => $booking->boarding_id,
                     'client_id' => $booking->client_id,
+                    'boarding_date' => $booking->boarding_date,
                     'start_datetime' => $start->format('Y-m-d H:i'),
                     'end_datetime' => $end->format('Y-m-d H:i'),
                     'duration' => [
@@ -496,18 +497,4 @@ class BookingController extends Controller
 
         return !$query->exists();
     }
-
-    public function update(Request $request, Booking $booking)
-    {
-        $validated = $request->validate([
-            'client_name' => 'required|string',
-            'vehicle' => 'required|string',
-            'status_id' => 'required|exists:statuses,id',
-        ]);
-
-        $booking->update($validated);
-
-        return redirect()->back()->with('success', 'Booking updated');
-    }
-
 }
