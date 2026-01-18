@@ -403,17 +403,71 @@ class BookingController extends Controller
         return !$query->exists();
     }
 
+    public function edit(Booking $booking)
+    {
+        $booking->load([
+            'client',
+            'vehicles.vehicle',
+            'driver',
+            'status'
+        ]);
+
+        $drivers = Driver::orderBy('full_name')->get();
+        $statuses = BookingStatus::all();
+
+        return view('admin.booking.edit', compact('booking', 'drivers', 'statuses'));
+    }
+
     public function update(Request $request, Booking $booking)
     {
         $validated = $request->validate([
-            'client_name' => 'required|string',
-            'vehicle' => 'required|string',
-            'status_id' => 'required|exists:statuses,id',
+            'driver_id' => 'nullable|exists:drivers,driver_id',
+            'status_id' => 'required|exists:booking_statuses,status_id',
+            'payment_method' => 'nullable|string|max:50',
+            'special_requests' => 'nullable|string|max:1000',
         ]);
 
-        $booking->update($validated);
+        DB::beginTransaction();
+        try {
+            $oldStatus = $booking->status_id;
 
-        return redirect()->back()->with('success', 'Booking updated');
+            $booking->update([
+                'driver_id' => $validated['driver_id'],
+                'status_id' => $validated['status_id'],
+                'payment_method' => $validated['payment_method'],
+                'special_requests' => $validated['special_requests'],
+                'updated_by' => auth()->id(),
+            ]);
+
+            /**
+             * Optional: Handle vehicle availability when status changes
+             */
+            if ($oldStatus !== $validated['status_id']) {
+                if (in_array($validated['status_id'], [3])) { // Ongoing
+                    foreach ($booking->vehicles as $bv) {
+                        $bv->vehicle->update(['is_available' => false]);
+                    }
+                }
+
+                if (in_array($validated['status_id'], [4, 5])) { // Completed / Cancelled
+                    foreach ($booking->vehicles as $bv) {
+                        $bv->vehicle->update(['is_available' => true]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.booking.index')
+                ->with('success', 'Booking updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()
+                ->with('error', 'Update failed: ' . $e->getMessage());
+        }
     }
 
 }

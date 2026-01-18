@@ -118,6 +118,9 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     Route::get('/admin/booking/calendar', [BookingController::class, 'calendar'])->name('admin.booking.calendar');
     Route::post('/admin/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('admin.booking.check-availability');
     Route::get('/admin/booking/stats', [BookingController::class, 'getStats'])->name('admin.booking.stats');
+    Route::get('/booking/{booking}/edit', [BookingController::class, 'edit'])->name('admin.booking.edit');
+    Route::put('/booking/{booking}', [BookingController::class, 'update'])->name('admin.booking.update');
+
     
     // AJAX routes
     Route::post('/booking/calculate-price', [BookingController::class, 'calculatePrice'])->name('admin.booking.calculate-price');
