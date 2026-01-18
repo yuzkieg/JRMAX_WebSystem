@@ -495,7 +495,6 @@ tbody {
 .actions-menu {
     z-index: 9999;
 }
-
 </style>
 
 <div class="flex min-h-screen text-white transition-colors duration-500">
@@ -662,7 +661,7 @@ tbody {
                                                 class="edit-booking-btn"
                                                 data-booking='@json($booking)'
                                             >
-                                                Edit Booking
+                                                Edit
                                             </button>
                                         </div>
                                     </div>
@@ -742,6 +741,7 @@ tbody {
         </div>
 
         {{-- ========== CREATE/EDIT VIEW ========== --}}
+        {{-- New Booking Form (copied content) --}}
         <div id="createView" class="view-section">
             @if ($errors->any())
                 <div class="error-message mb-6">
@@ -755,7 +755,7 @@ tbody {
             @endif
 
             <div class="bg-[#262B32] rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-white/10 modal-card">
-                <form id="bookingForm" method="POST">
+                <form id="bookingForm" method="POST" action="/admin/booking">
                     @csrf
                     <input type="hidden" id="formMethod" name="_method" value="POST">
 
@@ -763,18 +763,33 @@ tbody {
                         <h2 class="text-xl font-bold text-red-500 mb-4">Client Information</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="form-group">
-                                <label for="client_id">Select Client *</label>
-                                <select name="client_id" id="client_id" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
-                                    <option value="">-- Choose Client --</option>
-                                    @foreach($clients as $client)
-                                        <option value="{{ $client->Editor_id }}">{{ $client->first_name }} {{ $client->last_name }} ({{ $client->email }})</option>
-                                    @endforeach
-                                </select>
+                                <label for="client_first_name">First Name *</label>
+                                <input type="text" name="client_first_name" id="client_first_name" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="First Name">
                             </div>
-
+                            <div class="form-group">
+                                <label for="client_last_name">Last Name *</label>
+                                <input type="text" name="client_last_name" id="client_last_name" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Last Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="client_contact">Contact Number *</label>
+                                <input type="tel" name="client_contact" id="client_contact" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Contact Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="client_email">Email *</label>
+                                <input type="email" name="client_email" id="client_email" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Email">
+                            </div>
+                            <div class="form-group">
+                                <label for="client_license">License Number</label>
+                                <input type="text" name="client_license" id="client_license" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="License Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="client_address">Address</label>
+                                <textarea name="client_address" id="client_address" rows="3" placeholder="Address" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                            </div>
                         </div>
                     </div>
 
+                    {{-- Booking Details --}}
                     <div class="mb-8">
                         <h2 class="text-xl font-bold text-red-500 mb-4">Booking Details</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -782,17 +797,14 @@ tbody {
                                 <label for="start_datetime">Check-in *</label>
                                 <input type="datetime-local" name="start_datetime" id="start_datetime" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                             </div>
-
                             <div class="form-group">
                                 <label for="end_datetime">Check-out *</label>
                                 <input type="datetime-local" name="end_datetime" id="end_datetime" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                             </div>
-
                             <div class="form-group">
                                 <label for="pickup_location">Pick-up Location *</label>
                                 <input type="text" name="pickup_location" id="pickup_location" required placeholder="e.g., Airport Terminal 1" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                             </div>
-
                             <div class="form-group">
                                 <label for="dropoff_location">Drop-off Location *</label>
                                 <input type="text" name="dropoff_location" id="dropoff_location" required placeholder="e.g., Hotel Downtown" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
@@ -800,6 +812,7 @@ tbody {
                         </div>
                     </div>
 
+                    {{-- Vehicles & Driver --}}
                     <div class="mb-8">
                         <h2 class="text-xl font-bold text-red-500 mb-4">Vehicles & Driver</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -827,15 +840,16 @@ tbody {
                         </div>
                     </div>
 
+                    {{-- Pricing & Status --}}
                     <div class="mb-8">
-                        <h2 class="text-xl font-bold text-red-500 mb-4">Pricing & Status</h2>
+                        <h2 class="text-xl font-bold text-red-500 mb-4">Pricing</h2>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="form-group">
                                 <label for="total_price">Total Price (₱) *</label>
                                 <input type="number" name="total_price" id="total_price" required step="0.01" min="0" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                             </div>
 
-                            <div class="form-group">
+                            {{-- <div class="form-group">
                                 <label for="status_id">Booking Status *</label>
                                 <select name="status_id" id="status_id" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
                                     <option value="">-- Select Status --</option>
@@ -843,7 +857,7 @@ tbody {
                                         <option value="{{ $status->status_id }}">{{ $status->status_name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
 
                             <div class="form-group">
                                 <label for="payment_method">Payment Method</label>
@@ -856,6 +870,7 @@ tbody {
                         </div>
                     </div>
 
+                    {{-- Special Requests & Notes --}}
                     <div class="mb-8">
                         <div class="form-group">
                             <label for="special_requests">Special Requests / Notes</label>
@@ -863,6 +878,7 @@ tbody {
                         </div>
                     </div>
 
+                    {{-- Buttons --}}
                     <div class="flex justify-end gap-3">
                         <button type="button" onclick="switchView('indexView')" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn">Create Booking</button>
@@ -877,44 +893,143 @@ tbody {
         </div>
 
         {{-- ========== EDIT VIEW ========== --}}
+        {{-- Copy the New Booking form content here with adjustments for editing --}}
         <div id="editView" class="view-section">
-            <div class="modal-container">
-                <div class="modal-header">
-                    <h2>Edit Booking</h2>
-                    <button onclick="switchView('indexView')">✕</button>
+            {{-- Copy of the form with adjustments for editing --}}
+            <div class="bg-[#262B32] rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-white/10 modal-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-red-500">Edit Booking</h2>
+                    <button onclick="switchView('indexView')" class="text-white text-xl font-semibold hover:text-gray-300">✕</button>
                 </div>
 
-                <form id="editBookingForm" method="POST">
+                <form id="editBookingForm" method="POST" action="">
                     @csrf
                     @method('PUT')
 
-                    <input type="hidden" name="booking_id" id="edit_booking_id">
+                    <input type="hidden" id="edit_booking_id" name="booking_id">
 
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text" name="client_name" id="edit_client_name">
+                    {{-- Client Information --}}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-red-500 mb-4">Client Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="edit_client_first_name">First Name *</label>
+                                <input type="text" name="client_first_name" id="edit_client_first_name" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="First Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_client_last_name">Last Name *</label>
+                                <input type="text" name="client_last_name" id="edit_client_last_name" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Last Name">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_client_contact">Contact Number *</label>
+                                <input type="tel" name="client_contact" id="edit_client_contact" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Contact Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_client_email">Email *</label>
+                                <input type="email" name="client_email" id="edit_client_email" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="Email">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_client_license">License Number</label>
+                                <input type="text" name="client_license" id="edit_client_license" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" placeholder="License Number">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_client_address">Address</label>
+                                <textarea name="client_address" id="edit_client_address" rows="3" placeholder="Address" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Vehicle</label>
-                        <input type="text" name="vehicle" id="edit_vehicle">
+                    {{-- Booking Details --}}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-red-500 mb-4">Booking Details</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label for="edit_start_datetime">Check-in *</label>
+                                <input type="datetime-local" name="start_datetime" id="edit_start_datetime" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_end_datetime">Check-out *</label>
+                                <input type="datetime-local" name="end_datetime" id="edit_end_datetime" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_pickup_location">Pick-up Location *</label>
+                                <input type="text" name="pickup_location" id="edit_pickup_location" required placeholder="e.g., Airport Terminal 1" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_dropoff_location">Drop-off Location *</label>
+                                <input type="text" name="dropoff_location" id="edit_dropoff_location" required placeholder="e.g., Hotel Downtown" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status_id" id="edit_status_id">
-                            @foreach ($statuses as $status)
-                                <option value="{{ $status->id }}">
-                                    {{ $status->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                    {{-- Vehicles & Driver --}}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-red-500 mb-4">Vehicles & Driver</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label>Select Vehicle(s) *</label>
+                                <div style="max-height: 300px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.75rem;">
+                                    @foreach($vehicles as $vehicle)
+                                        <label class="vehicle-checkbox">
+                                            <input type="checkbox" name="vehicle_ids[]" value="{{ $vehicle->vehicle_id }}" class="edit-vehicle-checkbox">
+                                            <span>{{ $vehicle->brand }} {{ $vehicle->model }} - {{ $vehicle->plate_num }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_driver_id">Assign Driver (Optional)</label>
+                                <select name="driver_id" id="edit_driver_id" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">-- No Driver --</option>
+                                    @foreach($drivers as $driver)
+                                        <option value="{{ $driver->id }}">{{ $driver->full_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="submit" class="btn-primary">
-                            Update Booking
-                        </button>
+                    {{-- Pricing & Status --}}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-red-500 mb-4">Pricing & Status</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="form-group">
+                                <label for="edit_total_price">Total Price (₱) *</label>
+                                <input type="number" name="total_price" id="edit_total_price" required step="0.01" min="0" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_status_id">Booking Status *</label>
+                                <select name="status_id" id="edit_status_id" required class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">-- Select Status --</option>
+                                    @foreach($statuses as $status)
+                                        <option value="{{ $status->status_id }}">{{ $status->status_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_payment_method">Payment Method</label>
+                                <select name="payment_method" id="edit_payment_method" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="cash">Cash</option>
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="online_transfer">Online Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Special Requests & Notes --}}
+                    <div class="mb-8">
+                        <div class="form-group">
+                            <label for="edit_special_requests">Special Requests / Notes</label>
+                            <textarea name="special_requests" id="edit_special_requests" rows="4" placeholder="Any special requests or notes about this booking..." class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                        </div>
+                    </div>
+
+                    {{-- Buttons --}}
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="switchView('indexView')" class="btn btn-secondary">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="updateBtn">Update Booking</button>
                     </div>
                 </form>
             </div>
@@ -929,6 +1044,7 @@ function switchView(view) {
     document.getElementById(view).classList.add('active');
 }
 
+// Show booking details (existing code)
 function showBooking(id) {
     fetch(`/admin/booking/${id}`, { 
         headers: { 
@@ -952,9 +1068,7 @@ function showBooking(id) {
         });
     })
     .then(response => {
-        // Handle different possible response formats
         const booking = response.booking || response.data || response;
-        
         const statusMap = {
             1: ['Pending', 'status-pill pending'],
             2: ['Confirmed', 'status-pill confirmed'],
@@ -962,11 +1076,8 @@ function showBooking(id) {
             4: ['Completed', 'status-pill completed'],
             5: ['Cancelled', 'status-pill cancelled']
         };
-        
         const status = booking.status_id || booking.status?.status_id;
         const [statusText, statusClass] = statusMap[status] || ['Unknown', 'status-pill pending'];
-        
-        // Format dates
         const formatDate = (dateStr) => {
             if (!dateStr) return 'N/A';
             const date = new Date(dateStr);
@@ -978,224 +1089,38 @@ function showBooking(id) {
                 minute: '2-digit'
             });
         };
-        
-        // Get client information
         const client = booking.client || booking.Client || {};
         const clientName = `${client.first_name || ''} ${client.last_name || ''}`.trim() || 'N/A';
-        const clientEmail = client.email || 'N/A';
-        const clientPhone = client.phone_number || 'N/A';
-        
-        // Get driver information
-        const driver = booking.driver || booking.Driver || {};
-        const driverName = driver.full_name || driver.name || 'Unassigned';
-        const driverLicense = driver.license_number || 'N/A';
-        const driverEmail = driver.email || 'N/A';
-        const driverPhone = driver.phone_number || 'N/A';
-        
-        // Get vehicles
-        const vehicles = booking.vehicles || booking.Vehicles || [];
-        
-        // Calculate duration
-        const startDate = booking.start_datetime ? new Date(booking.start_datetime) : null;
-        const endDate = booking.end_datetime ? new Date(booking.end_datetime) : null;
-        let duration = { days: 0, hours: 0, totalHours: 0 };
-        
-        if (startDate && endDate) {
-            const diffMs = endDate - startDate;
-            const diffHours = diffMs / (1000 * 60 * 60);
-            duration.totalHours = Math.round(diffHours);
-            duration.days = Math.floor(diffHours / 24);
-            duration.hours = Math.round(diffHours % 24);
-        }
-        
-        const html = `
-            <div class="modal-card">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold text-white">#${String(booking.boarding_id).padStart(6,'0')}</h2>
-                        <div class="text-sm text-gray-400 mt-1">
-                            Created: ${formatDate(booking.created_at)}
-                        </div>
-                    </div>
-                    <div>
-                        <button onclick="switchView('indexView')" class="px-4 py-2 bg-gray-700 rounded text-white hover:bg-gray-600">Close</button>
-                    </div>
-                </div>
 
-                <!-- CLIENT & DRIVER INFORMATION -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 pb-6 border-b border-gray-700">
-                    <div class="detail-card">
-                        <h3 class="detail-label">Client Information</h3>
-                        <div class="space-y-2">
-                            <div class="detail-value">${clientName}</div>
-                            <div class="text-sm text-gray-400">${clientEmail}</div>
-                            <div class="text-sm text-gray-400">${clientPhone}</div>
-                            ${client.identification_type ? `
-                                <div class="text-xs text-gray-500 mt-2">
-                                    ID: ${client.identification_type} - ${client.identification_number || 'N/A'}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="detail-card">
-                        <h3 class="detail-label">Driver Assignment</h3>
-                        <div class="space-y-2">
-                            <div class="detail-value">${driverName}</div>
-                            ${driverName !== 'Unassigned' ? `
-                                <div class="text-sm text-gray-400">License: ${driverLicense}</div>
-                                <div class="text-sm text-gray-400">${driverEmail}</div>
-                                <div class="text-sm text-gray-400">Phone: ${driverPhone}</div>
-                            ` : '<div class="text-sm text-gray-500">No driver assigned to this booking</div>'}
-                        </div>
-                    </div>
-                </div>
+        // Set form fields for editing
+        document.getElementById('edit_booking_id').value = booking.id || booking.boarding_id;
+        document.getElementById('edit_client_first_name').value = client.first_name || '';
+        document.getElementById('edit_client_last_name').value = client.last_name || '';
+        document.getElementById('edit_client_contact').value = booking.client_contact || '';
+        document.getElementById('edit_client_email').value = booking.client_email || '';
+        document.getElementById('edit_client_license').value = booking.client_license || '';
+        document.getElementById('edit_client_address').value = booking.client_address || '';
+        document.getElementById('edit_start_datetime').value = booking.start_datetime ? new Date(booking.start_datetime).toISOString().slice(0,16) : '';
+        document.getElementById('edit_end_datetime').value = booking.end_datetime ? new Date(booking.end_datetime).toISOString().slice(0,16) : '';
+        document.getElementById('edit_pickup_location').value = booking.pickup_location || '';
+        document.getElementById('edit_dropoff_location').value = booking.dropoff_location || '';
+        document.getElementById('edit_total_price').value = booking.total_price || '';
+        document.getElementById('edit_status_id').value = booking.status_id || '';
+        document.getElementById('edit_payment_method').value = booking.payment_method || '';
+        document.getElementById('edit_special_requests').value = booking.special_requests || '';
 
-                <!-- LOCATION & TIMING INFORMATION -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 pb-6 border-b border-gray-700">
-                    <div>
-                        <div class="detail-card mb-4">
-                            <h3 class="detail-label">Pick-up Location</h3>
-                            <div class="detail-value">${booking.pickup_location || 'N/A'}</div>
-                        </div>
-                        <div class="detail-card">
-                            <h3 class="detail-label">Check-in Time</h3>
-                            <div class="detail-value">${formatDate(booking.start_datetime)}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="detail-card mb-4">
-                            <h3 class="detail-label">Drop-off Location</h3>
-                            <div class="detail-value">${booking.dropoff_location || 'N/A'}</div>
-                        </div>
-                        <div class="detail-card">
-                            <h3 class="detail-label">Check-out Time</h3>
-                            <div class="detail-value">${formatDate(booking.end_datetime)}</div>
-                        </div>
-                    </div>
-                </div>
+        // Set vehicle checkboxes
+        document.querySelectorAll('.edit-vehicle-checkbox').forEach(cb => cb.checked = false);
+        (booking.vehicles || []).forEach(vehicle => {
+            const vId = vehicle.vehicle_id || vehicle.id;
+            document.querySelector(`input.edit-vehicle-checkbox[value="${vId}"]`)?.setAttribute('checked', 'checked');
+        });
 
-                <!-- DURATION INFORMATION -->
-                <div class="detail-card mb-6 pb-6 border-b border-gray-700">
-                    <h3 class="detail-label">Booking Duration</h3>
-                    <div class="grid grid-cols-3 gap-4 mt-3">
-                        <div class="bg-blue-900/30 rounded p-3 border border-blue-700/50">
-                            <div class="text-2xl font-bold text-blue-400">${duration.days}</div>
-                            <div class="text-xs text-gray-400">Days</div>
-                        </div>
-                        <div class="bg-blue-900/30 rounded p-3 border border-blue-700/50">
-                            <div class="text-2xl font-bold text-blue-400">${duration.hours}</div>
-                            <div class="text-xs text-gray-400">Hours</div>
-                        </div>
-                        <div class="bg-blue-900/30 rounded p-3 border border-blue-700/50">
-                            <div class="text-2xl font-bold text-blue-400">${duration.totalHours}</div>
-                            <div class="text-xs text-gray-400">Total Hours</div>
-                        </div>
-                    </div>
-                </div>
+        // Set form action dynamically
+        document.getElementById('editBookingForm').action = `/admin/booking/${booking.id || booking.boarding_id}`;
 
-                <!-- VEHICLES ASSIGNED -->
-                <div class="mb-6 pb-6 border-b border-gray-700">
-                    <h3 class="detail-label">Assigned Vehicles (${vehicles.length})</h3>
-                    <div class="mt-3 space-y-3">
-                        ${vehicles.length > 0 ? vehicles.map(vehicle => {
-                            const v = vehicle.vehicle || vehicle;
-                            const plateNum = v.plate_num || v.plate_number || 'N/A';
-                            const brand = v.brand || 'N/A';
-                            const model = v.model || 'N/A';
-                            const bodyType = v.body_type || v.type || 'N/A';
-                            const priceRate = v.price_rate || v.daily_rate || 0;
-                            
-                            return `
-                                <div class="vehicle-item">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                        <div>
-                                            <div class="text-xs text-gray-500">Plate Number</div>
-                                            <div class="font-semibold text-white">${plateNum}</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-xs text-gray-500">Vehicle</div>
-                                            <div class="font-semibold text-white">${brand} ${model}</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-xs text-gray-500">Type</div>
-                                            <div class="font-semibold text-white">${bodyType}</div>
-                                        </div>
-                                        <div>
-                                            <div class="text-xs text-gray-500">Rate (Daily)</div>
-                                            <div class="font-semibold text-green-400">₱${Number(priceRate).toFixed(2)}</div>
-                                        </div>
-                                    </div>
-                                    ${vehicle.remarks ? `
-                                        <div class="mt-2 pt-2 border-t border-blue-600/30 text-xs text-gray-400">
-                                            <div>Remarks: ${vehicle.remarks}</div>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            `;
-                        }).join('') : '<div class="text-gray-400 py-3">No vehicles assigned</div>'}
-                    </div>
-                </div>
-
-                <!-- PRICING INFORMATION -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-700">
-                    <div class="bg-green-900/30 rounded p-4 border border-green-700/50">
-                        <h3 class="detail-label">Total Price</h3>
-                        <div class="text-3xl font-bold text-green-400 mt-2">
-                            ₱${Number(booking.total_price || 0).toFixed(2)}
-                        </div>
-                    </div>
-                    <div class="bg-purple-900/30 rounded p-4 border border-purple-700/50">
-                        <h3 class="detail-label">Payment Method</h3>
-                        <div class="text-xl font-bold text-purple-400 mt-2">
-                            ${booking.payment_method ? booking.payment_method.replace('_', ' ').toUpperCase() : 'N/A'}
-                        </div>
-                    </div>
-                    <div class="bg-indigo-900/30 rounded p-4 border border-indigo-700/50">
-                        <h3 class="detail-label">Status</h3>
-                        <div class="mt-2">
-                            <span class="${statusClass} px-3 py-1 text-sm">${statusText}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SPECIAL REQUESTS & NOTES -->
-                <div class="mb-6 pb-6 border-b border-gray-700">
-                    <h3 class="detail-label">Special Requests</h3>
-                    <div class="detail-card mt-2">
-                        <div class="text-gray-300">
-                            ${booking.special_requests || '<span class="text-gray-500">No special requests</span>'}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOOKING NOTES -->
-                ${booking.notes ? `
-                    <div class="mb-6 pb-6 border-b border-gray-700">
-                        <h3 class="detail-label">Admin Notes</h3>
-                        <div class="detail-card mt-2">
-                            <div class="text-gray-300">${booking.notes}</div>
-                        </div>
-                    </div>
-                ` : ''}
-
-                <!-- AUDIT TRAIL -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    <div>
-                        <h3 class="detail-label">Created</h3>
-                        <div class="text-gray-300">${booking.created_by || 'System'}</div>
-                        <div class="text-gray-500">${formatDate(booking.created_at)}</div>
-                    </div>
-                    <div>
-                        <h3 class="detail-label">Last Updated</h3>
-                        <div class="text-gray-300">${booking.updated_by || 'System'}</div>
-                        <div class="text-gray-500">${formatDate(booking.updated_at)}</div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('showContent').innerHTML = html;
-        switchView('showView');
+        // Switch to edit view
+        switchView('editView');
     })
     .catch(err => {
         console.error('Error loading booking:', err);
@@ -1203,7 +1128,7 @@ function showBooking(id) {
     });
 }
 
-// Search
+// Search filtering
 document.getElementById('searchInput').addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     document.querySelectorAll('.booking-row').forEach(row => {
@@ -1211,7 +1136,7 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
     });
 });
 
-// Form submission
+// Form submit handling
 document.getElementById('bookingForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const formEl = e.currentTarget;
@@ -1219,11 +1144,9 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
     const method = document.getElementById('formMethod').value;
     const isUpdate = method === 'PUT';
     const url = isUpdate ? formEl.action : '/admin/booking';
-    // Use POST for form-data updates and rely on _method spoofing so Laravel parses FormData correctly
-    const fetchMethod = isUpdate ? 'POST' : method;
 
     fetch(url, {
-        method: fetchMethod,
+        method: 'POST',
         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
         body: formData
     })
@@ -1250,7 +1173,7 @@ document.getElementById('bookingForm').addEventListener('submit', (e) => {
     });
 });
 
-// Reset form when clicking 'New Booking'
+// Reset form for new booking
 const createBtn = document.getElementById('newBookingBtn');
 if (createBtn) {
     createBtn.addEventListener('click', () => {
@@ -1314,7 +1237,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-
 // Theme toggle functionality
 document.getElementById('theme-toggle').addEventListener('click', function() {
     const html = document.documentElement;
@@ -1337,7 +1259,6 @@ document.getElementById('theme-toggle').addEventListener('click', function() {
         setTimeout(() => themeIcon.classList.remove('rotate-360'), 500);
     }
 });
-
 
 // Run on page load and watch for changes
 document.addEventListener('DOMContentLoaded', function() {
@@ -1362,20 +1283,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const booking = JSON.parse(btn.dataset.booking);
 
             document.getElementById('edit_booking_id').value = booking.id;
-            document.getElementById('edit_client_name').value = booking.client_name;
-            document.getElementById('edit_vehicle').value = booking.vehicle;
-            document.getElementById('edit_status_id').value = booking.status_id;
+            document.getElementById('edit_client_first_name').value = booking.client?.first_name || '';
+            document.getElementById('edit_client_last_name').value = booking.client?.last_name || '';
+            document.getElementById('edit_client_contact').value = booking.client_contact || '';
+            document.getElementById('edit_client_email').value = booking.client_email || '';
+            document.getElementById('edit_client_license').value = booking.client_license || '';
+            document.getElementById('edit_client_address').value = booking.client_address || '';
+            document.getElementById('edit_start_datetime').value = booking.start_datetime ? new Date(booking.start_datetime).toISOString().slice(0,16) : '';
+            document.getElementById('edit_end_datetime').value = booking.end_datetime ? new Date(booking.end_datetime).toISOString().slice(0,16) : '';
+            document.getElementById('edit_pickup_location').value = booking.pickup_location || '';
+            document.getElementById('edit_dropoff_location').value = booking.dropoff_location || '';
+            document.getElementById('edit_total_price').value = booking.total_price || '';
+            document.getElementById('edit_status_id').value = booking.status_id || '';
+            document.getElementById('edit_payment_method').value = booking.payment_method || '';
+            document.getElementById('edit_special_requests').value = booking.special_requests || '';
 
-            const form = document.getElementById('editBookingForm');
-            form.action = `/admin/booking/${booking.id}`;
+            // Set vehicle checkboxes
+            document.querySelectorAll('.edit-vehicle-checkbox').forEach(cb => cb.checked = false);
+            (booking.vehicles || []).forEach(vehicle => {
+                const vId = vehicle.vehicle_id || vehicle.id;
+                document.querySelector(`input.edit-vehicle-checkbox[value="${vId}"]`)?.setAttribute('checked', 'checked');
+            });
 
+            // Set form action dynamically
+            document.getElementById('editBookingForm').action = `/admin/booking/${booking.id || booking.boarding_id}`;
+
+            // Switch to edit view
             switchView('editView');
         });
     });
 });
-
 </script>
-
 <script>
     function confirmLogout(event) {
         event.preventDefault();
@@ -1384,7 +1322,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 </script>
-
-
 
 @endsection
