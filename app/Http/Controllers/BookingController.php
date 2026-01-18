@@ -402,4 +402,18 @@ class BookingController extends Controller
 
         return !$query->exists();
     }
+
+    public function update(Request $request, Booking $booking)
+    {
+        $validated = $request->validate([
+            'client_name' => 'required|string',
+            'vehicle' => 'required|string',
+            'status_id' => 'required|exists:statuses,id',
+        ]);
+
+        $booking->update($validated);
+
+        return redirect()->back()->with('success', 'Booking updated');
+    }
+
 }

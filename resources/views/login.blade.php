@@ -55,17 +55,28 @@
                        required>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-3 relative">
                 <label class="block text-sm text-gray-300 mb-1">Password</label>
-                <input type="password" name="password"
-                       class="w-full px-4 py-3 rounded-lg bg-white/10 border border-gray-600
-                              text-white focus:outline-none focus:ring-2 focus:ring-red-600"
-                       placeholder="Enter your password" 
-                       required>
-            </div>
 
-            <div class="mb-6 text-right">
-                <a href="#" class="text-sm text-red-400 hover:text-red-500 transition">Forgot Password?</a>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="w-full px-4 py-3 pr-12 rounded-lg bg-white/10 border border-gray-600
+                        text-white focus:outline-none focus:ring-2 focus:ring-red-600"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <!-- Eye toggle -->
+                <button
+                    type="button"
+                    onclick="togglePassword()"
+                    class="absolute right-4 top-9 text-gray-400 hover:text-white transition"
+                    aria-label="Toggle password visibility"
+                >
+                    👁️
+                </button>
             </div>
 
             <button type="submit"
@@ -76,13 +87,6 @@
                 LOG IN
             </button>
         </form>
-
-    
-
-        <p class="text-center text-gray-300 text-sm mt-4">
-            Don't have an account?
-            <a href="#" class="text-red-400 hover:text-red-500 font-medium transition">Sign Up</a>
-        </p>
 
     </div>
 
@@ -98,5 +102,13 @@ setTimeout(() => {
     });
 }, 5000);
 </script>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+
 
 @endsection

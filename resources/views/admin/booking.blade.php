@@ -658,6 +658,12 @@ tbody {
                                                 <img src="{{ asset('assets/file.png') }}" alt="View" class="w-5 h-5">
                                                 <span>View Details</span>
                                             </button>
+                                            <button
+                                                class="edit-booking-btn"
+                                                data-booking='@json($booking)'
+                                            >
+                                                Edit Booking
+                                            </button>
                                         </div>
                                     </div>
                                 </td>
@@ -868,6 +874,50 @@ tbody {
         {{-- ========== SHOW VIEW ========== --}}
         <div id="showView" class="view-section">
             <div id="showContent"></div>
+        </div>
+
+        {{-- ========== EDIT VIEW ========== --}}
+        <div id="editView" class="view-section">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>Edit Booking</h2>
+                    <button onclick="switchView('indexView')">✕</button>
+                </div>
+
+                <form id="editBookingForm" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <input type="hidden" name="booking_id" id="edit_booking_id">
+
+                    <div class="form-group">
+                        <label>Client Name</label>
+                        <input type="text" name="client_name" id="edit_client_name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vehicle</label>
+                        <input type="text" name="vehicle" id="edit_vehicle">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status_id" id="edit_status_id">
+                            @foreach ($statuses as $status)
+                                <option value="{{ $status->id }}">
+                                    {{ $status->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-primary">
+                            Update Booking
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
     </main>
@@ -1305,6 +1355,25 @@ document.addEventListener('DOMContentLoaded', function() {
         attributes: true
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.edit-booking-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const booking = JSON.parse(btn.dataset.booking);
+
+            document.getElementById('edit_booking_id').value = booking.id;
+            document.getElementById('edit_client_name').value = booking.client_name;
+            document.getElementById('edit_vehicle').value = booking.vehicle;
+            document.getElementById('edit_status_id').value = booking.status_id;
+
+            const form = document.getElementById('editBookingForm');
+            form.action = `/admin/booking/${booking.id}`;
+
+            switchView('editView');
+        });
+    });
+});
+
 </script>
 
 <script>
@@ -1315,5 +1384,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 </script>
+
+
 
 @endsection
