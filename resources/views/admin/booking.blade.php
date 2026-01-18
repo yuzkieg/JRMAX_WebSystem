@@ -895,25 +895,17 @@ tbody {
         {{-- ========== EDIT VIEW ========== --}}
         {{-- Copy the New Booking form content here with adjustments for editing --}}
         <div id="editView" class="view-section">
-<<<<<<< HEAD
             {{-- Copy of the form with adjustments for editing --}}
             <div class="bg-[#262B32] rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-white/10 modal-card">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-bold text-red-500">Edit Booking</h2>
                     <button onclick="switchView('indexView')" class="text-white text-xl font-semibold hover:text-gray-300">✕</button>
-=======
-            <div class="modal-container">
-                <div class="modal-header">
-                    <h2>Edit Booking</h2>
-                    <button type="button" onclick="switchView('indexView')">✕</button>
->>>>>>> 6f4b8a783c7792c1561cbb254d37cb4ca9a4fd87
                 </div>
 
                 <form id="editBookingForm" method="POST" action="">
                     @csrf
                     @method('PUT')
 
-<<<<<<< HEAD
                     <input type="hidden" id="edit_booking_id" name="booking_id">
 
                     {{-- Client Information --}}
@@ -1038,80 +1030,6 @@ tbody {
                     <div class="flex justify-end gap-3">
                         <button type="button" onclick="switchView('indexView')" class="btn btn-secondary">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="updateBtn">Update Booking</button>
-=======
-                    {{-- READ ONLY --}}
-                    <div class="form-group">
-                        <label>Client Name</label>
-                        <input type="text"
-                            value="{{ $booking->client->full_name }}"
-                            disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Vehicles</label>
-                        <input type="text"
-                            value="{{ $booking->vehicles->pluck('vehicle.plate_num')->implode(', ') }}"
-                            disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Booking Period</label>
-                        <input type="text"
-                            value="{{ $booking->start_datetime->format('M d, Y h:i A') }}
-                            → {{ $booking->end_datetime->format('M d, Y h:i A') }}"
-                            disabled>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Total Price</label>
-                        <input type="text"
-                            value="₱{{ number_format($booking->total_price, 2) }}"
-                            disabled>
-                    </div>
-
-                    {{-- EDITABLE --}}
-                    <div class="form-group">
-                        <label>Driver</label>
-                        <select name="driver_id">
-                            <option value="">No Driver</option>
-                            @foreach ($drivers as $driver)
-                                <option value="{{ $driver->driver_id }}"
-                                    @selected($booking->driver_id == $driver->driver_id)>
-                                    {{ $driver->full_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status_id" required>
-                            @foreach ($statuses as $status)
-                                <option value="{{ $status->status_id }}"
-                                    @selected($booking->status_id == $status->status_id)>
-                                    {{ $status->status_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Payment Method</label>
-                        <input type="text"
-                            name="payment_method"
-                            value="{{ old('payment_method', $booking->payment_method) }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Notes / Special Requests</label>
-                        <textarea name="special_requests" rows="4">{{ old('special_requests', $booking->special_requests) }}</textarea>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="submit" class="btn-primary">
-                            Update Booking
-                        </button>
->>>>>>> 6f4b8a783c7792c1561cbb254d37cb4ca9a4fd87
                     </div>
                 </form>
             </div>
@@ -1396,41 +1314,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-<script>
-document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.edit-booking-btn');
-    if (!btn) return;
-
-    const booking = JSON.parse(btn.dataset.booking);
-
-    // Switch view
-    switchView('editView');
-
-    // Set form action
-    const form = document.getElementById('editBookingForm');
-    form.action = `/admin/booking/${booking.boarding_id}`;
-
-    // Populate fields
-    form.querySelector('[name="driver_id"]').value = booking.driver_id ?? '';
-    form.querySelector('[name="status_id"]').value = booking.status_id;
-    form.querySelector('[name="payment_method"]').value = booking.payment_method ?? '';
-    form.querySelector('[name="special_requests"]').value = booking.special_requests ?? '';
-
-    // Read-only fields
-    form.querySelector('#edit-client-name').value =
-        `${booking.client.first_name} ${booking.client.last_name}`;
-
-    form.querySelector('#edit-vehicles').value =
-        booking.vehicles.map(v => v.vehicle.plate_num).join(', ');
-
-    form.querySelector('#edit-period').value =
-        `${booking.start_datetime} → ${booking.end_datetime}`;
-
-    form.querySelector('#edit-price').value =
-        `₱${Number(booking.total_price).toLocaleString()}`;
-});
-</script>
-
 <script>
     function confirmLogout(event) {
         event.preventDefault();
