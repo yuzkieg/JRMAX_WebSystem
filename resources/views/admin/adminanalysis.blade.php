@@ -588,7 +588,7 @@ function switchRevenuePeriod(period) {
 
 // Load revenue data
 function loadRevenueData(period) {
-    fetch(`/admin/analysis/stats`)
+    fetch(`/admin/analysis/stats?period=${period}`)
         .then(r => r.json())
         .then(data => {
             updateRevenueStats(data, period);
@@ -639,31 +639,27 @@ function updateRevenueChart(data, period) {
         revenueChart.destroy();
     }
     
-    // Prepare chart data based on period
-    let labels, chartData, backgroundColor;
+    // Use chart data from API response
+    let labels = [];
+    let chartData = [];
+    let backgroundColor;
     
-    if (period === 'today') {
-        // Last 24 hours in 4-hour intervals
-        labels = ['12 AM', '4 AM', '8 AM', '12 PM', '4 PM', '8 PM'];
-        chartData = [1200, 800, 1500, 2500, 1800, 900]; // Example data
-        backgroundColor = 'rgba(239, 68, 68, 0.3)';
-    } else if (period === 'monthly') {
-        // Last 30 days
+    if (data.chart_data && data.chart_data.labels && data.chart_data.data) {
+        // Use real data from API
+        labels = data.chart_data.labels;
+        chartData = data.chart_data.data;
+    } else {
+        // Fallback to empty data if chart_data is not available
         labels = [];
         chartData = [];
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(date.getDate());
-            // Example data - random values between 500 and 5000
-            chartData.push(Math.floor(Math.random() * 4500) + 500);
-        }
+    }
+    
+    // Set background color based on period
+    if (period === 'today') {
+        backgroundColor = 'rgba(239, 68, 68, 0.3)';
+    } else if (period === 'monthly') {
         backgroundColor = 'rgba(59, 130, 246, 0.3)';
     } else {
-        // Total - last 12 months
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        labels = months;
-        chartData = months.map(() => Math.floor(Math.random() * 20000) + 5000);
         backgroundColor = 'rgba(16, 185, 129, 0.3)';
     }
     

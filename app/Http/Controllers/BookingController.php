@@ -81,7 +81,7 @@ class BookingController extends Controller
             'vehicle_ids' => 'required|array|min:1',
             'vehicle_ids.*' => 'exists:vehicles,vehicle_id',
             'total_price' => 'required|numeric|min:0',
-            'status_id' => 'required|exists:booking_statuses,status_id',
+            'status_id' => 'required|exists:bookingstatus,status_id',
             'payment_method' => 'nullable|string',
             'special_requests' => 'nullable|string'
         ]);
@@ -156,102 +156,46 @@ class BookingController extends Controller
         }
     }
     public function update(Request $request, $id)
-{
-    // Find the booking
-    $booking = Booking::findOrFail($id);
-
-    // Validate the request
-    $validated = $request->validate([
-        'client_first_name' => 'required|string|max:255',
-        'client_last_name' => 'required|string|max:255',
-        'client_contact' => 'required|string|max:50',
-        'client_email' => 'required|email|max:255',
-        'client_license' => 'nullable|string|max:255',
-        'client_address' => 'nullable|string|max:500',
-        'start_datetime' => 'required|date_format:Y-m-d\TH:i',
-        'end_datetime' => 'required|date_format:Y-m-d\TH:i|after:start_datetime',
-        'pickup_location' => 'required|string|max:255',
-        'dropoff_location' => 'required|string|max:255',
-        'driver_id' => 'nullable|exists:drivers,id',
-        'vehicle_ids' => 'required|array|min:1',
-        'vehicle_ids.*' => 'exists:vehicles,vehicle_id',
-        'total_price' => 'required|numeric|min:0',
-        'status_id' => 'required|exists:booking_statuses,status_id',
-        'payment_method' => 'nullable|string',
-        'special_requests' => 'nullable|string'
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        // Handle client update or creation
-        $client = Client::updateOrCreate(
-            [
-                'email' => $validated['client_email']
-            ],
-            [
-                'first_name' => $validated['client_first_name'],
-                'last_name' => $validated['client_last_name'],
-                'contact_number' => $validated['client_contact'],
-                'address' => $validated['client_address'],
-                'license_number' => $validated['client_license']
-            ]
-        );
-
-        // Parse start and end datetime
-        $start = Carbon::parse($validated['start_datetime']);
-        $end = Carbon::parse($validated['end_datetime']);
-
-        // Check vehicle availability (exclude current booking)
-        foreach ($validated['vehicle_ids'] as $vehicleId) {
-            $isAvailable = $this->checkVehicleAvailability($vehicleId, $start, $end, $booking->id);
-            if (!$isAvailable) {
-                $vehicle = Vehicle::where('vehicle_id', $vehicleId)->first();
-                return back()->with('error', "Vehicle {$vehicle->plate_num} is not available for the selected dates.");
-            }
-        }
-
-        // Update booking details
-        $booking->update([
-            'client_id' => $client->client_id,
-            'start_datetime' => $start,
-            'end_datetime' => $end,
-            'pickup_location' => $validated['pickup_location'],
-            'dropoff_location' => $validated['dropoff_location'],
-            'driver_id' => $validated['driver_id'] ?? null,
-            'total_price' => $validated['total_price'],
-            'status_id' => $validated['status_id'],
-            'payment_method' => $validated['payment_method'] ?? null,
-            'special_requests' => $validated['special_requests'] ?? null,
-            'updated_by' => auth()->id()
+    {
+        // Admin edit should ONLY allow: Assign Driver, Booking Status, Payment Method, Notes.
+        $validated = $request->validate([
+            'driver_id' => 'nullable|exists:drivers,id',
+            'status_id' => 'required|exists:bookingstatus,status_id',
+            'payment_method' => 'nullable|string|max:50',
+            'special_requests' => 'nullable|string|max:2000',
         ]);
 
-        // Detach previous vehicles
-        $booking->vehicles()->delete();
+        $booking = Booking::with('vehicles')->findOrFail($id);
 
-        // Assign new vehicles
-        foreach ($validated['vehicle_ids'] as $vehicleId) {
-            BookingVehicle::create([
-                'booking_id' => $booking->boarding_id,
-                'vehicle_id' => $vehicleId,
-                'assigned_by' => auth()->id(),
-                'assigned_at' => now(),
-                'remarks' => 'Updated booking'
+        DB::beginTransaction();
+        try {
+            $booking->update([
+                'driver_id' => $validated['driver_id'] ?? null,
+                'status_id' => $validated['status_id'],
+                'payment_method' => $validated['payment_method'] ?? null,
+                'special_requests' => $validated['special_requests'] ?? null,
+                'updated_by' => auth()->id(),
             ]);
-            if (in_array($validated['status_id'], [2, 3])) {
-                Vehicle::where('vehicle_id', $vehicleId)->update(['is_available' => false]);
+
+            // Keep vehicle availability in sync with status changes
+            $vehicleIds = $booking->vehicles?->pluck('vehicle_id')->filter()->values() ?? collect();
+            if ($vehicleIds->isNotEmpty()) {
+                if (in_array((int) $validated['status_id'], [2, 3], true)) {
+                    Vehicle::whereIn('vehicle_id', $vehicleIds)->update(['is_available' => false]);
+                }
+                if (in_array((int) $validated['status_id'], [4, 5], true)) {
+                    Vehicle::whereIn('vehicle_id', $vehicleIds)->update(['is_available' => true]);
+                }
             }
+
+            DB::commit();
+            return redirect()->route('admin.booking')->with('success', 'Booking updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error updating booking', ['error' => $e->getMessage()]);
+            return back()->with('error', 'Error updating booking: ' . $e->getMessage());
         }
-
-        DB::commit();
-
-        return redirect()->route('admin.booking')->with('success', 'Booking updated successfully!');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('Error updating booking', ['error' => $e->getMessage()]);
-        return back()->with('error', 'Error updating booking: ' . $e->getMessage());
     }
-}
 
     /**
      * Display booking details with comprehensive information
@@ -263,7 +207,6 @@ class BookingController extends Controller
             'vehicles.vehicle.driverInfo',
             'vehicles.assignedBy',
             'driver',
-            'driver.user',
             'status',
             'createdBy',
             'updatedBy'
@@ -287,8 +230,8 @@ class BookingController extends Controller
                     'boarding_id' => $booking->boarding_id,
                     'client_id' => $booking->client_id,
                     'boarding_date' => $booking->boarding_date,
-                    'start_datetime' => $start->format('Y-m-d H:i'),
-                    'end_datetime' => $end->format('Y-m-d H:i'),
+                    'start_datetime' => $start->format('Y-m-d\TH:i'),
+                    'end_datetime' => $end->format('Y-m-d\TH:i'),
                     'duration' => [
                         'hours' => $durationHours,
                         'days' => $durationDays,
@@ -308,7 +251,7 @@ class BookingController extends Controller
                         'first_name' => $booking->client->first_name,
                         'last_name' => $booking->client->last_name,
                         'email' => $booking->client->email,
-                        'contact_number' => $booking->client->phone_number,
+                        'contact_number' => $booking->client->contact_number,
                         'address' => $booking->client->address,
                         'identification_type' => $booking->client->identification_type,
                         'identification_number' => $booking->client->identification_number
@@ -328,11 +271,11 @@ class BookingController extends Controller
                         ];
                     }),
                     'driver' => $booking->driver ? [
-                        'id' => $booking->driver->driver_id,
-                        'full_name' => $booking->driver->full_name,
-                        'license_number' => $booking->driver->license_number,
-                        'contact_number' => $booking->driver->phone_number,
-                        'email' => $booking->driver->user?->email
+                        'id' => $booking->driver->id,
+                        'full_name' => $booking->driver->full_name ?? $booking->driver->name ?? null,
+                        'license_number' => $booking->driver->license_number ?? $booking->driver->license_num ?? null,
+                        'contact_number' => $booking->driver->phone_number ?? $booking->driver->contact_number ?? null,
+                        'email' => $booking->driver->email ?? null
                     ] : null,
                     'status' => [
                         'id' => $booking->status->status_id,

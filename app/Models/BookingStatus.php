@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BookingStatus extends Model
 {
+    protected $table = 'bookingstatus';
     protected $primaryKey = 'status_id';
-    protected $table = 'BookingStatus';
-    
-    protected $fillable = ['status_name', 'color'];
 }

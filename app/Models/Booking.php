@@ -47,12 +47,12 @@ class Booking extends Model
 
     public function driver()
     {
-        return $this->belongsTo(Driver::class, 'id', 'id');
+        return $this->belongsTo(Driver::class, 'driver_id', 'id');
     }
 
     public function status()
     {
-        return $this->belongsTo(BookingStatus::class, 'status_id');
+        return $this->belongsTo(BookingStatus::class, 'status_id', 'status_id');
     }
 
     public function createdBy()

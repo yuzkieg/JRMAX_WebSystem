@@ -48,6 +48,8 @@ Route::middleware(['web', 'superadmin'])->group(function () {
 Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/adminanalysis', [AdminDashboardController::class, 'index'])
         ->name('admin.adminanalysis');
+    Route::get('/admin/analysis/stats', [AdminDashboardController::class, 'stats'])
+        ->name('admin.analysis.stats');
     Route::get('/admin/users', [EmployeeController::class, 'usermanagement'])
         ->name('admin.users');
     Route::get('/admin/adminhr', [EmployeeRecord::class, 'index'])
