@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
+    use Auditable;
     protected $primaryKey = 'boarding_id';
     protected $table = 'bookings';
     
@@ -96,4 +98,10 @@ class Booking extends Model
     {
         return $this->status ? $this->status->color : '#6B7280';
     }
+
+    protected function getAuditModule()
+    {
+        return 'Bookings';
+    }
+
 }
