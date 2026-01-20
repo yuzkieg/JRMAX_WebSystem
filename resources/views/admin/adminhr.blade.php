@@ -100,6 +100,15 @@ tbody {
     z-index: 9999;
 }
 
+/* Driver extra columns styling */
+.driver-extra-column {
+    display: none;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 </style>
 
 <div class="flex min-h-screen text-white transition-colors duration-500">
@@ -188,6 +197,9 @@ tbody {
                         <th class="p-4">Name</th>
                         <th class="p-4">Email</th>
                         <th class="p-4" id="thirdColumnHeader">Position / License</th>
+                        <th class="p-4" id="addressColumnHeader" style="display:none;">Address</th>
+                        <th class="p-4" id="contactColumnHeader" style="display:none;">Contact Number</th>
+                        <th class="p-4" id="statusColumnHeader" style="display:none;">Status</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
                 </thead>
@@ -255,7 +267,10 @@ tbody {
                                                 data-name="{{ $driver->name }}"
                                                 data-email="{{ $driver->email }}"
                                                 data-license="{{ $driver->license_num }}"
-                                                data-date="{{ $driver->dateadded }}">
+                                                data-date="{{ $driver->dateadded }}"
+                                                data-address="{{ $driver->address ?? '' }}"
+                                                data-contact="{{ $driver->contact_number ?? '' }}"
+                                                data-status="{{ $driver->status ?? 'active' }}">
                                             <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
                                             <span>Edit</span>
                                         </button>
@@ -279,7 +294,7 @@ tbody {
         {{-- ADD/EDIT MODAL --}}
         <div id="employeeModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="employeeBackdrop"></div>
-            <div id="employeeModalCard" class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+            <div id="employeeModalCard" class="modal-content relative w-full max-w-2xl p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300 max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-bold text-red-500 mb-4" id="modalTitle">Add Employee</h2>
                 {{-- CLIENT-SIDE VALIDATION MESSAGES --}}
                 <div id="clientSideErrors" class="hidden mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm">
@@ -323,6 +338,30 @@ tbody {
                         <label class="block font-semibold mb-1">Date Added</label>
                         <input type="date" name="dateadded" id="driver_dateadded"
                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                    </div>
+                    <div class="mb-4" id="addressField" style="display:none;">
+                        <label class="block font-semibold mb-1">Address</label>
+                        <input type="text" name="address" id="driver_address"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="Enter address">
+                        <span class="text-red-400 text-sm hidden" id="addressError"></span>
+                    </div>
+                    <div class="mb-4" id="contactNumberField" style="display:none;">
+                        <label class="block font-semibold mb-1">Contact Number <span class="text-red-400">*</span></label>
+                        <input type="text" name="contact_number" id="driver_contact_number" required
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"
+                               placeholder="09XX XXX XXXX" pattern="[0-9+\-\s()]+" maxlength="20">
+                        <span class="text-red-400 text-sm hidden" id="contactNumberError"></span>
+                        <p class="text-xs text-gray-400 mt-1">Format: 09XX XXX XXXX or +63 XXX XXX XXXX</p>
+                    </div>
+                    <div class="mb-4" id="statusField" style="display:none;">
+                        <label class="block font-semibold mb-1">Status</label>
+                        <select name="status" id="driver_status" 
+                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            <option value="active" selected>Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                        <span class="text-red-400 text-sm hidden" id="statusError"></span>
                     </div>
                     <div class="flex justify-end mt-6 gap-3">
                         <button type="button" id="closeEmployeeModalBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-200">Cancel</button>
@@ -399,6 +438,11 @@ document.addEventListener('DOMContentLoaded', () => {
             navDrivers.classList.add('bg-black/30');
             addBtn.textContent = '+ Add Employee';
             document.getElementById('thirdColumnHeader').textContent = 'Position';
+            // Hide driver-specific columns
+            document.getElementById('addressColumnHeader').style.display = 'none';
+            document.getElementById('contactColumnHeader').style.display = 'none';
+            document.getElementById('statusColumnHeader').style.display = 'none';
+            document.querySelectorAll('.driver-extra-column').forEach(col => col.style.display = 'none');
         } else {
             navDrivers.classList.add('bg-red-700'); 
             navDrivers.classList.remove('bg-black/30');
@@ -406,6 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
             navEmployees.classList.add('bg-black/30');
             addBtn.textContent = '+ Add Driver';
             document.getElementById('thirdColumnHeader').textContent = 'License';
+            // Show driver-specific columns
+            document.getElementById('addressColumnHeader').style.display = 'table-cell';
+            document.getElementById('contactColumnHeader').style.display = 'table-cell';
+            document.getElementById('statusColumnHeader').style.display = 'table-cell';
+            document.querySelectorAll('.driver-extra-column').forEach(col => col.style.display = 'table-cell');
         }
         // Filter the table
         filterTableRows(type);
@@ -455,12 +504,21 @@ document.addEventListener('DOMContentLoaded', () => {
             positionField.style.display = 'none';
             licenseField.style.display = 'block';
             dateAddedField.style.display = 'block';
+            addressField.style.display = 'block';
+            contactNumberField.style.display = 'block';
+            statusField.style.display = 'block';
             document.getElementById('employee_license').value = data.license_num || '';
             document.getElementById('driver_dateadded').value = data.dateadded || '';
+            document.getElementById('driver_address').value = data.address || '';
+            document.getElementById('driver_contact_number').value = data.contact_number || '';
+            document.getElementById('driver_status').value = data.status || 'active';
         } else {
             positionField.style.display = 'block';
             licenseField.style.display = 'none';
             dateAddedField.style.display = 'none';
+            addressField.style.display = 'none';
+            contactNumberField.style.display = 'none';
+            statusField.style.display = 'none';
             document.getElementById('employee_role').value = data.role || '';
         }
 
@@ -542,6 +600,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 errors.push('License number is required');
                 isValid = false;
             }
+            
+            const contactNumber = document.getElementById('driver_contact_number').value.trim();
+            if (!contactNumber) {
+                showError('contactNumber', 'Contact number is required');
+                errors.push('Contact number is required');
+                isValid = false;
+            } else {
+                // Validate contact number format (Philippines format)
+                const contactRegex = /^(\+63|0)?[9]\d{9}$|^(\+63|0)?[2-8]\d{7,9}$/;
+                const cleanedContact = contactNumber.replace(/[\s\-()]/g, '');
+                if (!contactRegex.test(cleanedContact)) {
+                    showError('contactNumber', 'Please enter a valid contact number (e.g., 09123456789 or +639123456789)');
+                    errors.push('Please enter a valid contact number');
+                    isValid = false;
+                }
+            }
         }
 
         if (!isValid) {
@@ -566,7 +640,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 email: btn.dataset.email,
                 role: btn.dataset.role,
                 license_num: btn.dataset.license,
-                dateadded: btn.dataset.date
+                dateadded: btn.dataset.date,
+                address: btn.dataset.address || '',
+                contact_number: btn.dataset.contact || '',
+                status: btn.dataset.status || 'active'
             });
         });
     });

@@ -13,7 +13,7 @@ class VehicleMaintenanceController extends Controller
     public function index()
     {
         // Eager load relationships
-        $maintenances = VehicleMaintenance::with(['vehicle', 'reporter'])->get();
+        $maintenances = VehicleMaintenance::with(['vehicle', 'reporter', 'handler'])->get();
         $vehicles = Vehicle::all();
         $users = User::whereIn('role', ['admin', 'fleet_assistant'])->get();
         
@@ -23,7 +23,7 @@ class VehicleMaintenanceController extends Controller
     public function edit($id)
 {
     try {
-        $maintenance = VehicleMaintenance::with('vehicle')
+        $maintenance = VehicleMaintenance::with(['vehicle', 'handler', 'reporter'])
             ->where('maintenance_ID', $id)
             ->firstOrFail();
         
@@ -45,10 +45,16 @@ class VehicleMaintenanceController extends Controller
                 'scheduled_date' => 'required|date|after_or_equal:today',
                 'cost' => 'required|numeric|min:0',
                 'status' => 'required|in:scheduled,in progress,completed,cancelled',
+                'handled_by' => 'nullable|exists:users,id',
             ]);
 
             // Set current user as reporter
             $validated['reported_by'] = auth()->id();
+            
+            // Set handled_by to current user if not specified
+            if (!isset($validated['handled_by']) || empty($validated['handled_by'])) {
+                $validated['handled_by'] = auth()->id();
+            }
             
             // If status is 'in progress', set started_at
             if ($validated['status'] === 'in progress') {
@@ -98,6 +104,7 @@ class VehicleMaintenanceController extends Controller
                 'scheduled_date' => 'required|date',
                 'cost' => 'required|numeric|min:0',
                 'status' => 'required|in:scheduled,in progress,completed,cancelled',
+                'handled_by' => 'nullable|exists:users,id',
             ]);
 
             // Handle status transitions

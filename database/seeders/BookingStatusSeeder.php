@@ -15,43 +15,43 @@ class BookingStatusSeeder extends Seeder
         $statuses = [
             [
                 'status_name' => 'Pending',
-                'color' => '#3B82F6', // Blue
+                'color' => '#3B82F6',
                 'description' => 'Booking is pending approval',
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'status_name' => 'Confirmed',
-                'color' => '#10B981', // Green
+                'color' => '#10B981',
                 'description' => 'Booking has been confirmed',
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'status_name' => 'Ongoing',
-                'color' => '#F59E0B', // Yellow
+                'color' => '#F59E0B',
                 'description' => 'Booking is currently active',
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'status_name' => 'Completed',
-                'color' => '#6B7280', // Gray
+                'color' => '#6B7280',
                 'description' => 'Booking has been completed',
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
             [
                 'status_name' => 'Cancelled',
-                'color' => '#EF4444', // Red
+                'color' => '#EF4444',
                 'description' => 'Booking has been cancelled',
-                'created_at' => now(),
-                'updated_at' => now(),
             ],
         ];
 
-        DB::table('BookingStatus')->insert($statuses);
-        
+        foreach ($statuses as $status) {
+            DB::table('bookingstatus')->updateOrInsert(
+                ['status_name' => $status['status_name']], // unique key
+                [
+                    'color' => $status['color'],
+                    'description' => $status['description'],
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
+        }
+
         $this->command->info('✅ Booking statuses seeded successfully!');
     }
 }

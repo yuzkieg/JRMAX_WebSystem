@@ -25,6 +25,11 @@ class DriverRecord extends Controller
             'email' => 'required|email|max:100|unique:drivers,email',
             'license_num' => 'required|string|max:13|unique:drivers,license_num',
             'dateadded' => 'nullable|date',
+            'address' => 'nullable|string|max:500',
+            'contact_number' => ['required', 'string', 'max:20', 'regex:/^(\+63|0)?[9]\d{9}$|^(\+63|0)?[2-8]\d{7,9}$/'],
+            'status' => 'nullable|in:active,inactive',
+        ], [
+            'contact_number.regex' => 'Please enter a valid contact number (e.g., 09123456789 or +639123456789)',
         ]);
 
         $dateadded = $request->input('dateadded', now());
@@ -34,6 +39,9 @@ class DriverRecord extends Controller
             'email' => $request->input('email'),
             'license_num' => $license,
             'dateadded' => $dateadded,
+            'address' => $request->input('address'),
+            'contact_number' => $request->input('contact_number'),
+            'status' => $request->input('status', 'active'),
         ]);
 
         return redirect()->back()->with('success', 'Driver added successfully.');
@@ -51,6 +59,11 @@ class DriverRecord extends Controller
             'email' => 'required|email|max:100|unique:drivers,email,' . $id,
             'license_num' => 'required|string|max:13|unique:drivers,license_num,' . $id,
             'dateadded' => 'nullable|date',
+            'address' => 'nullable|string|max:500',
+            'contact_number' => ['required', 'string', 'max:20', 'regex:/^(\+63|0)?[9]\d{9}$|^(\+63|0)?[2-8]\d{7,9}$/'],
+            'status' => 'nullable|in:active,inactive',
+        ], [
+            'contact_number.regex' => 'Please enter a valid contact number (e.g., 09123456789 or +639123456789)',
         ]);
 
         $driver->update([
@@ -58,6 +71,9 @@ class DriverRecord extends Controller
             'email' => $request->input('email'),
             'license_num' => $license,
             'dateadded' => $request->input('dateadded', $driver->dateadded),
+            'address' => $request->input('address'),
+            'contact_number' => $request->input('contact_number'),
+            'status' => $request->input('status', $driver->status ?? 'active'),
         ]);
 
         return redirect()->back()->with('success', 'Driver updated successfully.');

@@ -41,7 +41,7 @@ class Payment extends Model
 
     public function issuedBy()
     {
-        return $this->belongsTo(User::class, 'issued_by', 'Next_id');
+        return $this->belongsTo(User::class, 'issued_by', 'id');
     }
 
     public function invoice()

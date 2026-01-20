@@ -16,6 +16,7 @@ class VehicleMaintenance extends Model
     protected $fillable = [
         'vehicle_ID',
         'reported_by',
+        'handled_by',
         'maintenance_type',
         'description',
         'odometer_reading',
@@ -43,6 +44,12 @@ class VehicleMaintenance extends Model
     public function reporter()
     {
         return $this->belongsTo(User::class, 'reported_by');
+    }
+
+    // Relationship with User (handler)
+    public function handler()
+    {
+        return $this->belongsTo(User::class, 'handled_by');
     }
 
     protected function getAuditModule()

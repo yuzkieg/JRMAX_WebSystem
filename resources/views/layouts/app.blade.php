@@ -331,6 +331,7 @@ aside {
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: white;
+    text-align: right;
 }
 
 .stat-label {
@@ -338,6 +339,11 @@ aside {
     opacity: 0.9;
     margin-bottom: 0.5rem;
     color: white;
+    text-align: right;
+}
+
+.stat-trend {
+    text-align: right;
 }
 
 .stat-trend {

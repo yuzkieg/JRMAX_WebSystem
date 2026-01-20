@@ -448,23 +448,76 @@ tbody {
             </div>
         </div>
 
-        {{-- DELETE VEHICLE MODAL --}}
-        <div id="deleteVehicleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="deleteVehicleBackdrop"></div>
-            <div class="modal-content relative w-96 p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
-                <h2 class="text-2xl font-bold text-red-500 mb-4">Confirm Delete</h2>
-                <p class="mb-4 text-gray-300">Enter your password to confirm deletion of <span id="deleteVehicleName" class="font-semibold text-white"></span>.</p>
-                
-                {{-- DELETE ERROR MESSAGE --}}
-                <div id="deleteVehicleError" class="hidden error-message mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm" style="min-height: 2.5rem; display: none;">
-                    <span id="deleteVehicleErrorText"></span>
+        {{-- VEHICLE HANDOVER/RETURN MODAL --}}
+        <div id="handoverReturnModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="handoverReturnBackdrop"></div>
+            <div class="modal-content relative w-full max-w-md p-6 rounded-2xl shadow-2xl bg-[#262B32] transform scale-90 opacity-0 transition-all duration-300">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+                    <h2 class="text-2xl font-bold text-red-500" id="handoverReturnModalTitle">Vehicle Handover</h2>
+                    <button type="button" onclick="closeHandoverReturnModal()" class="text-gray-400 hover:text-white text-2xl font-light cursor-pointer">
+                        &times;
+                    </button>
                 </div>
-                
-                <form id="deleteVehicleForm">
-                    <input type="password" id="deleteConfirmPassword" required placeholder="Enter your password" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 mb-4">
-                    <div class="flex justify-end gap-3">
-                        <button type="button" id="cancelDeleteVehicleBtn" class="cursor-pointer px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">Cancel</button>
-                        <button type="submit" class="cursor-pointer px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white">Delete</button>
+
+                {{-- ERROR MESSAGE --}}
+                <div id="handoverReturnError" class="hidden error-message mb-4 p-3 bg-red-600/20 border border-red-500 rounded-lg text-red-300 text-sm"></div>
+
+                <form id="handoverReturnForm">
+                    <input type="hidden" id="handover_vehicle_id">
+                    <input type="hidden" id="handover_action_type"> <!-- 'handover' or 'return' -->
+                    <input type="hidden" id="handover_booking_id">
+
+                    {{-- Vehicle Info Display --}}
+                    <div class="mb-6 p-4 bg-black/20 rounded-xl">
+                        <div class="text-sm text-gray-400 mb-2">Vehicle Details</div>
+                        <div class="font-semibold text-lg" id="handover_vehicle_info">—</div>
+                        <div class="text-sm text-gray-300 mt-1" id="handover_vehicle_status">—</div>
+                    </div>
+
+                    {{-- Password Field --}}
+                    <div class="mb-4">
+                        <label class="block font-semibold mb-2" for="handover_password">Your Password *</label>
+                        <input type="password" id="handover_password" required 
+                               placeholder="Enter your password to confirm"
+                               class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                        <p class="text-xs text-gray-400 mt-1">This confirms you are authorizing this action</p>
+                    </div>
+
+                    {{-- Client Selector --}}
+                    <div class="mb-4" id="clientSelectorContainer">
+                        <label class="block font-semibold mb-2" for="handover_client_id">Client *</label>
+                        <select id="handover_client_id" required
+                                class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                            <option value="">-- Select Client --</option>
+                            @if(isset($clients) && $clients->count() > 0)
+                                @foreach($clients as $client)
+                                    <option value="{{ $client->Editor_id }}">
+                                        {{ $client->first_name }} {{ $client->last_name }} ({{ $client->email }})
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="">No clients available</option>
+                            @endif
+                        </select>
+                    </div>
+
+                    {{-- Action-specific fields --}}
+                    <div class="mb-4" id="handoverNotesContainer">
+                        <label class="block font-semibold mb-2" for="handover_notes">Notes (Optional)</label>
+                        <textarea id="handover_notes" rows="3" 
+                                  placeholder="Add any notes about the handover/return..."
+                                  class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 mt-6">
+                        <button type="button" onclick="closeHandoverReturnModal()" 
+                                class="cursor-pointer px-5 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all">
+                            Cancel
+                        </button>
+                        <button type="submit" id="handoverReturnSubmitBtn" 
+                                class="cursor-pointer px-5 py-2 bg-green-700 hover:bg-green-500 rounded-lg text-white transition-all">
+                            Confirm
+                        </button>
                     </div>
                 </form>
             </div>
@@ -564,17 +617,20 @@ function renderVehiclesTable() {
                         </button>
 
                         <div class="actions-menu hidden absolute right-0 mt-2 w-44 bg-[#262B32] rounded-lg shadow-xl z-50 border border-white/10" style="transform: translateZ(0); pointer-events: auto;">
-                            <button class="edit-btn edit-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
-                                    data-id="${vehicle.vehicle_id}">
-                                <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
-                                <span>Edit</span>
+                            <button class="handover-btn handover-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5 ${!isAvailable ? 'opacity-50 cursor-not-allowed' : ''}"
+                                    data-id="${vehicle.vehicle_id}"
+                                    data-status="${isAvailable ? 'available' : 'on_client'}"
+                                    ${!isAvailable ? 'disabled title="Vehicle is already with client"' : ''}>
+                                <img src="{{ asset('assets/file.png') }}" alt="Handover" class="w-5 h-5">
+                                <span>Send to Client</span>
                             </button>
 
-                            <button class="delete-btn delete-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5"
+                            <button class="return-btn return-vehicle-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5 ${isAvailable ? 'opacity-50 cursor-not-allowed' : ''}"
                                     data-id="${vehicle.vehicle_id}"
-                                    data-name="${vehicle.plate_num}">
-                                <img src="{{ asset('assets/delete.png') }}" alt="Delete" class="w-5 h-5">
-                                <span>Delete</span>
+                                    data-status="${isAvailable ? 'available' : 'on_client'}"
+                                    ${isAvailable ? 'disabled title="Vehicle is already available"' : ''}>
+                                <img src="{{ asset('assets/file.png') }}" alt="Return" class="w-5 h-5">
+                                <span>Receive from Client</span>
                             </button>
                         </div>
                     </div>
@@ -602,50 +658,12 @@ class VehicleModal {
     initializeEvents() {
         document.getElementById('addVehicleBtn').addEventListener('click', () => this.openModal());
         this.backdrop.addEventListener('click', () => this.closeModal());
-
-        document.addEventListener('click', async (e) => {
-            const editBtn = e.target.closest('.edit-vehicle-btn');
-            if (!editBtn) return;
-
-            const id = editBtn.dataset.id;
-            const vehicle = vehicles.find(v => v.vehicle_id == id);
-            if (!vehicle) return;
-
-            this.openEditModal(vehicle);
-        });
-
         this.form.addEventListener('submit', (e) => this.handleSave(e));
     }
 
     openModal() {
         this.resetForm();
         document.getElementById('vehicleModalTitle').textContent = 'Add Vehicle';
-        this.showModal();
-    }
-
-    openEditModal(vehicle) {
-        this.resetForm();
-        document.getElementById('vehicleModalTitle').textContent = 'Edit Vehicle';
-
-        // Set form values
-        document.getElementById('vehicle_id').value = vehicle.vehicle_id;
-        document.getElementById('plate_no').value = vehicle.plate_num;
-        document.getElementById('brand').value = vehicle.brand;
-        document.getElementById('model').value = vehicle.model;
-        document.getElementById('year').value = vehicle.year;
-        document.getElementById('body_type').value = vehicle.body_type;
-        document.getElementById('seat_cap').value = vehicle.seat_cap;
-        document.getElementById('transmission').value = vehicle.transmission;
-        document.getElementById('fuel_type').value = vehicle.fuel_type;
-        document.getElementById('color').value = vehicle.color;
-        document.getElementById('price_rate').value = vehicle.price_rate;
-        document.getElementById('driver').value = vehicle.driver?.id || vehicle.driver || "";
-        document.getElementById('is_available').checked = vehicle.is_available !== false;
-        
-        // Set image preview
-        const preview = document.getElementById('vehicleImagePreview');
-        preview.src = vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}";
-        
         this.showModal();
     }
 
@@ -1151,6 +1169,158 @@ async function loadVehicles() {
         setTimeout(() => errorDiv.remove(), 5000);
     }
 }
+
+/* -------------------------------
+   VEHICLE HANDOVER/RETURN MODAL LOGIC
+--------------------------------*/
+function openHandoverReturnModal(action, vehicle) {
+    const modal = document.getElementById('handoverReturnModal');
+    const modalCard = modal.querySelector('.modal-content');
+    const title = document.getElementById('handoverReturnModalTitle');
+    const vehicleId = document.getElementById('handover_vehicle_id');
+    const actionType = document.getElementById('handover_action_type');
+    const vehicleInfo = document.getElementById('handover_vehicle_info');
+    const vehicleStatus = document.getElementById('handover_vehicle_status');
+    const submitBtn = document.getElementById('handoverReturnSubmitBtn');
+    
+    // Set vehicle ID and action type
+    vehicleId.value = vehicle.vehicle_id;
+    actionType.value = action;
+    
+    // Set vehicle info
+    vehicleInfo.textContent = `${vehicle.plate_num} - ${vehicle.brand} ${vehicle.model} (${vehicle.year})`;
+    vehicleStatus.textContent = `Current Status: ${vehicle.is_available ? 'Available' : 'On Client'}`;
+    
+    // Update modal title and button text
+    if (action === 'handover') {
+        title.textContent = 'Send Vehicle to Client';
+        submitBtn.textContent = 'Confirm Handover';
+        submitBtn.className = 'cursor-pointer px-5 py-2 bg-green-700 hover:bg-green-500 rounded-lg text-white transition-all';
+    } else {
+        title.textContent = 'Receive Vehicle from Client';
+        submitBtn.textContent = 'Confirm Return';
+        submitBtn.className = 'cursor-pointer px-5 py-2 bg-blue-700 hover:bg-blue-500 rounded-lg text-white transition-all';
+    }
+    
+    // Reset form
+    document.getElementById('handoverReturnForm').reset();
+    document.getElementById('handover_vehicle_id').value = vehicle.vehicle_id;
+    document.getElementById('handover_action_type').value = action;
+    document.getElementById('handoverReturnError').classList.add('hidden');
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modalCard.classList.remove('scale-90', 'opacity-0');
+        modalCard.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeHandoverReturnModal() {
+    const modal = document.getElementById('handoverReturnModal');
+    const modalCard = modal.querySelector('.modal-content');
+    modalCard.classList.remove('scale-100', 'opacity-100');
+    modalCard.classList.add('scale-90', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('handoverReturnForm').reset();
+        document.getElementById('handoverReturnError').classList.add('hidden');
+    }, 300);
+}
+
+// Handle handover/return button clicks
+document.addEventListener('click', function(e) {
+    const handoverBtn = e.target.closest('.handover-vehicle-btn');
+    const returnBtn = e.target.closest('.return-vehicle-btn');
+    
+    if (handoverBtn && !handoverBtn.disabled) {
+        const vehicleId = handoverBtn.dataset.id;
+        const vehicle = vehicles.find(v => v.vehicle_id == vehicleId);
+        if (vehicle && vehicle.is_available) {
+            openHandoverReturnModal('handover', vehicle);
+        }
+        return;
+    }
+    
+    if (returnBtn && !returnBtn.disabled) {
+        const vehicleId = returnBtn.dataset.id;
+        const vehicle = vehicles.find(v => v.vehicle_id == vehicleId);
+        if (vehicle && !vehicle.is_available) {
+            openHandoverReturnModal('return', vehicle);
+        }
+        return;
+    }
+});
+
+// Handle handover/return form submission
+document.getElementById('handoverReturnForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const vehicleId = document.getElementById('handover_vehicle_id').value;
+    const actionType = document.getElementById('handover_action_type').value;
+    const password = document.getElementById('handover_password').value;
+    const clientId = document.getElementById('handover_client_id').value;
+    const notes = document.getElementById('handover_notes').value;
+    const errorDiv = document.getElementById('handoverReturnError');
+    const submitBtn = document.getElementById('handoverReturnSubmitBtn');
+    
+    // Clear previous errors
+    errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
+    
+    // Validate
+    if (!password) {
+        errorDiv.textContent = 'Password is required';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    if (!clientId) {
+        errorDiv.textContent = 'Please select a client';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+        
+        const response = await fetch(`/employee/fleet/vehicles/${vehicleId}/${actionType}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                password: password,
+                client_id: clientId,
+                notes: notes
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            showSuccessMessage(result.message || `${actionType === 'handover' ? 'Vehicle handed over' : 'Vehicle returned'} successfully`);
+            closeHandoverReturnModal();
+            await loadVehicles(); // Reload vehicles
+        } else {
+            errorDiv.textContent = result.message || 'Error processing request';
+            errorDiv.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.classList.remove('hidden');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = actionType === 'handover' ? 'Confirm Handover' : 'Confirm Return';
+    }
+});
+
+// Backdrop click to close
+document.getElementById('handoverReturnBackdrop').addEventListener('click', closeHandoverReturnModal);
 
 /* -------------------------------
    GLOBAL FUNCTIONS FOR MODAL CLOSE BUTTONS

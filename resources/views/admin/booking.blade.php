@@ -153,7 +153,7 @@
 
                 <button id="newBookingBtn" type="button"
                         onclick="switchView('createView')"
-                        class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
+                        class="cursor-pointer px-5 py-2 bg-green-700 hover:bg-green-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">
                     + New Booking
                 </button>
             </div>
@@ -273,6 +273,10 @@
                                             <button type="button" class="edit-booking-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="{{ $booking->boarding_id }}" role="menuitem">
                                                 <img src="{{ asset('assets/edit.png') }}" alt="Edit" class="w-5 h-5">
                                                 <span>Edit</span>
+                                            </button>
+                                            <button type="button" class="process-payment-btn flex items-center gap-3 w-full px-3 py-2 text-white hover:bg-white/5" data-id="{{ $booking->boarding_id }}" role="menuitem">
+                                                <img src="{{ asset('assets/file.png') }}" alt="Payment" class="w-5 h-5">
+                                                <span>Process Payment</span>
                                             </button>
                                         </div>
                                     </div>
@@ -416,7 +420,7 @@
 
                     <div class="flex justify-end gap-3">
                         <button type="button" onclick="switchView('indexView')" class="cursor-pointer px-5 py-2 bg-blue-700 hover:bg-blue-500 rounded-xl text-white shadow-lg transition-all duration-300">Cancel</button>
-                        <button type="submit" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">Create Booking</button>
+                        <button type="submit" class="cursor-pointer px-5 py-2 bg-green-700 hover:bg-green-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">Create Booking</button>
                     </div>
                 </form>
             </div>
@@ -515,6 +519,41 @@
                         <div></div>
                     </div>
 
+                    {{-- Fleet Assistant Pickup/Dropoff Fields (only for self-drive bookings) --}}
+                    <div id="fleetAssistantFields" class="hidden mt-6 border-t border-white/10 pt-6">
+                        <h3 class="text-lg font-semibold text-red-500 mb-4">Vehicle Handover (Self-Drive Only)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div>
+                                <label class="font-semibold mb-2 block" for="edit_sent_by">Sent By (Fleet Assistant)</label>
+                                <select class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="sent_by" id="edit_sent_by">
+                                    <option value="">-- Select Fleet Assistant --</option>
+                                    @foreach(\App\Models\User::where('role', 'fleet_assistant')->orWhere('role', 'admin')->get() as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="font-semibold mb-2 block" for="edit_received_by">Received By (Client Name/Signature)</label>
+                                <input type="text" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="received_by" id="edit_received_by" placeholder="Client name or signature">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="font-semibold mb-2 block" for="edit_collected_by">Collected By (Fleet Assistant)</label>
+                                <select class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="collected_by" id="edit_collected_by">
+                                    <option value="">-- Select Fleet Assistant --</option>
+                                    @foreach(\App\Models\User::where('role', 'fleet_assistant')->orWhere('role', 'admin')->get() as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="font-semibold mb-2 block" for="edit_returned_by">Returned By (Client Name/Signature)</label>
+                                <input type="text" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="returned_by" id="edit_returned_by" placeholder="Client name or signature">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-6">
                         <label class="font-semibold mb-2 block" for="edit_special_requests">Notes (Editable)</label>
                         <textarea class="w-full p-3 rounded-xl bg-black/20 text-white placeholder-gray-300 outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="special_requests" id="edit_special_requests" rows="4"></textarea>
@@ -522,7 +561,71 @@
 
                     <div class="flex justify-end gap-3 mt-6">
                         <button type="button" onclick="switchView('indexView')" class="cursor-pointer px-5 py-2 bg-blue-700 hover:bg-blue-500 rounded-xl text-white shadow-lg transition-all duration-300">Cancel</button>
-                        <button type="submit" class="cursor-pointer px-5 py-2 bg-red-700 hover:bg-red-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">Update Booking</button>
+                        <button type="submit" class="cursor-pointer px-5 py-2 bg-yellow-700 hover:bg-yellow-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">Update Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- PROCESS PAYMENT MODAL --}}
+        <div id="paymentModal" class="view-section">
+            <div class="bg-[#262B32] rounded-2xl shadow-2xl p-8 backdrop-blur-xl border border-white/10 modal-card">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-red-500">Process Payment</h2>
+                    <button type="button" onclick="closePaymentModal()" class="text-white text-xl font-semibold hover:text-gray-300">✕</button>
+                </div>
+                
+                <div id="paymentBookingInfo" class="mb-6 p-4 bg-black/20 rounded-xl">
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-400">Booking ID:</span>
+                            <span class="text-white font-semibold" id="payment_booking_id">—</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Client:</span>
+                            <span class="text-white font-semibold" id="payment_client">—</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Total Amount:</span>
+                            <span class="text-white font-semibold" id="payment_total">—</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-400">Remaining Balance:</span>
+                            <span class="text-white font-semibold" id="payment_balance">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="paymentForm" method="POST">
+                    @csrf
+                    <input type="hidden" id="payment_booking_id_hidden" name="booking_id">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="font-semibold mb-2 block" for="payment_amount">Payment Amount *</label>
+                            <input type="number" step="0.01" min="0" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="amount" id="payment_amount" required placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="font-semibold mb-2 block" for="payment_method_select">Payment Method *</label>
+                            <select class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="payment_method" id="payment_method_select" required>
+                                <option value="">-- Select Payment Method --</option>
+                                <option value="cash">Cash</option>
+                                <option value="gcash">GCash</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="credit_card">Credit Card</option>
+                                <option value="online_transfer">Online Transfer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="font-semibold mb-2 block" for="payment_reference">Reference Number (Optional)</label>
+                        <input type="text" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 transition-all duration-300" name="reference_number" id="payment_reference" placeholder="Transaction reference number">
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closePaymentModal()" class="cursor-pointer px-5 py-2 bg-gray-600 hover:bg-gray-500 rounded-xl text-white shadow-lg transition-all duration-300">Cancel</button>
+                        <button type="submit" class="cursor-pointer px-5 py-2 bg-green-700 hover:bg-green-500 rounded-xl text-white shadow-lg transition-all duration-300 hover:scale-105">Process Payment & Generate Receipt</button>
                     </div>
                 </form>
             </div>
@@ -668,6 +771,21 @@
         document.getElementById('edit_status_id').value = booking.status_id ?? '';
         document.getElementById('edit_payment_method').value = booking.payment_method ?? '';
         document.getElementById('edit_special_requests').value = booking.special_requests ?? '';
+        
+        // Populate Fleet Assistant fields
+        document.getElementById('edit_sent_by').value = booking.sent_by ?? '';
+        document.getElementById('edit_received_by').value = booking.received_by ?? '';
+        document.getElementById('edit_collected_by').value = booking.collected_by ?? '';
+        document.getElementById('edit_returned_by').value = booking.returned_by ?? '';
+        
+        // Show Fleet Assistant fields only for self-drive bookings and if user is Fleet Assistant or Admin
+        const userRole = '{{ auth()->user()->role ?? "" }}';
+        const isFleetAssistant = userRole === 'fleet_assistant' || userRole === 'admin';
+        const isSelfDrive = booking.pickup_type === 'self_drive';
+        const fleetFields = document.getElementById('fleetAssistantFields');
+        if (fleetFields) {
+            fleetFields.classList.toggle('hidden', !(isFleetAssistant && isSelfDrive));
+        }
 
         document.getElementById('editBookingForm').action = `/admin/booking/${bookingId}`;
     }
@@ -745,6 +863,87 @@
                 alert(err.message || 'Failed to load booking details.');
             }
             return;
+        }
+
+        const paymentBtn = e.target.closest('.process-payment-btn');
+        if (paymentBtn) {
+            const id = paymentBtn.dataset.id;
+            try {
+                const booking = await fetchBooking(id);
+                openPaymentModal(booking);
+            } catch (err) {
+                console.error(err);
+                alert(err.message || 'Failed to load booking details.');
+            }
+            return;
+        }
+    });
+
+    function openPaymentModal(booking) {
+        const client = booking.client || {};
+        const totalPrice = parseFloat(booking.total_price || 0);
+        
+        // Calculate remaining balance (assuming we track paid amount in payments table)
+        // For now, we'll show the total as remaining balance
+        const remainingBalance = totalPrice; // TODO: Calculate from payment history
+        
+        document.getElementById('payment_booking_id').textContent = `#${String(booking.boarding_id ?? '').padStart(6, '0')}`;
+        document.getElementById('payment_client').textContent = `${client.first_name ?? ''} ${client.last_name ?? ''}`.trim() || 'N/A';
+        document.getElementById('payment_total').textContent = `₱${totalPrice.toFixed(2)}`;
+        document.getElementById('payment_balance').textContent = `₱${remainingBalance.toFixed(2)}`;
+        document.getElementById('payment_booking_id_hidden').value = booking.boarding_id ?? booking.id;
+        document.getElementById('payment_amount').value = remainingBalance.toFixed(2);
+        document.getElementById('payment_amount').max = remainingBalance;
+        
+        switchView('paymentModal');
+    }
+
+    function closePaymentModal() {
+        switchView('indexView');
+        document.getElementById('paymentForm').reset();
+    }
+
+    // Handle payment form submission
+    document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const bookingId = formData.get('booking_id');
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        
+        try {
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
+            
+            const response = await fetch(`/admin/booking/${bookingId}/process-payment`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                alert('Payment processed successfully! Receipt generated.');
+                if (result.receipt_url) {
+                    window.open(result.receipt_url, '_blank');
+                }
+                closePaymentModal();
+                // Reload bookings list
+                location.reload();
+            } else {
+                alert(result.message || 'Error processing payment');
+            }
+        } catch (error) {
+            console.error('Payment error:', error);
+            alert('Error processing payment: ' + error.message);
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
         }
     });
 

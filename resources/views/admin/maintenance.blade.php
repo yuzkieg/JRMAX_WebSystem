@@ -182,6 +182,7 @@ tbody {
                         <th class="p-4">Scheduled Date</th>
                         <th class="p-4">Cost</th>
                         <th class="p-4">Description</th>
+                        <th class="p-4">Handled By</th>
                         <th class="p-4">Status</th>
                         <th class="p-4 text-center">Actions</th>
                     </tr>
@@ -208,6 +209,9 @@ tbody {
                         </td>
                         <td class="p-4 max-w-xs truncate text-center" title="{{ $maintenance->description }}">
                             {{ Str::limit($maintenance->description, 50) }}
+                        </td>
+                        <td class="p-4 text-center">
+                            {{ $maintenance->handler->name ?? ($maintenance->reporter->name ?? 'N/A') }}
                         </td>
                         <td class="p-4 text-center">
                             @php
@@ -318,14 +322,28 @@ tbody {
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block font-semibold mb-1">Status *</label>
-                        <select id="status" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" required>
-                            <option value="scheduled">Scheduled</option>
-                            <option value="in progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block font-semibold mb-1">Handled By</label>
+                            <select id="handled_by" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="">Select User</option>
+                                @foreach($users as $user)
+                                <option value="{{ $user->id }}" {{ auth()->id() == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-400 mt-1">Defaults to current user if not specified</p>
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Status *</label>
+                            <select id="status" class="w-full p-3 rounded-xl bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500" required>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="in progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="flex justify-end mt-6 gap-3">
@@ -507,6 +525,7 @@ class MaintenanceModal {
             document.getElementById('odometer_reading').value = maintenance.odometer_reading || '';
             document.getElementById('scheduled_date').value = maintenance.scheduled_date;
             document.getElementById('cost').value = maintenance.cost;
+            document.getElementById('handled_by').value = maintenance.handled_by || '';
             document.getElementById('status').value = maintenance.status;
             
             this.showModal();
@@ -550,6 +569,7 @@ class MaintenanceModal {
         odometer_reading: document.getElementById('odometer_reading').value || null,
         scheduled_date: document.getElementById('scheduled_date').value,
         cost: document.getElementById('cost').value,
+        handled_by: document.getElementById('handled_by').value || null,
         status: document.getElementById('status').value,
     };
 

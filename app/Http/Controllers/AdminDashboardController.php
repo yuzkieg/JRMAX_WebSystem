@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\BookingStatus;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 
@@ -152,6 +154,86 @@ class AdminDashboardController extends Controller
     {
          $admins = User::where('role', 'admin')->get();
         return view('admin.users', compact('admins'));
+    }
+
+    /**
+     * Get dashboard report with date range filter
+     */
+    public function getReport(Request $request)
+    {
+        $validated = $request->validate([
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date|after_or_equal:from_date',
+        ]);
+
+        $fromDate = $validated['from_date'] ? Carbon::parse($validated['from_date'])->startOfDay() : null;
+        $toDate = $validated['to_date'] ? Carbon::parse($validated['to_date'])->endOfDay() : null;
+
+        // Build base query
+        $query = Booking::query();
+        
+        if ($fromDate && $toDate) {
+            $query->whereBetween('created_at', [$fromDate, $toDate]);
+        } elseif ($fromDate) {
+            $query->where('created_at', '>=', $fromDate);
+        } elseif ($toDate) {
+            $query->where('created_at', '<=', $toDate);
+        }
+
+        // Total bookings
+        $totalBookings = (clone $query)->count();
+
+        // Total revenue (from confirmed, ongoing, and completed bookings)
+        $totalRevenue = (clone $query)
+            ->whereIn('status_id', [2, 3, 4]) // Confirmed, Ongoing, Completed
+            ->sum('total_price');
+
+        // Booking count grouped by status
+        $bookingsByStatus = (clone $query)
+            ->select('status_id', DB::raw('count(*) as count'))
+            ->groupBy('status_id')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                $status = BookingStatus::find($item->status_id);
+                return [
+                    $status ? $status->status_name : 'Unknown' => $item->count
+                ];
+            })
+            ->toArray();
+
+        // Get status details for better response
+        $statusDetails = (clone $query)
+            ->join('BookingStatus', 'bookings.status_id', '=', 'BookingStatus.status_id')
+            ->select(
+                'BookingStatus.status_id',
+                'BookingStatus.status_name',
+                DB::raw('count(*) as count'),
+                DB::raw('sum(case when bookings.status_id in (2, 3, 4) then bookings.total_price else 0 end) as revenue')
+            )
+            ->groupBy('BookingStatus.status_id', 'BookingStatus.status_name')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'status_id' => $item->status_id,
+                    'status_name' => $item->status_name,
+                    'count' => (int) $item->count,
+                    'revenue' => (float) $item->revenue,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'total_bookings' => $totalBookings,
+                'total_revenue' => (float) $totalRevenue,
+                'bookings_by_status' => $bookingsByStatus,
+                'status_details' => $statusDetails,
+                'date_range' => [
+                    'from_date' => $fromDate ? $fromDate->format('Y-m-d') : null,
+                    'to_date' => $toDate ? $toDate->format('Y-m-d') : null,
+                ],
+            ],
+        ]);
     }
 
 }

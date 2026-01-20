@@ -9,6 +9,8 @@ use App\Models\Driver;
 use App\Models\BookingStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class BookingOfficerController extends Controller
@@ -106,10 +108,12 @@ class BookingOfficerController extends Controller
                 'end_datetime' => 'required|date|after:start_datetime',
                 'pickup_location' => 'required|string|max:255',
                 'dropoff_location' => 'required|string|max:255',
+                'pickup_type' => 'nullable|in:self_drive,with_driver',
                 'total_price' => 'required|numeric|min:0',
                 'status_id' => 'required|exists:BookingStatus,status_id',
                 'payment_method' => 'nullable|string|in:cash,credit_card,online_transfer',
                 'driver_id' => 'nullable|exists:Driver,id',
+                'payment_receipt' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
                 'special_requests' => 'nullable|string',
                 'vehicle_ids' => 'required|array|min:1',
                 'vehicle_ids.*' => 'exists:Vehicle,vehicle_id',
@@ -145,6 +149,41 @@ class BookingOfficerController extends Controller
                 ], 400);
             }
 
+            // Handle pickup_type logic
+            $pickupType = $validated['pickup_type'] ?? 'with_driver';
+            $driverId = null;
+
+            // If pickup_type is with_driver, validate driver assignment
+            if ($pickupType === 'with_driver') {
+                if (!empty($validated['driver_id'])) {
+                    $driver = Driver::find($validated['driver_id']);
+                    if (!$driver) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Selected driver not found.'
+                        ], 400);
+                    }
+                    if ($driver->status === 'inactive') {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Cannot assign inactive driver to booking.'
+                        ], 400);
+                    }
+                    $driverId = $validated['driver_id'];
+                }
+            }
+            // If self_drive, driver_id must be null
+
+            // Handle payment receipt upload
+            $paymentReceiptPath = null;
+            if ($request->hasFile('payment_receipt')) {
+                $file = $request->file('payment_receipt');
+                $client = Client::find($validated['client_id']);
+                $filename = time() . '_' . ($client ? Str::slug($client->first_name . '-' . $client->last_name) : 'client') . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/bookings/receipts', $filename);
+                $paymentReceiptPath = 'bookings/receipts/' . $filename;
+            }
+
             // Create the booking
             $booking = Booking::create([
                 'client_id' => $validated['client_id'],
@@ -153,10 +192,12 @@ class BookingOfficerController extends Controller
                 'end_datetime' => $validated['end_datetime'],
                 'pickup_location' => $validated['pickup_location'],
                 'dropoff_location' => $validated['dropoff_location'],
+                'pickup_type' => $pickupType,
                 'total_price' => $validated['total_price'],
                 'status_id' => $validated['status_id'],
                 'payment_method' => $validated['payment_method'] ?? 'cash',
-                'driver_id' => $validated['driver_id'] ?? null,
+                'driver_id' => $driverId, // Will be null for self_drive
+                'payment_receipt' => $paymentReceiptPath,
                 'special_requests' => $validated['special_requests'] ?? null,
                 'created_by' => Auth::id(),
             ]);
@@ -211,14 +252,52 @@ class BookingOfficerController extends Controller
                 'end_datetime' => 'required|date|after:start_datetime',
                 'pickup_location' => 'required|string|max:255',
                 'dropoff_location' => 'required|string|max:255',
+                'pickup_type' => 'nullable|in:self_drive,with_driver',
                 'total_price' => 'required|numeric|min:0',
                 'status_id' => 'required|exists:BookingStatus,status_id',
                 'payment_method' => 'nullable|string|in:cash,credit_card,online_transfer',
                 'driver_id' => 'nullable|exists:Driver,id',
+                'payment_receipt' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
                 'special_requests' => 'nullable|string',
                 'vehicle_ids' => 'required|array|min:1',
                 'vehicle_ids.*' => 'exists:Vehicle,vehicle_id',
             ]);
+
+            // Handle driver assignment with inactive check
+            $pickupType = $validated['pickup_type'] ?? $booking->pickup_type ?? 'with_driver';
+            $driverId = null;
+
+            if ($pickupType === 'with_driver') {
+                if (!empty($validated['driver_id'])) {
+                    $driver = Driver::find($validated['driver_id']);
+                    if ($driver && $driver->status === 'inactive') {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Cannot assign inactive driver to booking.'
+                        ], 400);
+                    }
+                    $driverId = $validated['driver_id'];
+                }
+            }
+            // If self_drive, ensure driver_id is null
+            if ($pickupType === 'self_drive') {
+                $driverId = null;
+            }
+
+            // Handle payment receipt upload
+            $paymentReceiptPath = $booking->payment_receipt;
+            if ($request->hasFile('payment_receipt')) {
+                // Delete old receipt if exists
+                if ($paymentReceiptPath) {
+                    Storage::delete('public/' . $paymentReceiptPath);
+                }
+                
+                $file = $request->file('payment_receipt');
+                $client = Client::find($validated['client_id']);
+                $filename = time() . '_' . ($client ? Str::slug($client->first_name . '-' . $client->last_name) : 'client') . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/bookings/receipts', $filename);
+                $paymentReceiptPath = 'bookings/receipts/' . $filename;
+            }
 
             // Get old vehicle IDs before update
             $oldVehicleIds = $booking->vehicles()->pluck('vehicle_id')->toArray();
@@ -231,10 +310,12 @@ class BookingOfficerController extends Controller
                 'end_datetime' => $validated['end_datetime'],
                 'pickup_location' => $validated['pickup_location'],
                 'dropoff_location' => $validated['dropoff_location'],
+                'pickup_type' => $pickupType,
                 'total_price' => $validated['total_price'],
                 'status_id' => $validated['status_id'],
                 'payment_method' => $validated['payment_method'] ?? 'cash',
-                'driver_id' => $validated['driver_id'] ?? null,
+                'driver_id' => $driverId,
+                'payment_receipt' => $paymentReceiptPath,
                 'special_requests' => $validated['special_requests'] ?? null,
                 'updated_by' => Auth::id(),
             ]);

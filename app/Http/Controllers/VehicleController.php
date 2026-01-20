@@ -65,12 +65,24 @@ class VehicleController extends Controller
                 'driver' => 'nullable|integer|exists:drivers,id',
                 'is_available' => 'nullable|boolean',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+                'maintenance_handled_by' => 'nullable|string|max:255',
             ]);
 
-            // Handle image upload
+            // Handle vehicle_image upload (new field)
+            if ($request->hasFile('vehicle_image')) {
+                $image = $request->file('vehicle_image');
+                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/vehicles', $filename);
+                $validated['vehicle_image'] = 'vehicles/' . $filename;
+            }
+
+            // Handle legacy image upload - store in public/vehicles folder
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('profile', 'public');
-                $validated['image'] = $imagePath;
+                $image = $request->file('image');
+                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/vehicles', $filename);
+                $validated['image'] = $filename; // Store just filename, path will be constructed in model
             }
 
             // Handle driver field properly
@@ -138,9 +150,27 @@ class VehicleController extends Controller
                 'driver' => 'nullable|integer|exists:drivers,id',
                 'is_available' => 'nullable|boolean',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+                'maintenance_handled_by' => 'nullable|string|max:255',
             ]);
 
-            // Handle image upload
+            // Handle vehicle_image upload (new field)
+            if ($request->hasFile('vehicle_image')) {
+                // Delete old vehicle_image if exists
+                if ($vehicle->vehicle_image) {
+                    Storage::delete('public/' . $vehicle->vehicle_image);
+                }
+                
+                $image = $request->file('vehicle_image');
+                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/vehicles', $filename);
+                $validated['vehicle_image'] = 'vehicles/' . $filename;
+            } else {
+                // Keep existing vehicle_image if not uploading new one
+                unset($validated['vehicle_image']);
+            }
+
+            // Handle legacy image upload - store in public/vehicles folder
             if ($request->hasFile('image')) {
                 // Delete old image if exists
                 if ($vehicle->image) {
@@ -150,7 +180,7 @@ class VehicleController extends Controller
                 $image = $request->file('image');
                 $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
                 $image->storeAs('public/vehicles', $filename);
-                $validated['image'] = $filename;
+                $validated['image'] = $filename; // Store just filename, path will be constructed in model
             } else {
                 // Keep existing image if not uploading new one
                 unset($validated['image']);
@@ -238,9 +268,12 @@ class VehicleController extends Controller
                 ], 422);
             }
 
-            // Delete image if exists
+            // Delete images if exist
             if ($vehicle->image) {
                 Storage::delete('public/vehicles/' . $vehicle->image);
+            }
+            if ($vehicle->vehicle_image) {
+                Storage::delete('public/' . $vehicle->vehicle_image);
             }
 
             $vehicle->delete();

@@ -18,13 +18,19 @@ class Booking extends Model
         'end_datetime',
         'pickup_location',
         'dropoff_location',
+        'pickup_type',
         'driver_id',
         'total_price',
         'status_id',
         'payment_method',
+        'payment_receipt',
         'special_requests',
         'created_by',
-        'updated_by'
+        'updated_by',
+        'sent_by',
+        'received_by',
+        'collected_by',
+        'returned_by'
     ];
 
     protected $casts = [
@@ -63,6 +69,16 @@ class Booking extends Model
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by', 'id');
+    }
+
+    public function sentBy()
+    {
+        return $this->belongsTo(User::class, 'sent_by', 'id');
+    }
+
+    public function collectedBy()
+    {
+        return $this->belongsTo(User::class, 'collected_by', 'id');
     }
 
     public function payment()

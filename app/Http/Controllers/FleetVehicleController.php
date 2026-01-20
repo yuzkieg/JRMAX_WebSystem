@@ -7,6 +7,7 @@ use App\Models\Vehicle;
 use App\Models\Driver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class FleetVehicleController extends Controller
 {
@@ -14,8 +15,9 @@ class FleetVehicleController extends Controller
     {
         $vehicles = Vehicle::with('driverInfo')->get();
         $drivers = Driver::all();
+        $clients = \App\Models\Client::where('status_id', 1)->orderBy('first_name')->get();
         
-        return view('employee.fleet.vehicles', compact('vehicles', 'drivers'));
+        return view('employee.fleet.vehicles', compact('vehicles', 'drivers', 'clients'));
     }
 
     public function getVehiclesData()
@@ -199,6 +201,177 @@ class FleetVehicleController extends Controller
             return response()->json([
                 'success' => false, 
                 'message' => 'Server error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Handover vehicle to client (self-drive)
+     */
+    public function handover(Request $request, $vehicle_id)
+    {
+        try {
+            $vehicle = Vehicle::findOrFail($vehicle_id);
+            $user = auth()->user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Please login again.'
+                ], 401);
+            }
+
+            $validated = $request->validate([
+                'password' => 'required|string',
+                'client_id' => 'required|exists:Client,Editor_id',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Validate password against authenticated user
+            if (!Hash::check($validated['password'], $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Incorrect password. Please try again.'
+                ], 422);
+            }
+
+            // Check if vehicle is available
+            if (!$vehicle->is_available) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vehicle is not available for handover. It may already be with a client.'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // Create rental record
+            $rental = \App\Models\SelfDriverRentedVehicle::create([
+                'vehicle_id' => $vehicle->vehicle_id,
+                'booking_id' => null, // Can be linked to booking if needed
+                'released_by' => $user->id,
+                'picked_up_by_client_id' => $validated['client_id'],
+                'released_at' => now(),
+                'status' => 'on_client',
+                'release_notes' => $validated['notes'] ?? null,
+            ]);
+
+            // Update vehicle status
+            $vehicle->update([
+                'is_available' => false,
+                'released_by' => $user->id,
+                'picked_up_by_client_id' => $validated['client_id'],
+                'released_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehicle successfully handed over to client.'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Vehicle handover error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing handover: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Receive vehicle from client (return)
+     */
+    public function returnVehicle(Request $request, $vehicle_id)
+    {
+        try {
+            $vehicle = Vehicle::findOrFail($vehicle_id);
+            $user = auth()->user();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized. Please login again.'
+                ], 401);
+            }
+
+            $validated = $request->validate([
+                'password' => 'required|string',
+                'client_id' => 'required|exists:Client,Editor_id',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Validate password against authenticated user
+            if (!Hash::check($validated['password'], $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Incorrect password. Please try again.'
+                ], 422);
+            }
+
+            // Check if vehicle is with client
+            if ($vehicle->is_available) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vehicle is already available. It cannot be returned.'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // Update rental record
+            $rental = \App\Models\SelfDriverRentedVehicle::where('vehicle_id', $vehicle->vehicle_id)
+                ->where('status', 'on_client')
+                ->latest('released_at')
+                ->first();
+
+            if ($rental) {
+                $rental->update([
+                    'received_by' => $user->id,
+                    'dropped_off_by_client_id' => $validated['client_id'],
+                    'returned_at' => now(),
+                    'status' => 'available',
+                    'return_notes' => $validated['notes'] ?? null,
+                ]);
+            }
+
+            // Update vehicle status
+            $vehicle->update([
+                'is_available' => true,
+                'received_by' => $user->id,
+                'dropped_off_by_client_id' => $validated['client_id'],
+                'returned_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vehicle successfully returned and marked as available.'
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Vehicle return error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing return: ' . $e->getMessage()
             ], 500);
         }
     }

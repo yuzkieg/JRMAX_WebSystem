@@ -50,6 +50,8 @@ Route::middleware(['web', 'admin'])->group(function () {
         ->name('admin.adminanalysis');
     Route::get('/admin/analysis/stats', [AdminDashboardController::class, 'stats'])
         ->name('admin.analysis.stats');
+    Route::get('/admin/analysis/report', [AdminDashboardController::class, 'getReport'])
+        ->name('admin.analysis.report');
     Route::get('/admin/users', [EmployeeController::class, 'usermanagement'])
         ->name('admin.users');
     Route::get('/admin/adminhr', [EmployeeRecord::class, 'index'])
@@ -117,6 +119,10 @@ Route::get('/admin/maintenance/{id}/edit', [VehicleMaintenanceController::class,
     Route::get('/admin/booking/{id}', [BookingController::class, 'show'])->name('admin.booking.show');
     Route::get('/admin/booking/{id}/edit', [BookingController::class, 'edit'])->name('admin.booking.edit');
     Route::put('/admin/booking/{id}', [BookingController::class, 'update'])->name('admin.booking.update');
+    Route::get('/admin/booking/{id}/receipt/view', [BookingController::class, 'viewReceipt'])->name('admin.booking.receipt.view');
+    Route::get('/admin/booking/{id}/receipt/download', [BookingController::class, 'downloadReceipt'])->name('admin.booking.receipt.download');
+    Route::post('/admin/booking/{id}/process-payment', [BookingController::class, 'processPayment'])->name('admin.booking.process-payment');
+    Route::get('/admin/booking/{id}/receipt/pdf', [BookingController::class, 'generateReceiptPDF'])->name('admin.booking.receipt.pdf');
     Route::get('/admin/booking/calendar', [BookingController::class, 'calendar'])->name('admin.booking.calendar');
     Route::post('/admin/booking/check-availability', [BookingController::class, 'checkAvailability'])->name('admin.booking.check-availability');
     Route::get('/admin/booking/stats', [BookingController::class, 'getStats'])->name('admin.booking.stats');
@@ -163,6 +169,10 @@ Route::middleware(['web', 'fleet_assistant'])->group(function () {
         ->name('employee.fleet.vehicles.update');
     Route::delete('/employee/fleet/vehicles/{vehicle_id}', [FleetVehicleController::class, 'destroy'])
         ->name('employee.fleet.vehicles.destroy');
+    Route::post('/employee/fleet/vehicles/{vehicle_id}/handover', [FleetVehicleController::class, 'handover'])
+        ->name('employee.fleet.vehicles.handover');
+    Route::post('/employee/fleet/vehicles/{vehicle_id}/return', [FleetVehicleController::class, 'returnVehicle'])
+        ->name('employee.fleet.vehicles.return');
     
     // Maintenance Management (Full CRUD)
     Route::get('/employee/fleet/maintenance', [FleetMaintenanceController::class, 'index'])

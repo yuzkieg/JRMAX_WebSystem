@@ -499,6 +499,15 @@ th.text-center, td.text-center {
                <div class="flex justify-between items-center mb-6">
                    <h2 class="revenue-chart-title">Revenue Overview</h2>
                    <div class="flex items-center gap-3">
+                       {{-- Report Analysis Date Range Picker --}}
+                       <div class="flex items-center gap-2">
+                           <label class="text-sm font-semibold text-gray-300">Report Analysis:</label>
+                           <input type="date" id="reportFromDate" class="p-2 rounded-lg bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 border border-white/10" placeholder="From">
+                           <span class="text-gray-400">To</span>
+                           <input type="date" id="reportToDate" class="p-2 rounded-lg bg-black/20 text-white outline-none focus:ring-2 focus:ring-red-500 border border-white/10" placeholder="To">
+                           <button onclick="applyDateRange()" class="px-4 py-2 bg-red-700 hover:bg-red-500 rounded-lg text-white transition-all duration-300">Apply</button>
+                           <button onclick="clearDateRange()" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white transition-all duration-300">Clear</button>
+                       </div>
                        <div class="revenue-tabs">
                            <button class="revenue-tab active" onclick="switchRevenuePeriod('today')">Today</button>
                            <button class="revenue-tab" onclick="switchRevenuePeriod('monthly')">This Month</button>
@@ -584,6 +593,62 @@ function switchRevenuePeriod(period) {
     
     // Load revenue data for the selected period
     loadRevenueData(period);
+}
+
+// Date range functions
+function applyDateRange() {
+    const fromDate = document.getElementById('reportFromDate').value;
+    const toDate = document.getElementById('reportToDate').value;
+    
+    if (!fromDate || !toDate) {
+        alert('Please select both From and To dates');
+        return;
+    }
+    
+    if (new Date(fromDate) > new Date(toDate)) {
+        alert('From date must be before To date');
+        return;
+    }
+    
+    loadRevenueDataWithDateRange(fromDate, toDate);
+}
+
+function clearDateRange() {
+    document.getElementById('reportFromDate').value = '';
+    document.getElementById('reportToDate').value = '';
+    loadRevenueData(currentRevenuePeriod);
+}
+
+async function loadRevenueDataWithDateRange(fromDate, toDate) {
+    try {
+        const response = await fetch(`/admin/analysis/report?from_date=${fromDate}&to_date=${toDate}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch report data');
+        
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            // Update stat cards with filtered data
+            document.getElementById('todayRevenue').textContent = `₱${Number(result.data.total_revenue || 0).toFixed(2)}`;
+            document.getElementById('monthlyRevenue').textContent = `₱${Number(result.data.total_revenue || 0).toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `₱${Number(result.data.total_revenue || 0).toFixed(2)}`;
+            
+            const totalBookings = result.data.total_bookings || 0;
+            const avgValue = totalBookings > 0 ? (result.data.total_revenue / totalBookings) : 0;
+            document.getElementById('avgBookingValue').textContent = `₱${avgValue.toFixed(2)}`;
+            
+            // Update chart if needed
+            // You can add chart update logic here
+        }
+    } catch (error) {
+        console.error('Error loading date range data:', error);
+        alert('Error loading report data');
+    }
 }
 
 // Load revenue data
