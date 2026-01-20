@@ -352,7 +352,7 @@ tbody {
                         <label class="block font-semibold mb-3">Vehicle Image</label>
                         <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
                             <div class="relative">
-                                <img id="vehicleImagePreview" src="{{ asset('assets/default-vehicle.jpg') }}" 
+                                <img id="`vehicleImagePreview`" src="{{ asset('assets/default-vehicle.jpg') }}" 
                                      class="image-preview hover:opacity-90 transition-opacity cursor-pointer"
                                      onclick="document.getElementById('image').click()">
                                 <input type="file" id="image" accept="image/*" 
@@ -527,7 +527,7 @@ let vehicleModalInstance, viewVehicleModalInstance, deleteVehicleModalInstance;
 // Image preview function
 function previewImage(event) {
     const input = event.target;
-    const preview = document.getElementById('vehicleImagePreview');
+    const preview = document.getElementById('`vehicleImagePreview`');
     
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -562,13 +562,10 @@ function renderVehiclesTable() {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-white/10 hover:bg-white/10 transition-all';
 
-        // Construct the vehicle image URL - use image_url attribute if available, otherwise construct from image/vehicle_image
-        let vehicleImageUrl = vehicle.image_url || window.DEFAULT_VEHICLE_IMAGE;
-        if (!vehicleImageUrl && vehicle.vehicle_image) {
-            vehicleImageUrl = `/storage/${vehicle.vehicle_image}`;
-        } else if (!vehicleImageUrl && vehicle.image) {
-            vehicleImageUrl = `/storage/vehicles/${vehicle.image}`;
-        }
+        // Construct the vehicle image URL
+        const vehicleImageUrl = vehicle.image 
+            ? `/storage/${vehicle.image}`
+            : window.DEFAULT_VEHICLE_IMAGE;
 
         tr.innerHTML = `
             <td class="p-4 text-center">
@@ -735,7 +732,7 @@ class VehicleModal {
         document.getElementById('is_available').checked = vehicle.is_available !== false;
         
         // Set image preview
-        const preview = document.getElementById('vehicleImagePreview');
+        const preview = document.getElementById('`vehicleImagePreview`');
         preview.src = vehicle.image_url || "{{ asset('assets/default-vehicle.jpg') }}";
         
         this.showModal();
@@ -758,7 +755,7 @@ class VehicleModal {
     resetForm() {
         this.form.reset();
         document.getElementById('vehicle_id').value = '';
-        document.getElementById('vehicleImagePreview').src = "{{ asset('assets/default-vehicle.jpg') }}";
+        document.getElementById('`vehicleImagePreview`').src = "{{ asset('assets/default-vehicle.jpg') }}";
         document.getElementById('is_available').checked = true;
     }
 
@@ -946,13 +943,10 @@ class ViewVehicleModal {
     const statusClass = isAvailable ? 'status-available' : 'status-unavailable';
     const statusText = isAvailable ? 'Available for Booking' : 'Not Available';
     
-    // Construct the vehicle image URL - use image_url attribute if available
-    let vehicleImageUrl = vehicle.image_url || window.DEFAULT_VEHICLE_IMAGE;
-    if (!vehicleImageUrl && vehicle.vehicle_image) {
-        vehicleImageUrl = `/storage/${vehicle.vehicle_image}`;
-    } else if (!vehicleImageUrl && vehicle.image) {
-        vehicleImageUrl = `/storage/vehicles/${vehicle.image}`;
-    }
+    // Construct the vehicle image URL (same as in renderVehiclesTable)
+    const vehicleImageUrl = vehicle.image 
+        ? `/storage/${vehicle.image}`
+        : window.DEFAULT_VEHICLE_IMAGE;
     
     const html = `
         <div class="space-y-6">

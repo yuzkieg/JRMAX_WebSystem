@@ -8,6 +8,7 @@ use App\Models\Driver;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class VehicleController extends Controller
 {
@@ -37,7 +38,7 @@ class VehicleController extends Controller
             $vehicles = Vehicle::with('driverInfo')->get();
             return response()->json($vehicles);
         } catch (\Exception $e) {
-            \Log::error('Error fetching vehicles data: ' . $e->getMessage());
+            Log::error('Error fetching vehicles data: ' . $e->getMessage());
             return response()->json([], 500);
         }
     }
@@ -48,7 +49,7 @@ class VehicleController extends Controller
     public function store(Request $request)
     {
         try {
-            \Log::info('Vehicle store request data:', $request->all());
+            Log::info('Vehicle store request data:', $request->all());
 
             // Updated validation - removed unique from model
             $validated = $request->validate([
@@ -65,24 +66,12 @@ class VehicleController extends Controller
                 'driver' => 'nullable|integer|exists:drivers,id',
                 'is_available' => 'nullable|boolean',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
-                'maintenance_handled_by' => 'nullable|string|max:255',
             ]);
 
-            // Handle vehicle_image upload (new field)
-            if ($request->hasFile('vehicle_image')) {
-                $image = $request->file('vehicle_image');
-                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/vehicles', $filename);
-                $validated['vehicle_image'] = 'vehicles/' . $filename;
-            }
-
-            // Handle legacy image upload - store in public/vehicles folder
+            // Handle image upload
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/vehicles', $filename);
-                $validated['image'] = $filename; // Store just filename, path will be constructed in model
+                $imagePath = $request->file('image')->store('profile', 'public');
+                $validated['image'] = $imagePath;
             }
 
             // Handle driver field properly
@@ -102,7 +91,7 @@ class VehicleController extends Controller
             // Automatically set added_by to current user ID
             $validated['added_by'] = auth()->check() ? auth()->user()->id : null;
 
-            \Log::info('Vehicle data after processing:', $validated);
+            Log::info('Vehicle data after processing:', $validated);
 
             Vehicle::create($validated);
 
@@ -112,14 +101,14 @@ class VehicleController extends Controller
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Vehicle store validation error: ' . json_encode($e->errors()));
+            Log::warning('Vehicle store validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false, 
                 'message' => 'Validation error', 
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Vehicle store error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Vehicle store error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
             return response()->json([
                 'success' => false, 
                 'message' => 'Server error: ' . $e->getMessage()
@@ -133,7 +122,7 @@ class VehicleController extends Controller
     public function update(Request $request, Vehicle $vehicle)
     {
         try {
-            \Log::info('Vehicle update request data:', $request->all());
+            Log::info('Vehicle update request data:', $request->all());
 
             // Updated validation - removed unique from model
             $validated = $request->validate([
@@ -150,27 +139,9 @@ class VehicleController extends Controller
                 'driver' => 'nullable|integer|exists:drivers,id',
                 'is_available' => 'nullable|boolean',
                 'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'vehicle_image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
-                'maintenance_handled_by' => 'nullable|string|max:255',
             ]);
 
-            // Handle vehicle_image upload (new field)
-            if ($request->hasFile('vehicle_image')) {
-                // Delete old vehicle_image if exists
-                if ($vehicle->vehicle_image) {
-                    Storage::delete('public/' . $vehicle->vehicle_image);
-                }
-                
-                $image = $request->file('vehicle_image');
-                $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
-                $image->storeAs('public/vehicles', $filename);
-                $validated['vehicle_image'] = 'vehicles/' . $filename;
-            } else {
-                // Keep existing vehicle_image if not uploading new one
-                unset($validated['vehicle_image']);
-            }
-
-            // Handle legacy image upload - store in public/vehicles folder
+            // Handle image upload
             if ($request->hasFile('image')) {
                 // Delete old image if exists
                 if ($vehicle->image) {
@@ -180,7 +151,7 @@ class VehicleController extends Controller
                 $image = $request->file('image');
                 $filename = time() . '_' . Str::slug($request->brand . '-' . $request->model) . '.' . $image->getClientOriginalExtension();
                 $image->storeAs('public/vehicles', $filename);
-                $validated['image'] = $filename; // Store just filename, path will be constructed in model
+                $validated['image'] = $filename;
             } else {
                 // Keep existing image if not uploading new one
                 unset($validated['image']);
@@ -211,14 +182,14 @@ class VehicleController extends Controller
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Vehicle update validation error: ' . json_encode($e->errors()));
+            Log::warning('Vehicle update validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false, 
                 'message' => 'Validation error', 
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Vehicle update error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Vehicle update error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
             return response()->json([
                 'success' => false, 
                 'message' => 'Server error: ' . $e->getMessage()
@@ -261,19 +232,16 @@ class VehicleController extends Controller
             // Verify password is correct
             $password = $request->input('admin_password');
             if (!Hash::check($password, $user->password)) {
-                \Log::warning('Password mismatch for user delete attempt: ' . $user->email);
+                Log::warning('Password mismatch for user delete attempt: ' . $user->email);
                 return response()->json([
                     'success' => false, 
                     'message' => 'Incorrect password. Please try again.'
                 ], 422);
             }
 
-            // Delete images if exist
+            // Delete image if exists
             if ($vehicle->image) {
                 Storage::delete('public/vehicles/' . $vehicle->image);
-            }
-            if ($vehicle->vehicle_image) {
-                Storage::delete('public/' . $vehicle->vehicle_image);
             }
 
             $vehicle->delete();
@@ -284,14 +252,14 @@ class VehicleController extends Controller
             ]);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::warning('Delete validation error: ' . json_encode($e->errors()));
+            Log::warning('Delete validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false, 
                 'message' => 'Validation error', 
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            \Log::error('Vehicle delete error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Vehicle delete error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
             return response()->json([
                 'success' => false, 
                 'message' => 'Server error: ' . $e->getMessage()
